@@ -2,14 +2,25 @@
 [![Discord](https://discordapp.com/api/guilds/259362419372064778/widget.png?style=shield)](https://discord.gg/UXSc7nt)
 [![GitHub Actions](https://github.com/ElvUI-WotLK/ElvUI/workflows/lint/badge.svg?branch=master&event=push)](https://github.com/ElvUI-WotLK/ElvUI/actions?query=workflow%3Alint+branch%3Amaster)
 
-# ElvUI - Wrath of the Lich King (3.3.5a)
+# ElvUI VibeUI - Wrath of the Lich King (3.3.5a)
 
-This is the backported version of ElvUI for World of Warcraft - Wrath of the Lich King (3.3.5a)
+This is a customized version of ElvUI for World of Warcraft - Wrath of the Lich King (3.3.5a)
 <br />
 ElvUI is a full UI replacement.
 It completely replaces the default Blizzard UI at every level with a new and better interface.
 As such, you'll only ever have to update ElvUI and not worry too much about its individual components.
 This UI will arrange your interface to be more flexible and practical.
+
+## 🔥 Custom Features:
+
+**Built-in Integration:**
+- **ElvUI_AddOnSkins** - Complete addon skinning system is integrated directly into this version
+- **ElvUI_RaidMarkers** - Raid marker bar module is built-in and ready to use
+
+**Important Changes:**
+- ⚠️ **Party and Raid Unit Frames have been removed** - You will need to use a separate addon for party/raid frames
+- **Recommended Addons:** VuhDo or Grid for party/raid frames
+- **VuhDo Integration:** Full VuhDo integration is planned for the future
 
 ## Screenshots:
 
@@ -43,10 +54,8 @@ This UI will arrange your interface to be more flexible and practical.
 4. Copy (or drag and drop) **ElvUI** and **ElvUI_OptionsUI** into your Wow-Directory\Interface\AddOns
 5. Restart WoW
 
-## Plugins:
+## Additional Plugins:
 [ElvUI_Enhanced](https://github.com/ElvUI-WotLK/ElvUI_Enhanced)
-<br />
-[ElvUI_AddOnSkins](https://github.com/ElvUI-WotLK/ElvUI_AddOnSkins)
 <br />
 [ElvUI_AuraBarsMovers](https://github.com/ElvUI-WotLK/ElvUI_AuraBarsMovers)
 <br />
@@ -69,8 +78,6 @@ This UI will arrange your interface to be more flexible and practical.
 [ElvUI_LocPlus](https://github.com/ElvUI-WotLK/ElvUI_LocPlus)
 <br />
 [ElvUI_MicrobarEnhancement](https://github.com/ElvUI-WotLK/ElvUI_MicrobarEnhancement)
-<br />
-[ElvUI_RaidMarkers](https://github.com/ElvUI-WotLK/ElvUI_RaidMarkers)
 <br />
 [ElvUI_SwingBar](https://github.com/ElvUI-WotLK/ElvUI_SwingBar)
 <br />
