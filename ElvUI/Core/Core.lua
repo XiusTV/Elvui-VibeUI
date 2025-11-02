@@ -1213,15 +1213,6 @@ function E:Initialize()
 		self:Install()
 	end
 
-	if self:HelloKittyFixCheck() then
-		self:HelloKittyFix()
-	end
-
-	if self.db.general.kittys then
-		self:CreateKittys()
-		self:Delay(5, self.Print, self, L["Type /hellokitty to revert to old settings."])
-	end
-
 	if self.db.general.loginmessage then
 		local msg = format(L["LOGIN_MSG"], self.media.hexvaluecolor, self.media.hexvaluecolor, self.version)
 		if Chat.Initialized then msg = select(2, Chat:FindURL("CHAT_MSG_DUMMY", msg)) end

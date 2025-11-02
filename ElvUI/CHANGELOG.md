@@ -2,6 +2,30 @@
 
 All notable changes to ElvUI will be documented in this file.
 
+## [1.1.0] - 2024-11-02
+
+### Changed
+- Updated author list to include Xius
+
+### Removed
+- Removed Harlem Shake easter egg feature
+  - Deleted `/harlemshake` command
+  - Removed `Core/AprilFools.lua` file
+  - Removed associated popup dialogs
+  - Deleted HarlemShake.ogg sound file
+- Removed Hello Kitty easter egg feature
+  - Deleted `/hellokitty` and `/hellokittyfix` commands
+  - Removed Hello Kitty initialization code
+  - Removed associated popup dialogs
+  - Deleted HelloKitty.ogg, HelloKitty.tga, HelloKittyChat.tga, and HelloKitty chat logo
+  - Removed localization strings from all language files
+
+### Technical Details
+- Cleaned up media references in SharedMedia.lua
+- Removed initialization hooks from Core.lua
+- Updated static popup definitions
+- Removed command registrations from Commands.lua
+
 ## [1.0.0] - 2024-11-02
 
 ### Initial Release

@@ -4,9 +4,9 @@ A comprehensive user interface replacement addon for World of Warcraft 3.3.5 (Wo
 
 ## Version
 
-- **Version:** 1.0.0
+- **Version:** 1.1.0
 - **Interface:** 30300 (WotLK)
-- **Authors:** Elv, Bunny
+- **Authors:** Elv, Bunny, Xius
 
 ## Description
 
@@ -81,6 +81,7 @@ ElvUI includes several embedded libraries:
 
 - **Elv** - Lead Developer
 - **Bunny** - Co-Developer
+- **Xius** - Developer
 - oUF Framework Authors
 - Ace3 Library Authors
 - Community Contributors
@@ -94,6 +95,11 @@ ElvUI is free software. Please respect the authors' work.
 For issues, questions, or suggestions, please refer to the ElvUI community forums and Discord.
 
 ## Changelog
+
+### 1.1.0 (Latest)
+- Removed Harlem Shake easter egg feature
+- Removed Hello Kitty easter egg feature
+- Code cleanup and optimization
 
 ### 1.0.0 (Initial Release)
 - Complete UI replacement for WotLK 3.3.5

@@ -318,7 +318,6 @@ L["Total CPU:"] = true
 L["Total Memory:"] = true
 L["Total: "] = true
 L["Trigger"] = true
-L["Type /hellokitty to revert to old settings."] = true
 L["UI Scale"] = true
 L["Unhittable:"] = true
 L["Vehicle Seat Frame"] = true

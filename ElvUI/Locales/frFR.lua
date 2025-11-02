@@ -277,7 +277,6 @@ L["Total CPU:"] = "Charge du CPU :"
 L["Total Memory:"] = "Mémoire totale :"
 L["Total: "] = "Total : "
 L["Trigger"] = "Déclencheur"
-L["Type /hellokitty to revert to old settings."] = "Tapez /hellokitty pour recharger les anciennes configurations"
 L["UI Scale"] = true
 L["Unhittable:"] = "Intouchable :"
 L["Vehicle Seat Frame"] = "Cadre de siège du véhicule"
