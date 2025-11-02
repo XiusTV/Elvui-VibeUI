@@ -4,12 +4,14 @@
 
 # ElvUI VibeUI - Wrath of the Lich King (3.3.5a)
 
-This is a customized version of ElvUI for World of Warcraft - Wrath of the Lich King (3.3.5a)
+This is a **VibeCoded** customized version of ElvUI for World of Warcraft - Wrath of the Lich King (3.3.5a)
 <br />
 ElvUI is a full UI replacement.
 It completely replaces the default Blizzard UI at every level with a new and better interface.
 As such, you'll only ever have to update ElvUI and not worry too much about its individual components.
 This UI will arrange your interface to be more flexible and practical.
+
+**Developed and tested on [Ascension.gg Warcraft Reborn](https://ascension.gg)**
 
 ## 🔥 Custom Features:
 
