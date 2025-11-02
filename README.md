@@ -24,30 +24,6 @@ This UI will arrange your interface to be more flexible and practical.
 - **Recommended Addons:** VuhDo or Grid for party/raid frames
 - **VuhDo Integration:** Full VuhDo integration is planned for the future
 
-## Screenshots:
-
-<a href="https://user-images.githubusercontent.com/590348/77227057-4d9ec400-6b8e-11ea-8672-29789434b9fe.jpg">
-<img src="https://user-images.githubusercontent.com/590348/77227055-4bd50080-6b8e-11ea-975e-a68784d34327.jpg" align="right" width="48.5%">
-</a>
-<a href="https://user-images.githubusercontent.com/590348/77227304-65774780-6b90-11ea-9f64-432786d2a597.jpg">
-<img src="https://user-images.githubusercontent.com/590348/77227077-98b8d700-6b8e-11ea-9822-f30103eca56b.jpg" width="48.5%">
-</a>
-
-<a href="https://user-images.githubusercontent.com/590348/77227091-bc7c1d00-6b8e-11ea-8c4f-29029a0b750a.jpg">
-<img src="https://user-images.githubusercontent.com/590348/77227094-bdad4a00-6b8e-11ea-91a6-d134d7f01d8d.jpg" align="right" width="48.5%">
-</a>
-<a href="https://user-images.githubusercontent.com/590348/77227309-74f69080-6b90-11ea-9aa1-95c760340e9d.jpg">
-<img src="https://user-images.githubusercontent.com/590348/77227311-76c05400-6b90-11ea-8704-dfb0cfd1dd3c.jpg" width="48.5%">
-</a>
-
-<a href="https://user-images.githubusercontent.com/590348/77227322-9192c880-6b90-11ea-9944-b9ae42e19431.jpg">
-<img src="https://user-images.githubusercontent.com/590348/77227324-935c8c00-6b90-11ea-88ad-96f05a23b3f6.jpg" align="right" width="48.5%">
-</a>
-<a href="https://user-images.githubusercontent.com/590348/77227328-a53e2f00-6b90-11ea-8dd4-a8d7287185e8.jpg">
-<img src="https://user-images.githubusercontent.com/590348/77227329-a707f280-6b90-11ea-9395-3bbc665a3593.jpg" width="48.5%">
-</a>
-
-
 ## Installation:
 
 1. Download **[Latest Version](https://github.com/ElvUI-WotLK/ElvUI/releases/latest)**
