@@ -1,7 +1,14 @@
 # Sync Ascension AddOns to GitHub Repository
-# This script copies changes from Ascension to the GitHub repository
+# This script copies changes from Ascension to the GitHub repository and auto-commits
+# Can be run manually or as a scheduled task
+
+param(
+    [switch]$AutoCommit = $false,
+    [string]$CommitMessage = "Auto-sync from Ascension AddOns"
+)
 
 Write-Host "Syncing Ascension AddOns to GitHub repository..." -ForegroundColor Cyan
+Write-Host "Auto-commit: $AutoCommit" -ForegroundColor Cyan
 Write-Host ""
 
 # Define paths
@@ -48,11 +55,21 @@ if ($changes) {
     Write-Host "Changes detected:" -ForegroundColor Green
     Write-Host $changes
     
-    Write-Host ""
-    Write-Host "Files changed. Please review and commit manually:" -ForegroundColor Cyan
-    Write-Host "  git add -A" -ForegroundColor White
-    Write-Host "  git commit -m 'Your commit message'" -ForegroundColor White
-    Write-Host "  git push origin main" -ForegroundColor White
+    if ($AutoCommit) {
+        Write-Host ""
+        Write-Host "Auto-committing changes..." -ForegroundColor Yellow
+        git add -A
+        git commit -m "$CommitMessage"
+        git push origin main
+        Write-Host ""
+        Write-Host "Changes committed and pushed successfully!" -ForegroundColor Green
+    } else {
+        Write-Host ""
+        Write-Host "Files changed. Please review and commit manually:" -ForegroundColor Cyan
+        Write-Host "  git add -A" -ForegroundColor White
+        Write-Host "  git commit -m 'Your commit message'" -ForegroundColor White
+        Write-Host "  git push origin main" -ForegroundColor White
+    }
 } else {
     Write-Host ""
     Write-Host "No changes detected. Repository is up to date." -ForegroundColor Green
