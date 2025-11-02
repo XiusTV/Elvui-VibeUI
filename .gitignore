@@ -1,5 +1,0 @@
-# Local sync scripts (not part of the repository)
-setup_daily_sync.ps1
-sync_from_ascension.ps1
-SCHEDULED_TASK_INSTRUCTIONS.md
-
