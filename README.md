@@ -21,13 +21,6 @@ This UI will arrange your interface to be more flexible and practical.
 - **Mapster with Magnify-WotLK** - Enhanced world map and minimap features fully integrated
 - **ProfessionMenu** - Integrated profession menu removes the need for profession shortcuts taking up action bar slots
 
-**Important Changes:**
-- ⚠️ **Party and Raid Unit Frames have been removed** - You will need to use a separate addon for party/raid frames
-- **Recommended Addons:** VuhDo or Grid for party/raid frames
-- **VuhDo Integration:** Full VuhDo integration is planned for the future
-
-**Automated Sync:** This repository includes scripts to automatically sync changes from Ascension AddOns directory. See [SCHEDULED_TASK_INSTRUCTIONS.md](SCHEDULED_TASK_INSTRUCTIONS.md) for setup instructions.
-
 ## Installation:
 
 1. Download **[Latest Version](https://github.com/ElvUI-WotLK/ElvUI/releases/latest)**
