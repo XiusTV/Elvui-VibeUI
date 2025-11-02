@@ -18,6 +18,8 @@ This UI will arrange your interface to be more flexible and practical.
 **Built-in Integration:**
 - **ElvUI_AddOnSkins** - Complete addon skinning system is integrated directly into this version
 - **ElvUI_RaidMarkers** - Raid marker bar module is built-in and ready to use
+- **Mapster with Magnify-WotLK** - Enhanced world map and minimap features fully integrated
+- **ProfessionMenu** - Integrated profession menu removes the need for profession shortcuts taking up action bar slots
 
 **Important Changes:**
 - ⚠️ **Party and Raid Unit Frames have been removed** - You will need to use a separate addon for party/raid frames
