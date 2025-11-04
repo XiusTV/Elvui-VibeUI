@@ -210,7 +210,7 @@ function AB:PositionAndSizeBar(barName)
 		end
 
 		-- Check if LBF is enabled for styling compatibility
-		local lbfEnabled = E.private and E.private.actionbar and E.private.actionbar.lbf and E.private.actionbar.lbf.enable
+		local lbfEnabled = E.db and E.db.actionbar and E.db.actionbar.lbf and E.db.actionbar.lbf.enable
 		self:StyleButton(button, nil, lbfEnabled or nil)
 	end
 
@@ -561,7 +561,7 @@ function AB:StyleButton(button, noBackdrop, useMasque)
 		button.backdrop:SetAllPoints()
 	end
 
-	if icon then
+	if icon and not button.useMasque then
 		icon:SetTexCoord(unpack(E.TexCoords))
 		icon:SetInside()
 	end
@@ -587,6 +587,12 @@ function AB:StyleButton(button, noBackdrop, useMasque)
 		E:RegisterCooldown(buttonCooldown)
 
 		self.handledbuttons[button] = true
+		
+		-- Register button with AuraTracker module
+		local AT = E:GetModule('AuraTracker', true)
+		if AT then
+			AT:RegisterButton(button)
+		end
 	end
 end
 

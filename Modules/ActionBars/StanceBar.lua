@@ -238,7 +238,7 @@ function AB:PositionAndSizeBarShapeShift()
 		end
 
 		-- Check if LBF is enabled for styling compatibility
-		local lbfEnabled = E.private and E.private.actionbar and E.private.actionbar.lbf and E.private.actionbar.lbf.enable
+		local lbfEnabled = E.db and E.db.actionbar and E.db.actionbar.lbf and E.db.actionbar.lbf.enable
 		self:StyleButton(button, nil, lbfEnabled or nil)
 	end
 end

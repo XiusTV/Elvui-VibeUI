@@ -20,15 +20,38 @@ This is a **custom fork maintained exclusively by XiusTV** with modifications an
 
 ## Version
 
-- **Version:** 1.2.0+
+- **Version:** 1.3.0
 - **Client:** WoW 3.3.5 (WotLK)
 - **Maintained by:** XiusTV
+
+## What's New in v1.3.0
+
+### 🎨 Major New Features
+- **ButtonFacade Integration** - 30+ button skins for action bars with full customization
+- **Omen Threat Meter** - Complete configuration embedded in ElvUI options menu
+- **Quest Automation** - Auto-accept and complete quests with 700+ quest database (AutoQuest)
+- **Comprehensive Commands Menu** - Complete command reference for all ElvUI features
+- **Alphabetical Options Menu** - Reorganized for easier navigation
+
+### 🚧 Coming Soon
+- **Aura Duration Tracker** - Shows buff/DoT time remaining directly on action bar buttons (in development)
+  - Will display remaining time for your abilities on current target
+  - Color-coded by urgency (green/yellow/red)
+  - Options available in ActionBars → General Options → Aura Duration Tracker
+  - *Note: Feature is being refined and will be fully functional in next update*
+
+### 📍 Feature Locations
+- **Quest Automation:** ElvUI → General → Automation → Quest Automation
+- **PortalBox:** ElvUI → General → Miscellaneous
+- **Omen:** ElvUI → Omen (full configuration)
+- **Commands Reference:** ElvUI → Commands
+- **ButtonFacade:** ElvUI → ButtonFacade or ActionBars → General Options → LBF Support
 
 ## Features
 
 ### Complete UI Replacement
 
-- **Action Bars** - Fully customizable action bars with advanced features
+- **Action Bars** - Fully customizable action bars with ButtonFacade skin support
 - **Unit Frames** - Player, target, party, and raid frames with extensive options
 - **Nameplates** - Enhanced nameplate system with styling and filtering
 - **Bags** - Unified bag interface with sorting and searching

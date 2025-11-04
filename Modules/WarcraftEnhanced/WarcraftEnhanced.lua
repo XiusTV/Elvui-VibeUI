@@ -123,22 +123,26 @@ function WE:InitializePortalBox()
 	-- PortalBox auto-initializes
 end
 
--- Slash commands
+-- Slash commands (WarcraftEnhanced is now fully integrated into ElvUI)
 SLASH_WARCRAFTENHANCED1 = "/warcraftenhanced"
 SLASH_WARCRAFTENHANCED2 = "/we"
 SLASH_WARCRAFTENHANCED3 = "/wce"
 SlashCmdList["WARCRAFTENHANCED"] = function(msg)
 	msg = msg:lower():trim()
 	
-	if msg == "" or msg == "options" or msg == "config" then
-		E:ToggleOptionsUI("warcraftenhanced")
-	elseif msg == "help" then
-		WE:Print("Commands:")
-		WE:Print("/we - Open ElvUI options to WarcraftEnhanced section")
-		WE:Print("/we help - Show this help")
-	else
-		E:ToggleOptionsUI("warcraftenhanced")
-	end
+	WE:Print("|cff1784d1WarcraftEnhanced features are now fully integrated into ElvUI!|r")
+	WE:Print(" ")
+	WE:Print("|cffffcc00Feature locations:|r")
+	WE:Print("  Quest Automation: |cff00ff00/elvui|r → General → Automation")
+	WE:Print("  PortalBox: |cff00ff00/elvui|r → General → Miscellaneous")
+	WE:Print("  Omen: |cff00ff00/elvui|r → Omen")
+	WE:Print("  Commands: |cff00ff00/elvui|r → Commands")
+	WE:Print(" ")
+	WE:Print("|cffffcc00Quick commands:|r")
+	WE:Print("  /aq - Quest automation")
+	WE:Print("  /port - PortalBox window")
+	WE:Print("  /omen - Omen threat meter")
+	WE:Print("  /way - TomTom waypoints")
 end
 
 E:RegisterModule(WE:GetName())

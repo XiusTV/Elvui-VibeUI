@@ -16,7 +16,7 @@ BF.SkinGroups = {}
 function BF:Initialize()
 	if not E.db then return end
 	if not E.db.buttonFacade then return end
-	if not E.private or not E.private.actionbar or not E.private.actionbar.lbf then return end
+	if not E.db.actionbar or not E.db.actionbar.lbf then return end
 	
 	self.db = E.db.buttonFacade
 	
@@ -52,12 +52,12 @@ function BF:Initialize()
 	self.RootGroup = LBF:Group("ElvUI")
 	
 	-- Sync ButtonFacade skin with LBF settings
-	if E.private.actionbar.lbf.enable then
-		self.db.actionbars.SkinID = E.private.actionbar.lbf.skin or "ElvUI"
+	if E.db.actionbar.lbf.enable then
+		self.db.actionbars.SkinID = E.db.actionbar.lbf.skin or "ElvUI"
 	end
 	
 	-- Apply initial skins if LBF is enabled
-	if E.private.actionbar.lbf.enable then
+	if E.db.actionbar.lbf.enable then
 		self:UpdateSkins()
 	end
 	
@@ -66,15 +66,15 @@ end
 
 function BF:UpdateSkins()
 	if not self.db then return end
-	if not E.private or not E.private.actionbar or not E.private.actionbar.lbf then return end
+	if not E.db or not E.db.actionbar or not E.db.actionbar.lbf then return end
 	
 	-- Sync skin selection with LBF settings
-	if E.private.actionbar.lbf.enable and E.private.actionbar.lbf.skin then
-		self.db.actionbars.SkinID = E.private.actionbar.lbf.skin
+	if E.db.actionbar.lbf.enable and E.db.actionbar.lbf.skin then
+		self.db.actionbars.SkinID = E.db.actionbar.lbf.skin
 	end
 	
 	-- Handle Action Bars - use LBF enable setting
-	if E.private.actionbar.lbf.enable then
+	if E.db.actionbar.lbf.enable then
 		self:SkinActionBars()
 	else
 		self:RemoveActionBarsFromLBF()
@@ -99,8 +99,8 @@ end
 
 function BF:SkinActionBars()
 	if not self.db or not self.db.actionbars then return end
-	if not E.private or not E.private.actionbar or not E.private.actionbar.lbf then return end
-	if not E.private.actionbar.lbf.enable then return end
+	if not E.db or not E.db.actionbar or not E.db.actionbar.lbf then return end
+	if not E.db.actionbar.lbf.enable then return end
 	
 	if not E:GetModule("ActionBars", true) then return end
 	
@@ -147,14 +147,16 @@ function BF:RegisterAndSkinBar(barName, bar, barId)
 	if bar.buttons then
 		for i, button in ipairs(bar.buttons) do
 			if button then
+				local name = button:GetName()
 				local ButtonData = {
-					Icon = button.icon,
-					Flash = button.flash,
-					Cooldown = button.cooldown,
-					HotKey = button.hotkey,
-					Count = button.count,
-					Name = button.Name or button.actionName,
-					Border = _G[button:GetName().."Border"] or button.border,
+					Icon = _G[name.."Icon"] or button.icon,
+					Flash = _G[name.."Flash"] or button.flash,
+					Cooldown = _G[name.."Cooldown"] or button.cooldown,
+					HotKey = _G[name.."HotKey"] or button.hotkey,
+					Count = _G[name.."Count"] or button.count,
+					Name = _G[name.."Name"] or button.Name or button.actionName,
+					Border = _G[name.."Border"] or button.border,
+					NormalTexture = button:GetNormalTexture(),
 				}
 				
 				-- AddButton will only add if not already in group
@@ -163,9 +165,13 @@ function BF:RegisterAndSkinBar(barName, bar, barId)
 		end
 	end
 	
-	-- Apply skin
-	local cfg = self.db.actionbars
-	group:Skin(cfg.SkinID, cfg.Gloss, cfg.Backdrop, cfg.Colors)
+	-- Apply skin using the LBF profile settings
+	local skinID = E.db.actionbar.lbf.skin or "ElvUI"
+	local gloss = (self.db.actionbars and self.db.actionbars.Gloss) or 0
+	local backdrop = (self.db.actionbars and self.db.actionbars.Backdrop) or false
+	local colors = (self.db.actionbars and self.db.actionbars.Colors) or {}
+	
+	group:Skin(skinID, gloss, backdrop, colors)
 	
 	-- Store group reference
 	self.SkinGroups[barName] = group
@@ -186,12 +192,13 @@ function BF:RemoveActionBarsFromLBF()
 			if group then
 				for _, button in ipairs(bar.buttons) do
 					if button then
-						-- Remove from ButtonFacade and restore to ElvUI style
-						group:RemoveButton(button, true) -- true = reset to default
-						AB:StyleButton(button, nil, nil) -- Re-apply ElvUI styling
+						-- Delete the button from LBF completely
+						group:DeleteButton(button)
 					end
 				end
 			end
+			-- Delete the entire group
+			LBF:DeleteGroup("ElvUI", barName)
 		end
 		-- Clear the group reference
 		self.SkinGroups[barName] = nil
@@ -205,11 +212,11 @@ function BF:RemoveActionBarsFromLBF()
 			if group then
 				for _, button in ipairs(bar.buttons) do
 					if button then
-						group:RemoveButton(button, true)
-						AB:StyleButton(button, nil, nil)
+						group:DeleteButton(button)
 					end
 				end
 			end
+			LBF:DeleteGroup("ElvUI", barName)
 		end
 		self.SkinGroups[barName] = nil
 	end

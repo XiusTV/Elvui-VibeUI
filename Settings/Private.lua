@@ -140,8 +140,8 @@ V.actionbar = {
 	enable = true,
 
 	lbf = {
-		enable = true,
-		skin = "ElvUI",
+		enable = false,
+		skin = "Blizzard",
 	}
 }
 

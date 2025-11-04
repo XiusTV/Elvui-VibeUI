@@ -1,4 +1,5 @@
 <Ui xmlns="http://www.blizzard.com/wow/ui/">
+	<Script file="TaintFix.lua"/>
 	<Script file="Misc.lua"/>
 	<Script file="DebugTools.lua"/>
 	<Script file="ChatBubbles.lua"/>

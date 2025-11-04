@@ -2,6 +2,122 @@
 
 All notable changes to ElvUI will be documented in this file.
 
+## [1.3.0] - 2024-11-04
+
+### Added - Major Features
+- **ButtonFacade/LibButtonFacade (LBF) Integration**
+  - Full LibButtonFacade support for action bar button skinning
+  - 30+ button skins available (29 custom + Blizzard default)
+  - LBF settings now profile-based for cross-character saving
+  - Options integrated into ElvUI → ActionBars → General Options → LBF Support
+  - ButtonFacade panel with full skin customization (gloss, backdrop, colors)
+  
+- **Omen Threat Meter Full Integration**
+  - Complete Omen configuration embedded in ElvUI options menu
+  - Accessible via ElvUI → Omen (all sub-menus: General, Show When, Show Classes, Title Bar, Bar Settings, Warning Settings, Slash Command, Profiles)
+  - `/omen config` now opens ElvUI → Omen instead of Blizzard Interface Options
+  - Removed warrior-specific Help File from embedded options
+  - Omen skinning defaults properly load and apply
+  
+- **Quest Automation (AutoQuest) Integration**
+  - Moved from WarcraftEnhanced to ElvUI → General → Automation → Quest Automation
+  - Full quest automation with 700+ repeatable/daily quest database
+  - Options: Auto-accept all quests, dailies, Fate quests, repeatables, high-risk quests
+  - Auto-complete quests with no reward choices
+  - Hold Shift/Ctrl/Alt when talking to NPCs to temporarily disable
+  - Slash commands: `/aq`, `/autoquest` with full configuration
+  
+- **PortalBox Integration**
+  - Moved from WarcraftEnhanced to ElvUI → General → Miscellaneous
+  - Quick access to all teleport and portal spells
+  - Minimap button hide/show toggle
+  - Direct open button in ElvUI options
+  
+- **Comprehensive Commands Reference**
+  - New ElvUI → Commands menu with complete command documentation
+  - Organized by category: ElvUI Core, ActionBars, Quest Automation, Omen, TomTom, PortalBox, Bags, DataTexts, Other Addons, Help & Tips
+  - Searchable command list with examples and usage
+  
+- **Options Menu Reorganization**
+  - All main menu items now in alphabetical order
+  - Search moved to top for quick access
+  - Credits moved to bottom
+  - Cleaner, more intuitive navigation
+
+### Added - Minor Features
+- **AuraTracker Module** (In Development)
+  - Displays buff/debuff duration remaining directly on action bar buttons
+  - Shows time left for your abilities on current target (e.g., Gift of the Wild buff duration, Moonfire DoT remaining)
+  - Color-coded by urgency: Green (>10s), Yellow (5-10s), Red (<5s)
+  - Configurable font, size, and outline
+  - Options in ElvUI → ActionBars → General Options → Aura Duration Tracker
+  - **Note:** Feature is functional but still being refined
+  
+- **Taint Fix Module**
+  - Prevents common taint issues with action bars and raid frames
+  - Configurable fixes for different frame types
+  - Options in ElvUI → General → Taint Fix
+
+### Changed
+- **WarcraftEnhanced Integration**
+  - Removed WarcraftEnhanced from ElvUI sidebar menu (features now native)
+  - `/we` command now shows helpful redirect to feature locations
+  - AutoQuest, Omen, and PortalBox fully integrated into ElvUI native menus
+  
+- **ActionBars Module**
+  - Added AuraTracker button registration in StyleButton
+  - Improved icon texture coordinate handling with LBF compatibility
+  - Enhanced button styling logic for ButtonFacade integration
+  
+- **General Options Improvements**
+  - Automation section reorganized with better spacing
+  - Quest Automation, Vendor Automation, and Combat Automation clearly separated
+  - PortalBox settings added to Miscellaneous
+  - Fixed duplicate tooltip text in "Accept Invites" option
+  - Added nil checks for taintFix settings (backward compatibility with older profiles)
+
+### Fixed
+- **Core Stability**
+  - Fixed "attempt to index field 'db' (a nil value)" error in Core.lua line 226
+  - Added comprehensive nil checks for `self.db`, `self.db.general`, `self.db.unitframe`, and `self.db.chat` in UpdateMedia()
+  - Prevents race condition errors during early initialization
+  
+- **Omen Skinning**
+  - Fixed Omen skinning not loading correctly after removal/re-add
+  - Added missing `V.addOnSkins` table to Private.lua (includes Omen, Recount, Skada)
+  - Omen default profile and skinning now load properly
+  
+- **ButtonFacade Issues**
+  - Fixed blank action bars when ButtonFacade was enabled
+  - Removed duplicate ButtonFacade registration from ActionBars.lua
+  - Corrected ButtonData structure for proper element references
+  - Fixed icon SetTexCoord conflicts with ButtonFacade
+  - Enhanced BF:UpdateSkins() to properly remove and restore ElvUI styling
+  - Fixed gloss and backdrop settings not applying correctly
+  - Removed duplicate requirement text from ButtonFacade options
+  
+- **Options UI Errors**
+  - Fixed "ElvUI.GetActionBarButtonFacadeOptions: unknown parameter" error
+  - Removed invalid options table export
+  - Fixed syntax error in General.lua causing TomTom options to be unclickable
+  - Fixed taintFix nil value error with backward-compatible defaults
+
+### Technical Details
+- LBF settings moved from `V.actionbar.lbf` (private) to `P.actionbar.lbf` (profile) for cross-character saving
+- All code references updated from `E.private.actionbar.lbf` to `E.db.actionbar.lbf`
+- Enhanced `BF:RegisterAndSkinBar()` with correct ButtonData mapping (Icon, Flash, Cooldown, HotKey, Count, Name, Border, NormalTexture)
+- `BF:RemoveActionBarsFromLBF()` updated to use `group:DeleteButton()` and `LBF:DeleteGroup()` for clean reset
+- Added proper nil checks throughout options UI for backward compatibility
+- ElvUI_OptionsUI files organized: Omen.lua, Commands.lua added to load order
+- WarcraftEnhanced options registration disabled (all features now native)
+
+### Removed
+- ElvUI_WarcraftEnhanced_Integration_Files folder (obsolete, features now built-in)
+- Integrate-WarcraftEnhanced-Into-ElvUI.ps1 (integration complete)
+- 25 development documentation files (.md and .txt files created during development)
+- WarcraftEnhanced options menu from ElvUI sidebar
+- Omen "Help File" tab from embedded configuration
+
 ## [1.2.0] - 2024-11-02
 
 ### Added

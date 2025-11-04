@@ -347,6 +347,12 @@ P.bags = {
 		showBackdrop = false,
 		mouseover = false,
 		visibility = ""
+	},
+	taintFix = {
+		enable = true,
+		enableActionBarFix = true,
+		enableCompactRaidFrameFix = true,
+		debug = false
 	}
 }
 
@@ -4041,6 +4047,21 @@ P.actionbar = {
 
 	useRangeColorText = false,
 	noRangeColor = {r = 0.8, g = 0.1, b = 0.1},
+	
+	-- ButtonFacade/LBF Settings (profile-based, saves across characters)
+	lbf = {
+		enable = true,
+		skin = "ElvUI",
+	},
+	-- Aura Tracker Settings (show buff/debuff duration on action buttons)
+	auraTracker = {
+		enable = true,
+		onlyPlayer = true, -- Only show auras cast by the player
+		font = "PT Sans Narrow",
+		fontSize = 18,
+		fontOutline = "OUTLINE",
+		colorByTime = true, -- Color text based on time remaining (red < 5s, yellow < 10s, green > 10s)
+	},
 	noPowerColor = {r = 0.5, g = 0.5, b = 1},
 	usableColor = {r = 1, g = 1, b = 1},
 	notUsableColor = {r = 0.4, g = 0.4, b = 0.4},
@@ -4311,4 +4332,19 @@ P.buttonFacade = {
 		Backdrop = false,
 		Colors = {},
 	},
+}
+
+-- WarcraftEnhanced Settings
+P.warcraftenhanced = {
+	-- AutoQuest
+	autoAccept = false,
+	autoDaily = true,
+	autoFate = true,
+	autoRepeat = true,
+	autoComplete = true,
+	autoHighRisk = false,
+	-- Social Blocking
+	blockDuels = false,
+	blockGuildInvites = false,
+	blockPartyInvites = false,
 }
