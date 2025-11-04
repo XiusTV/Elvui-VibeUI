@@ -1,109 +1,115 @@
-[![Game Version](https://img.shields.io/badge/wow-3.3.5-blue.svg)](https://github.com/ElvUI-WotLK)
-[![Discord](https://discordapp.com/api/guilds/259362419372064778/widget.png?style=shield)](https://discord.gg/UXSc7nt)
-[![GitHub Actions](https://github.com/ElvUI-WotLK/ElvUI/workflows/lint/badge.svg?branch=master&event=push)](https://github.com/ElvUI-WotLK/ElvUI/actions?query=workflow%3Alint+branch%3Amaster)
+# ElvUI
 
-# ElvUI VibeUI - Wrath of the Lich King (3.3.5a)
+A comprehensive user interface replacement addon for World of Warcraft 3.3.5 (WotLK).
 
-This is a **VibeCoded** customized version of ElvUI for World of Warcraft - Wrath of the Lich King (3.3.5a)
-<br />
-ElvUI is a full UI replacement.
-It completely replaces the default Blizzard UI at every level with a new and better interface.
-As such, you'll only ever have to update ElvUI and not worry too much about its individual components.
-This UI will arrange your interface to be more flexible and practical.
+## Version
 
-**Developed and tested on [Ascension.gg Warcraft Reborn](https://ascension.gg)**
+- **Version:** 1.2.0
+- **Interface:** 30300 (WotLK)
+- **Authors:** Elv, Bunny, Xius
 
-World of Warcraft 3.3.5 (WotLK) Addons by XiusTV:
+## Description
 
-- [ElvUI VibeUI](https://github.com/XiusTV/Elvui-VibeUI)
-- [PFQuest-WotLK](https://github.com/XiusTV/PFQuest-Wotlk)
-- [pfQuest-BronzeBeard](https://github.com/XiusTV/pfQuest-BronzeBeard)
-- [WarcraftEnhanced](https://github.com/XiusTV/WarcraftEnhanced)
+ElvUI is a complete user interface replacement for World of Warcraft, featuring:
 
-Support: [Buy Me A Coffee](https://buymeacoffee.com/xius)
+- **Action Bars:** Fully customizable action bars with advanced features
+- **Unit Frames:** Highly configurable player, target, party, and raid frames
+- **Nameplates:** Enhanced nameplate system with styling and filtering
+- **Bags:** Unified bag interface with sorting and searching
+- **Chat:** Enhanced chat frames with URL detection and emoji support
+- **Minimap & Worldmap:** Customizable map frames with zoom and styling options
+- **Data Texts:** Informative text displays for various game statistics
+- **Tooltips:** Enhanced tooltips with additional information
+- **Skins:** Consistent UI skinning for Blizzard frames
+- **Auras:** Buff/debuff tracking and display
 
----
+## Installation
 
-## 🔥 Custom Features:
+1. Extract the `ElvUI` and `ElvUI_OptionsUI` folders to your `Interface\AddOns` directory
+2. Launch World of Warcraft
+3. Run the ElvUI installation wizard on first load
+4. Configure ElvUI through the options panel
 
-**Built-in Integration:**
-- **ElvUI_AddOnSkins** - Complete addon skinning system is integrated directly into this version
-- **ElvUI_RaidMarkers** - Raid marker bar module is built-in and ready to use
-- **Mapster with Magnify-WotLK** - Enhanced world map and minimap features fully integrated
-- **ProfessionMenu** - Integrated profession menu removes the need for profession shortcuts taking up action bar slots
+## Configuration
 
-## Installation:
+Access ElvUI configuration:
+- Type `/ec` or `/elvui` in-game
+- Click the ElvUI button in the minimap menu
 
-1. Download **[Latest Version](https://github.com/ElvUI-WotLK/ElvUI/releases/latest)**
-2. Unpack the Zip file
-3. Open the folder "ElvUI-(#.##)"
-4. Copy (or drag and drop) **ElvUI** and **ElvUI_OptionsUI** into your Wow-Directory\Interface\AddOns
-5. Restart WoW
+## Dependencies
 
-## Additional Plugins:
-[ElvUI_Enhanced](https://github.com/ElvUI-WotLK/ElvUI_Enhanced)
-<br />
-[ElvUI_AuraBarsMovers](https://github.com/ElvUI-WotLK/ElvUI_AuraBarsMovers)
-<br />
-[ElvUI_BagControl](https://github.com/ElvUI-WotLK/ElvUI_BagControl)
-<br />
-[ElvUI_CastBarOverlay](https://github.com/ElvUI-WotLK/ElvUI_CastBarOverlay)
-<br />
-[ElvUI_CustomTags](https://github.com/ElvUI-WotLK/ElvUI_CustomTags)
-<br />
-[ElvUI_CustomTweaks](https://github.com/ElvUI-WotLK/ElvUI_CustomTweaks)
-<br />
-[ElvUI_DTBars2](https://github.com/ElvUI-WotLK/ElvUI_DTBars2)
-<br />
-[ElvUI_DataTextColors](https://github.com/ElvUI-WotLK/ElvUI_DataTextColors)
-<br />
-[ElvUI_EnhancedFriendsList](https://github.com/ElvUI-WotLK/ElvUI_EnhancedFriendsList)
-<br />
-[ElvUI_ExtraActionBars](https://github.com/ElvUI-WotLK/ElvUI_ExtraActionBars)
-<br />
-[ElvUI_LocPlus](https://github.com/ElvUI-WotLK/ElvUI_LocPlus)
-<br />
-[ElvUI_MicrobarEnhancement](https://github.com/ElvUI-WotLK/ElvUI_MicrobarEnhancement)
-<br />
-[ElvUI_SwingBar](https://github.com/ElvUI-WotLK/ElvUI_SwingBar)
-<br />
-[ElvUI_VisualProcs](https://github.com/ElvUI-WotLK/ElvUI_VisualProcs)
-<br />
+- **Required:** None (standalone addon)
+- **Optional:** 
+  - SharedMedia (for additional fonts and textures)
+  - oUF plugins (for extended unit frame functionality)
 
--- Please Note: These plugins will not function without ElvUI installed.
+## Components
 
-## Commands:
+### ElvUI (Main Addon)
+Core functionality and framework for the complete UI replacement.
 
-    /ec or /elvui     Toggle the configuration GUI.
-    /rl or /reloadui  Reload the whole UI.
-    /moveui           Open the movable frames options.
-    /bgstats          Toggles Battleground datatexts to display info when inside a battleground.
-    /egrid            Toggles visibility of the grid for helping placement of thirdparty addons.
-    /farmmode         Toggles the Minimap Farmmode.
-    /in               The input of how many seconds you want a command to fire.
-                          usage: /in <seconds> <command>
-                          example: /in 1.5 /say hi
-    /enable           Enable an Addon.
-                          usage: /enable <addon>
-                          example: /enable AtlasLoot
-    /disable          Disable an Addon.
-                          usage: /disable <addon>
-                          example: /disable AtlasLoot
+### ElvUI_OptionsUI (Configuration)
+Options interface for customizing all ElvUI features. Loads on demand when accessing settings.
 
-    ---------------------------------------------------------------------------------------------------------------
-    -- Development ------------------------------------------------------------------------------------------------
-    ---------------------------------------------------------------------------------------------------------------
-    /etrace           Toggles events window.
-    /luaerror on      Enable luaerrors and disable all AddOns except ElvUI.
-    /luaerror off     Disable luaerrors and re-enable all AddOns disabled within that session.
-    /cpuimpact        Toggles calculations of CPU Impact. Type /cpuimpact to get results when you are ready.
-    /cpuusage         Calculates and dumps CPU usage differences (module: all, showall: false, minCalls: 15, delay: 5).
-    /frame            Command to grab frame information when mouseing over a frame or when inputting the name.
-                          usage: /frame (when mousing over frame) or /frame <name>
-                          example: /frame WorldFrame
-    /framelist        Dumps frame level information with children and parents. Also places info into copy box.
-    /framestack       Toggles dynamic mouseover frame displaying frame name and level information.
-    /resetui          If no argument is provided it will reset all frames to their default positions.
-                      If an argument is provided it will reset only that frame.
-                          example: /resetui uf (resets all unitframes)
+## Module Structure
+
+- **ActionBars** - Action bar management and customization
+- **Auras** - Buff and debuff display
+- **Bags** - Inventory management
+- **Blizzard** - Blizzard UI enhancements
+- **Chat** - Chat frame modifications
+- **DataBars** - Experience and reputation bars
+- **DataTexts** - Information display panels
+- **Maps** - Minimap and world map customization
+- **Misc** - Miscellaneous improvements
+- **Nameplates** - Nameplate styling and filters
+- **Skins** - UI element skinning
+- **Tooltip** - Tooltip enhancements
+- **UnitFrames** - Player, target, party, raid frames
+
+## Libraries
+
+ElvUI includes several embedded libraries:
+- Ace3 (AceAddon, AceConfig, AceDB, etc.)
+- oUF (Unit Frame framework)
+- LibSharedMedia
+- LibActionButton
+- LibAuraInfo
+- And more...
+
+## Credits
+
+- **Elv** - Lead Developer
+- **Bunny** - Co-Developer
+- **Xius** - Developer
+- oUF Framework Authors
+- Ace3 Library Authors
+- Community Contributors
+
+## License
+
+ElvUI is free software. Please respect the authors' work.
+
+## Support
+
+For issues, questions, or suggestions, please refer to the ElvUI community forums and Discord.
+
+## Changelog
+
+### 1.2.0 (Latest)
+- Reintegrated Party frames module
+- Reintegrated Raid frames module
+- Reintegrated Raid-40 frames module
+- Reintegrated Raid Pet frames module
+
+### 1.1.0
+- Removed Harlem Shake easter egg feature
+- Removed Hello Kitty easter egg feature
+- Code cleanup and optimization
+
+### 1.0.0 (Initial Release)
+- Complete UI replacement for WotLK 3.3.5
+- All core modules implemented
+- Full customization options
+- VuhDo integration support
 
