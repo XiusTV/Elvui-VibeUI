@@ -2,6 +2,36 @@
 
 All notable changes to ElvUI will be documented in this file.
 
+## [1.2.0] - 2024-11-02
+
+### Added
+- Reintegrated Party frames module
+  - Re-enabled Party.lua in Groups loader
+  - Restored party frame configuration options in ElvUI_OptionsUI
+  - Re-enabled BuffIndicator updates for party frames
+  - Re-enabled Blizzard party interface hiding
+- Reintegrated Raid frames module
+  - Re-enabled Raid.lua in Groups loader
+  - Restored raid frame configuration options in ElvUI_OptionsUI
+  - Re-enabled BuffIndicator updates for raid frames
+- Reintegrated Raid-40 frames module
+  - Re-enabled Raid40.lua in Groups loader
+  - Restored raid40 frame configuration options in ElvUI_OptionsUI
+  - Re-enabled BuffIndicator updates for raid40 frames
+- Reintegrated Raid Pet frames module
+  - Re-enabled RaidPets.lua in Groups loader
+  - Restored raidpet frame configuration options in ElvUI_OptionsUI
+
+### Changed
+- Updated Load_Groups.xml to include all group frame modules
+- Updated UnitFrames.lua to re-enable aura watch updates for group frames
+- Updated UnitFrames.lua to re-enable Blizzard interface hiding for party frames
+
+### Technical Details
+- Removed `if false then` wrappers from party, raid, raid40, and raidpet configuration sections
+- Re-enabled conditional logic for party/raid/raid40 BuffIndicator updates
+- Restored full functionality that was previously disabled
+
 ## [1.1.0] - 2024-11-02
 
 ### Changed

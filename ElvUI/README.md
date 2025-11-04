@@ -4,7 +4,7 @@ A comprehensive user interface replacement addon for World of Warcraft 3.3.5 (Wo
 
 ## Version
 
-- **Version:** 1.1.0
+- **Version:** 1.2.0
 - **Interface:** 30300 (WotLK)
 - **Authors:** Elv, Bunny, Xius
 
@@ -96,7 +96,13 @@ For issues, questions, or suggestions, please refer to the ElvUI community forum
 
 ## Changelog
 
-### 1.1.0 (Latest)
+### 1.2.0 (Latest)
+- Reintegrated Party frames module
+- Reintegrated Raid frames module
+- Reintegrated Raid-40 frames module
+- Reintegrated Raid Pet frames module
+
+### 1.1.0
 - Removed Harlem Shake easter egg feature
 - Removed Hello Kitty easter egg feature
 - Code cleanup and optimization

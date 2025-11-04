@@ -1,0 +1,16 @@
+# Saved variables and user-specific data
+*.bak
+*.old
+*.tmp
+*~
+.DS_Store
+Thumbs.db
+
+# ElvUI specific - don't commit user profiles
+profiles/
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
