@@ -3,7 +3,6 @@ World of Warcraft 3.3.5 (WotLK) Addons by XiusTV:
 - [ElvUI VibeUI](https://github.com/XiusTV/Elvui-VibeUI)
 - [PFQuest-WotLK](https://github.com/XiusTV/PFQuest-Wotlk)
 - [pfQuest-BronzeBeard](https://github.com/XiusTV/pfQuest-BronzeBeard)
-- [WarcraftEnhanced](https://github.com/XiusTV/WarcraftEnhanced)
 
 Support: [Buy Me A Coffee](https://buymeacoffee.com/xius)
 
