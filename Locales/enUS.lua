@@ -373,3 +373,18 @@ Options:
   Shift + RightClick - Hides mover temporarily.
   Ctrl + RightClick - Resets mover position to default.
 ]=]
+
+-- ButtonFacade
+L['ButtonFacade'] = true
+L['Button Skins'] = true
+L['Enable ButtonFacade for Action Bars'] = true
+L['Enable ButtonFacade for Auras'] = true
+L['Skin'] = true
+L['Select the button skin to use'] = true
+L['Gloss'] = true
+L['Adjust the gloss/shine intensity on buttons'] = true
+L['Backdrop'] = true
+L['Show backdrop behind buttons'] = true
+L['Reset All Button Skins'] = true
+L['Reset all button skins to default'] = true
+L['ButtonFacade Settings'] = true

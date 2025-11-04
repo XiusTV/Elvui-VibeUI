@@ -229,15 +229,15 @@ function AB:PositionAndSizeBarPet()
 			button:SetAlpha(bar.db.alpha)
 		end
 
-		self:StyleButton(button, nil, self.LBFGroup and E.private.actionbar.lbf.enable and true or nil)
+		-- Check if LBF is enabled for styling compatibility
+		local lbfEnabled = E.private and E.private.actionbar and E.private.actionbar.lbf and E.private.actionbar.lbf.enable
+		self:StyleButton(button, nil, lbfEnabled or nil)
 	end
 
 	RegisterStateDriver(bar, "show", visibility)
 
 	--Fix issue with mover not updating size when bar is hidden
 	bar:GetScript("OnSizeChanged")(bar)
-
-	if self.LBFGroup and E.private.actionbar.lbf.enable then self.LBFGroup:Skin(E.private.actionbar.lbf.skin) end
 end
 
 function AB:UpdatePetBindings()
@@ -300,9 +300,5 @@ function AB:CreateBarPet()
 
 		self:HookScript(button, "OnEnter", "Button_OnEnter")
 		self:HookScript(button, "OnLeave", "Button_OnLeave")
-
-		if self.LBFGroup and E.private.actionbar.lbf.enable then
-			self.LBFGroup:AddButton(button)
-		end
 	end
 end

@@ -140,9 +140,15 @@ V.actionbar = {
 	enable = true,
 
 	lbf = {
-		enable = false,
-		skin = "Blizzard",
+		enable = true,
+		skin = "ElvUI",
 	}
+}
+
+V.addOnSkins = {
+	Omen = true,
+	Recount = true,
+	Skada = true,
 }
 
 -- Removed V.worldmap - Using Mapster addon instead

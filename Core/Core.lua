@@ -223,7 +223,9 @@ function E:GetColorTable(data)
 end
 
 function E:UpdateMedia()
-	if not self.db.general or not self.private.general then return end --Prevent rare nil value errors
+	if not self.db or not self.db.general or not self.db.unitframe or not self.db.chat or not self.private or not self.private.general then 
+		return  --Prevent nil value errors during early initialization
+	end
 
 	-- Fonts
 	self.media.normFont = LSM:Fetch("font", self.db.general.font)
@@ -239,8 +241,10 @@ function E:UpdateMedia()
 	self.media.bordercolor = {border.r, border.g, border.b}
 
 	-- UnitFrame Border Color
-	border = E.db.unitframe.colors.borderColor
-	self.media.unitframeBorderColor = {border.r, border.g, border.b}
+	if E.db.unitframe and E.db.unitframe.colors and E.db.unitframe.colors.borderColor then
+		border = E.db.unitframe.colors.borderColor
+		self.media.unitframeBorderColor = {border.r, border.g, border.b}
+	end
 
 	-- Backdrop Color
 	self.media.backdropcolor = E:SetColorTable(self.media.backdropcolor, self.db.general.backdropcolor)

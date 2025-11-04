@@ -84,6 +84,7 @@ AddOn.oUF = Engine.oUF
 AddOn.ActionBars = AddOn:NewModule("ActionBars","AceHook-3.0","AceEvent-3.0")
 AddOn.AFK = AddOn:NewModule("AFK","AceEvent-3.0","AceTimer-3.0")
 AddOn.Auras = AddOn:NewModule("Auras","AceHook-3.0","AceEvent-3.0")
+AddOn.ButtonFacade = AddOn:NewModule("ButtonFacade","AceEvent-3.0")
 AddOn.Bags = AddOn:NewModule("Bags","AceHook-3.0","AceEvent-3.0","AceTimer-3.0", "AceBucket-3.0")
 AddOn.Blizzard = AddOn:NewModule("Blizzard","AceEvent-3.0","AceHook-3.0")
 AddOn.Chat = AddOn:NewModule("Chat","AceTimer-3.0","AceHook-3.0","AceEvent-3.0")

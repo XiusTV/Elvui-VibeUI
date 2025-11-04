@@ -237,10 +237,10 @@ function AB:PositionAndSizeBarShapeShift()
 			button:SetAlpha(bar.db.alpha)
 		end
 
-		self:StyleButton(button, nil, self.LBFGroup and E.private.actionbar.lbf.enable or nil)
+		-- Check if LBF is enabled for styling compatibility
+		local lbfEnabled = E.private and E.private.actionbar and E.private.actionbar.lbf and E.private.actionbar.lbf.enable
+		self:StyleButton(button, nil, lbfEnabled or nil)
 	end
-
-	if self.LBFGroup and E.private.actionbar.lbf.enable then self.LBFGroup:Skin(E.private.actionbar.lbf.skin) end
 end
 
 function AB:AdjustMaxStanceButtons(event)
@@ -264,9 +264,6 @@ function AB:AdjustMaxStanceButtons(event)
 		if not bar.buttons[i] then
 			bar.buttons[i] = CreateFrame("CheckButton", format(bar:GetName().."Button%d", i), bar, "ShapeshiftButtonTemplate")
 			bar.buttons[i]:SetID(i)
-			if self.LBFGroup and E.private.actionbar.lbf.enable then
-				self.LBFGroup:AddButton(bar.buttons[i])
-			end
 			self:HookScript(bar.buttons[i], "OnEnter", "Button_OnEnter")
 			self:HookScript(bar.buttons[i], "OnLeave", "Button_OnLeave")
 		end

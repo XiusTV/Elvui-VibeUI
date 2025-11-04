@@ -201,7 +201,9 @@ function A:CreateIcon(button)
 	button:SetScript("OnLeave", OnLeave)
 	button:SetScript("OnClick", OnClick)
 
-	if self.LBFGroup and E.private.auras.lbf.enable then
+	-- ButtonFacade Integration
+	local BF = E:GetModule("ButtonFacade", true)
+	if BF and LBF and E.db.buttonFacade and E.db.buttonFacade.auras and E.db.buttonFacade.auras.enabled then
 		local ButtonData = {
 			Icon = button.texture,
 			Flash = nil,
@@ -209,12 +211,15 @@ function A:CreateIcon(button)
 			AutoCast = nil,
 			AutoCastable = nil,
 			HotKey = nil,
-			Count = false,
+			Count = button.count,
 			Name = nil,
 			Highlight = button.highlight
 		}
-
-		self.LBFGroup:AddButton(button, ButtonData)
+		
+		local group = LBF:Group("ElvUI", "Auras")
+		if group then
+			group:AddButton(button, ButtonData)
+		end
 	else
 		button:SetTemplate("Default")
 	end

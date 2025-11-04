@@ -4288,3 +4288,27 @@ do -- cooldown stuff
 	-- we gonna need this on by default :3
 	P.cooldown.enable = true
 end
+
+--ButtonFacade
+P.buttonFacade = {
+	global = {
+		SkinID = "ElvUI",
+		Gloss = 0,
+		Backdrop = false,
+		Colors = {},
+	},
+	actionbars = {
+		enabled = false,
+		SkinID = "ElvUI",
+		Gloss = 0,
+		Backdrop = false,
+		Colors = {},
+	},
+	auras = {
+		enabled = false,
+		SkinID = "ElvUI",
+		Gloss = 0,
+		Backdrop = false,
+		Colors = {},
+	},
+}

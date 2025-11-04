@@ -209,7 +209,9 @@ function AB:PositionAndSizeBar(barName)
 			button:Show()
 		end
 
-		self:StyleButton(button, nil, self.LBFGroup and E.private.actionbar.lbf.enable and true or nil)
+		-- Check if LBF is enabled for styling compatibility
+		local lbfEnabled = E.private and E.private.actionbar and E.private.actionbar.lbf and E.private.actionbar.lbf.enable
+		self:StyleButton(button, nil, lbfEnabled or nil)
 	end
 
 	if bar.db.enabled or not bar.initialized then
@@ -237,9 +239,7 @@ function AB:PositionAndSizeBar(barName)
 
 	E:SetMoverSnapOffset("ElvAB_"..bar.id, bar.db.buttonspacing / 2)
 
-	if self.LBFGroup and E.private.actionbar.lbf.enable then
-		self.LBFGroup:Skin(E.private.actionbar.lbf.skin)
-	end
+	-- ButtonFacade integration now handled by ButtonFacade module
 end
 
 function AB:CreateBar(id)
@@ -268,10 +268,6 @@ function AB:CreateBar(id)
 
 		if i == 12 then
 			bar.buttons[i]:SetState(11, "custom", AB.customExitButton)
-		end
-
-		if self.LBFGroup and E.private.actionbar.lbf.enable then
-			self.LBFGroup:AddButton(bar.buttons[i])
 		end
 
 		self:HookScript(bar.buttons[i], "OnEnter", "Button_OnEnter")
