@@ -1,0 +1,172 @@
+========================================
+DEBUG NEXT STEPS - CRITICAL TESTING
+========================================
+
+WHAT THE SCREENSHOTS SHOW:
+--------------------------
+
+✅ auraText exists
+✅ Text visible: 1
+❌ Current text: empty (EVEN AFTER forcing TEST 99!)
+
+This means text is being CLEARED constantly!
+
+ROOT CAUSE:
+-----------
+
+UpdateButtonDuration() runs constantly from events:
+- UNIT_AURA
+- PLAYER_TARGET_CHANGED  
+- OnUpdate timer (10x per second!)
+
+Every time it runs, if it doesn't find a matching aura,
+it sets text to "" (empty).
+
+So even when we force "TEST 99", the next update clears it!
+
+THE NEW FIXES:
+--------------
+
+1. Added __testMode flag to prevent clearing
+   When /testautrack runs, Button1.auraText.__testMode = true
+   This prevents UpdateButtonDuration from clearing the text
+
+2. Added more detailed debugging:
+   - Text alpha
+   - Draw layer
+   - Font info
+   - Text AFTER forcing (to confirm it's set)
+
+3. Added new commands:
+   /cleartest - Clears test mode from Button1
+   /debugspells - Shows what spells are on Bar1
+
+TESTING PROCEDURE:
+------------------
+
+**TEST 1: Check if text CAN be displayed**
+
+1. /reload
+
+2. /testautrack with a target
+
+3. Look at the debug output:
+   - Text alpha: should be 1
+   - Draw layer: should be OVERLAY
+   - Font: should show a path
+   - Text after force: should say "TEST 99" NOT "STILL EMPTY!"
+
+4. **LOOK AT BUTTON 1 VISUALLY**
+   - Can you see "TEST 99" in MAGENTA?
+   - If YES: Layering works! ✓
+   - If NO: Text isn't rendering (font/parent issue)
+
+5. /cleartest (clears test mode)
+
+
+**TEST 2: Check what spells are on buttons**
+
+1. Put some spells on Bar 1 (slots 1-12)
+
+2. /debugspells
+
+3. You'll see spell names for each button
+   Example: "Button 1: Fireball (ID: 133)"
+
+4. Remember which spells you have
+
+
+**TEST 3: Check if real auras show**
+
+1. Target yourself
+
+2. Cast a buff you have on Bar 1
+   Example: If "Power Word: Fortitude" is on Button 3,
+   and you have Fort buff active
+
+3. Look at Button 3 - do you see a countdown?
+
+4. If YES: AuraTracker works! ✓
+   If NO: Aura matching is failing
+
+
+**TEST 4: ButtonFacade reagents**
+
+1. /reload
+
+2. Enable ButtonFacade with ANY skin
+
+3. Accept reload popup
+
+4. Put items with counts on bars (potions, food)
+
+5. Look at buttons - do you see counts?
+
+6. If YES: LAB_ButtonUpdate fix worked! ✓
+   If NO: Still an issue
+
+POSSIBLE OUTCOMES:
+------------------
+
+**Scenario A: TEST 99 appears**
+- Layering works!
+- Problem is aura matching
+- Need to debug spell name matching
+
+**Scenario B: TEST 99 doesn't appear**
+- After debug shows "Text after force: TEST 99"
+- This means text IS set but not visible
+- Font issue or parent issue
+- Possibly ButtonFacade hiding text elements
+
+**Scenario C: Debug shows "STILL EMPTY!"**
+- Text isn't being set at all
+- SetText() is failing
+- Critical issue with text element
+
+**Scenario D: Reagents still don't show**
+- LAB_ButtonUpdate fix not working
+- ButtonFacade overriding more aggressively
+- Need different approach
+
+COMMANDS SUMMARY:
+-----------------
+
+/reload          - Apply all fixes
+/testautrack     - Test AuraTracker (prevents text clearing)
+/cleartest       - Clear test mode
+/debugspells     - Show spells on Bar1
+/debugab         - Full diagnostic
+/fixcount        - Force count display
+
+WHAT TO REPORT BACK:
+--------------------
+
+Please run these tests and tell me:
+
+1. After /testautrack, what does it say for:
+   - Text alpha: ?
+   - Draw layer: ?
+   - Font: ?
+   - Text after force: ?
+
+2. Can you SEE "TEST 99" on Button 1?
+   (Look at the actual button, in magenta color)
+
+3. What spells are on Bar1? (/debugspells)
+
+4. Do those spells show countdowns when you have
+   the buff/debuff active? 
+
+5. With ButtonFacade enabled, do reagent counts show?
+
+This will tell us EXACTLY where the problem is!
+
+========================================
+
+CRITICAL: The debug output will show us if text
+CAN be displayed at all, or if there's a fundamental
+rendering issue!
+
+========================================
+
