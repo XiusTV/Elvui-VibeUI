@@ -1,0 +1,41 @@
+# Python
+__pycache__/
+*.py[cod]
+*.so
+*.egg-info/
+*.egg
+
+# PyInstaller
+build/
+*.spec
+
+# User-specific configuration
+dist/merger_config.json
+
+# WoW SavedVariables (don't commit user data)
+WTF/
+*.wtf
+
+# Build artifacts
+*.pyc
+*.pyo
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Logs
+*.log
+
+# Temp files
+*.tmp
+*.temp
+

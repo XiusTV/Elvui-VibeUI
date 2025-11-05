@@ -1,0 +1,99 @@
+========================================
+QUICK START - FOR NEXT CURSOR AGENT
+========================================
+
+SITUATION:
+----------
+User has ElvUI with custom AuraTracker and ButtonFacade modules.
+Two issues need final testing after fixes were applied:
+
+1. AuraTracker - Not showing countdown timers on action buttons
+2. ButtonFacade - Hiding reagent/stack counts when enabled
+
+========================================
+WHAT WAS FIXED (User needs to /reload and test!)
+========================================
+
+AuraTracker Fixes:
+- Fixed syntax errors
+- Moved auraText creation to RegisterButton()
+- Changed parenting from button to UIParent (fixes rendering)
+- Strip ranks from spell names (Moonfire(Rank 10) → Moonfire)
+- Treat nil caster as yours (Ascension bug workaround)
+- Validate time is positive (fix negative time bug)
+
+ButtonFacade Fixes:
+- Added count fix to LAB_ButtonUpdate callback
+- Restores count Width/Height from 0 to 36x10
+- Forces Show() and SetAlpha(1) on every update
+- Added reload popup when enabling/changing skins
+
+Other Fixes:
+- Fixed search crash (type check)
+- Moved General to order=2 in menu
+- Added debug commands
+
+========================================
+USER MUST DO THIS:
+========================================
+
+/reload
+
+Then test:
+  /debugspells
+  
+Should say: "MATCHES FOUND!"
+Should see: Countdown timer on spell button
+
+If not working, see CURSOR_HANDOFF_DOCUMENT.txt for details.
+
+========================================
+KEY DEBUG COMMANDS:
+========================================
+
+/debugspells   - MOST IMPORTANT! Shows spell matching
+/testautrack   - Visual test of auraText
+/debugab       - Full diagnostic
+/fixcount      - Force count display
+/cleartest     - Clear test mode
+
+========================================
+FILES MODIFIED:
+========================================
+
+Core:
+- AddOns/ElvUI/Modules/ActionBars/AuraTracker.lua
+- AddOns/ElvUI/Modules/ActionBars/ActionBars.lua
+- AddOns/ElvUI/Modules/ButtonFacade/ButtonFacade.lua
+- AddOns/ElvUI_OptionsUI/ButtonFacade.lua
+- AddOns/ElvUI_OptionsUI/Search.lua
+- AddOns/ElvUI_OptionsUI/General.lua
+
+Debug:
+- AddOns/ElvUI/Modules/ActionBars/DebugHelper.lua (NEW)
+- AddOns/ElvUI/Modules/ActionBars/Load_ActionBars.xml
+
+========================================
+CRITICAL ISSUES FOUND:
+========================================
+
+1. Button-parented text doesn't render
+   → Fixed: Now parented to UIParent
+
+2. Caster returns nil on Ascension
+   → Fixed: Treat nil as "yours"
+
+3. Rank mismatch (spell vs aura names)
+   → Fixed: Strip ranks from both
+
+4. Negative timestamps
+   → Fixed: Validate time > 0
+
+5. ButtonFacade sets count Width=0
+   → Fixed: LAB_ButtonUpdate restores it
+
+========================================
+READ CURSOR_HANDOFF_DOCUMENT.txt
+FOR COMPLETE DETAILS!
+========================================
+
