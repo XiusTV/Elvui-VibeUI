@@ -42,7 +42,6 @@ This is a **custom fork maintained exclusively by XiusTV** with modifications an
 - **Comprehensive Commands Menu** - Complete command reference for all ElvUI features
 - **Alphabetical Options Menu** - Reorganized for easier navigation
 
-### 🚧 Coming Soon
 - **Aura Duration Tracker** - Shows buff/DoT time remaining directly on action bar buttons (in development)
   - Will display remaining time for your abilities on current target
   - Color-coded by urgency (green/yellow/red)
