@@ -1,11 +1,12 @@
+# Ignore everything in AddOns except symlinks
+AddOns/
+
 # Development files
 *.md
-!AddOns/**/*.md
 !README.md
-!CHANGELOG.md
-!AddOns/ElvUI/CHANGELOG.md
-*.txt
-!AddOns/**/*.txt
+!ElvUI/CHANGELOG.md
+!ElvUI/README.md
+!ElvUI_OptionsUI/README.md
 *.bat
 
 # Cursor IDE
