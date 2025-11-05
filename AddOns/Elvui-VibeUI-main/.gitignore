@@ -1,0 +1,27 @@
+# Saved variables and user-specific data
+*.bak
+*.old
+*.tmp
+*~
+.DS_Store
+Thumbs.db
+
+# ElvUI specific - don't commit user profiles
+profiles/
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+AUTO_PUSH_SETUP.md
+
+# Exclude all other addons in the AddOns folder
+# Only track ElvUI and ElvUI_OptionsUI
+/*
+!/ElvUI/
+!/ElvUI_OptionsUI/
+!.gitignore
+!.gitattributes
+!README.md
+!CHANGELOG.md

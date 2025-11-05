@@ -1,0 +1,11 @@
+## Interface: 30300
+## Title: Details!: Streamer (plugin)
+## Notes: Show which spells you are casting, viewers can see what are you doing and follow your steps.
+## RequiredDeps: Details
+## DefaultState: disabled
+## SavedVariables: Details_StreamerDB
+## X-IconTexture: Interface\AddOns\Details\images\minimap
+
+## X-Wago-ID: VBNB9MGx
+
+Details_Streamer.lua

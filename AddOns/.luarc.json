@@ -1,0 +1,104 @@
+{
+  "$schema": "https://raw.githubusercontent.com/sumneko/vscode-lua/master/setting/schema.json",
+  "runtime.version": "Lua 5.1",
+  "runtime.special": {
+    "reload": "require"
+  },
+  "diagnostics.globals": [
+    // Core WoW Functions
+    "GetSpellInfo", "UnitHealth", "UnitPower", "UnitMana", "CreateFrame", "UnitAura", "UnitBuff", "UnitDebuff",
+    "UnitName", "UnitExists", "UnitIsUnit", "UnitGUID", "UnitClass", "UnitRace", "UnitLevel", "UnitIsPlayer",
+    "GetTime", "GetActionInfo", "GetActionText", "GetPetActionInfo", "GetPlayerBuff", "GetPlayerBuffName",
+    
+    // Action Bar API
+    "ActionButton_Update", "ActionButton_UpdateUsable", "ActionButton_UpdateCooldown", "ActionButton_ShowGrid",
+    "HasAction", "GetActionCooldown", "GetActionCount", "GetActionTexture", "IsActionInRange", "IsUsableAction",
+    "IsCurrentAction", "IsAttackAction", "IsAutoRepeatAction", "IsEquippedAction", "IsConsumableAction",
+    
+    // Frame/UI Functions
+    "UIParent", "GameTooltip", "WorldFrame", "GetCursorPosition", "SetCursor", "ResetCursor",
+    "GetScreenWidth", "GetScreenHeight", "GetFramerate",
+    
+    // String/Table Functions  
+    "strsplit", "strjoin", "strtrim", "strlower", "strupper", "strsub", "strlen", "strfind", "format",
+    "tinsert", "tremove", "wipe", "sort",
+    
+    // LibStub and Ace3
+    "LibStub", "AceLibrary",
+    
+    // Blizzard Global Variables
+    "RAID_CLASS_COLORS", "FACTION_BAR_COLORS", "ITEM_QUALITY_COLORS", "FONT_COLOR_CODE_CLOSE",
+    
+    // Slash Commands
+    "SlashCmdList", "SLASH_RELOADUI1",
+    
+    // Common ElvUI Globals  
+    "ElvUI", "ElvDB",
+    
+    // Standard WoW UI Frames
+    "PetActionButton1", "ShapeshiftButton1", "SecureActionButton_OnClick",
+    
+    // Constants
+    "ACCEPT", "CANCEL", "YES", "NO", "OKAY", "CONTINUE", "HELP", "CLOSE",
+    "REMOVE", "RESET", "DONE", "ENABLE", "DISABLE", "DEFAULT",
+    
+    // API Functions (General)
+    "ReloadUI", "IsAddOnLoaded", "LoadAddOn", "GetAddOnInfo", "GetAddOnMetadata", "EnableAddOn", "DisableAddOn",
+    "PlaySound", "PlaySoundFile", "StopSound", "GetCVar", "SetCVar", "GetCVarBool", "SetCVarBitfield",
+    
+    // Chat Functions
+    "SendChatMessage", "DEFAULT_CHAT_FRAME", "ChatFrame_AddMessageEventFilter",
+    
+    // Item/Inventory API
+    "GetItemInfo", "GetItemQualityColor", "GetItemCount", "GetContainerNumSlots", "GetContainerItemInfo",
+    "PickupContainerItem", "GetInventoryItemTexture", "GetInventoryItemCount", "GetInventoryItemLink",
+    
+    // Spell/Talent API  
+    "GetSpellCooldown", "GetSpellBookItemName", "GetSpellTabInfo", "GetNumSpellTabs", "CastSpell", "CastSpellByName",
+    "GetTalentInfo", "GetNumTalents", "GetTalentTabInfo", "GetNumTalentTabs",
+    
+    // Target/Combat API
+    "TargetUnit", "AssistUnit", "FocusUnit", "ClearTarget", "ClearFocus", "SetFocus",
+    "InCombatLockdown", "UnitAffectingCombat", "UnitCanAttack", "UnitCanAssist",
+    
+    // Group/Raid API
+    "GetNumPartyMembers", "GetNumRaidMembers", "UnitInParty", "UnitInRaid", "IsInRaid", "IsInGroup",
+    "GetRaidRosterInfo", "UnitGroupRolesAssigned",
+    
+    // Quest API (for pfQuest)
+    "GetNumQuestLogEntries", "SelectQuestLogEntry", "GetQuestLogTitle", "GetQuestLogSelection",
+    "IsQuestComplete", "GetQuestGreenRange", "AddQuestWatch", "RemoveQuestWatch",
+    
+    // Database/SavedVariables
+    "ElvCharacterDB", "ElvPrivateDB", "ElvDB", 
+    
+    // Events
+    "UNIT_AURA", "UNIT_HEALTH", "UNIT_POWER", "UNIT_MANA", "PLAYER_TARGET_CHANGED", "PLAYER_ENTERING_WORLD",
+    "PLAYER_LOGIN", "PLAYER_LOGOUT", "ACTIONBAR_SLOT_CHANGED", "UPDATE_BONUS_ACTIONBAR",
+    "ADDON_LOADED", "VARIABLES_LOADED", "PLAYER_REGEN_ENABLED", "PLAYER_REGEN_DISABLED",
+    
+    // 3.3.5 Specific
+    "GetBuildInfo", "GetLocale", "GetRealmName", "GetServerTime", "UnitAuraBySlot"
+  ],
+  "diagnostics.disable": [
+    "lowercase-global",
+    "undefined-global"
+  ],
+  "diagnostics.severity": {
+    "redefined-local": "Warning"
+  },
+  "workspace.checkThirdParty": false,
+  "workspace.ignoreDir": [
+    ".git",
+    ".vscode",
+    "node_modules"
+  ],
+  "workspace.library": [],
+  "completion.enable": true,
+  "completion.callSnippet": "Both",
+  "completion.keywordSnippet": "Both",
+  "hover.enable": true,
+  "signatureHelp.enable": true,
+  "semantic.enable": false,
+  "telemetry.enable": false
+}

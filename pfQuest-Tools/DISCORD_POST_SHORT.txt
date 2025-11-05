@@ -1,0 +1,132 @@
+🎮 **pfQuest Enhanced - Automated Quest Database Builder**
+
+The quest addon that learns as you play! Capture and share quest data automatically.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+**WHAT IS THIS?**
+✅ Shows 10,000+ quest locations on map/minimap
+✅ Quest tracker with smart routing
+✅ **NEW:** Auto-captures quest data as you play
+✅ **NEW:** Makes captures permanent & shareable
+
+**HOW IT WORKS**
+• Accept quest → System captures NPC, location, objectives
+• Complete objectives → Tracks where you do them
+• Turn in quest → Captures everything
+• Close game → Merger makes it permanent
+• Restart → All characters can see it forever!
+
+**WHAT GETS CAPTURED:**
+✓ Quest giver NPC (name, ID, exact location)
+✓ Objective completion spots
+✓ Turn-in NPC location
+✓ Quest items, rewards, text
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+**INSTALLATION (2 MIN)**
+
+**Requirements:**
+• WoW 3.3.5 (WotLK)
+• **NO PYTHON NEEDED!** (Standalone .exe)
+
+**Setup:**
+1. Copy `pfQuest-wotlk\` to `Interface\AddOns\`
+2. Copy `pfQuest-Tools\` to `Interface\`
+3. Go to `pfQuest-Tools\dist\`
+4. Double-click `pfQuest Merger Tool.exe`
+5. Click Settings → Set your game/addon paths
+6. Click "Start Monitoring"
+7. Start WoW, enable addon
+8. Type `/pfquest config`, enable quest display
+9. Open map → See quest icons!
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+**DAILY USE**
+1. Start `pfQuest Merger Tool.exe` (or enable "Start with Windows")
+2. Click "Start Monitoring"
+3. Play WoW normally
+4. Close game (merger runs automatically)
+5. Restart → Captured quests permanent!
+
+**Optional Commands:**
+```
+/questcapture         - View captures
+/questcapture inject  - Show immediately
+/questcapture export  - Export as Lua
+/pfquest config       - Settings
+```
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+**SHARING CAPTURES**
+
+**To Share:**
+Send: `pfQuest-wotlk\db\captured\quests.lua`
+
+**Recipients:**
+Copy to their `Interface\AddOns\pfQuest-wotlk\db\captured\quests.lua`
+Restart game → See your quests!
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+**KEY FEATURES**
+
+**Core:**
+• 10,000+ quests (Vanilla/TBC/WotLK)
+• Map & minimap integration
+• Quest tracker with routing
+• Advanced filtering
+• Database browser
+
+**Capture System:**
+• Auto quest detection
+• 4 NPC detection methods
+• Accurate zone IDs
+• Objective tracking
+• Per-character history
+
+**Merger Tool:**
+• Monitors game process
+• Auto-extracts on close
+• Permanent storage
+• Shareable database files
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+**TROUBLESHOOTING**
+
+**Quest not showing?**
+• `/pfquest config` → Enable "Show Available Quests"
+• `/pfquest config` → Enable "Show Low Level Quests"
+• `/pfquest history check` (completed?)
+• `/reload` or restart
+
+**"psutil not found"?**
+`python -m pip install psutil`
+
+**Debug:** `/run pfQuest_CaptureConfig.debug = true`
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+**DOCUMENTATION**
+
+Included files:
+• `PFQUEST_COMPLETE_GUIDE.md` - Full docs
+• `PFQUEST_SETUP_QUICK.md` - Quick start
+• `DISTRIBUTION_README.txt` - Sharing guide
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+**CREDITS**
+Based on pfQuest by Shagu
+Enhanced with automated capture + merger
+License: GNU GPL v3.0
+
+**Get Started:**
+Install Python → Copy folders → Run merger → Play!
+
+Help expand the quest database! 🎮✨
+
