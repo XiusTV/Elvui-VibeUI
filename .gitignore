@@ -1,0 +1,20 @@
+# Development files
+*.md
+!AddOns/**/*.md
+!README.md
+!CHANGELOG.md
+!AddOns/ElvUI/CHANGELOG.md
+*.txt
+!AddOns/**/*.txt
+*.bat
+
+# Cursor IDE
+.cursor/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
