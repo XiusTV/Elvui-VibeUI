@@ -20,9 +20,18 @@ This is a **custom fork maintained exclusively by XiusTV** with modifications an
 
 ## Version
 
-- **Version:** 1.3.0
+- **Version:** 1.3.1
 - **Client:** WoW 3.3.5 (WotLK)
 - **Maintained by:** XiusTV
+
+## What's New in v1.3.1
+
+### 🎯 AuraTracker Enhancements
+- **Black Color Preset** - Added black as a color choice for countdown timers
+- **White Outline Toggle** - Option to invert outline color from black to white for better visibility
+- **Menu Reorganization** - "Aura Tracker" moved to standalone tab under ActionBars (ElvUI → ActionBars → Aura Tracker)
+- **Permanent Buff Fix** - Permanent buffs (shapeshifts, stances) no longer show text, only temporary buffs display countdown
+- **Menu Cleanup** - Renamed "Raid Markers Bar" to "Raid Markers" for consistency
 
 ## What's New in v1.3.0
 
