@@ -159,7 +159,7 @@ local function FormatTime(seconds)
 	end
 	
 	if seconds < 60 then
-		return format("%ds", floor(seconds)) -- Whole seconds only
+		return format("%d", floor(seconds)) -- Whole seconds only, no suffix
 	elseif seconds < 3600 then
 		return format("%dm", floor(seconds / 60)) -- Minutes
 	else
