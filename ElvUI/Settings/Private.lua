@@ -23,7 +23,8 @@ V.general = {
 	classColorMentionsSpeech = true,
 	raidUtility = true,
 	reminder = {
-		classtype = "Caster"
+		classtype = "Caster",
+		reminderSelectedSlot = 1
 	}
 }
 

@@ -141,7 +141,24 @@ P.general = {
 		font = "Homespun",
 		fontSize = 10,
 		fontOutline = "MONOCHROMEOUTLINE",
-		wide = true
+		wide = true,
+		-- Custom spell tracking for each reminder slot
+		customSpells = {
+			[1] = {}, -- Flask/Elixir slot
+			[2] = {}, -- Food slot
+			[3] = {}, -- Mark of the Wild slot
+			[4] = {}, -- Kings slot
+			[5] = {}, -- Fort slot
+			[6] = {}, -- Sanctuary slot
+			[7] = {}, -- Int/Might slot
+			[8] = {}, -- Stam slot
+			[9] = {}, -- Thorns/Conc slot
+			[10] = {}, -- Wisdom slot
+			[11] = {}, -- Crit slot
+			[12] = {}, -- Haste slot
+			[13] = {}, -- Spirit/AP slot
+			[14] = {} -- Damage slot
+		}
 	},
 	kittys = false
 }

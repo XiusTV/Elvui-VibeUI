@@ -294,13 +294,49 @@ RB.Spell14Buffs = {
 	34455, -- Ferocious Inspiration
 }
 
-function RB:CheckFilterForActiveBuff(filter)
+function RB:CheckFilterForActiveBuff(filter, slotIndex)
+	-- Check default buff list
 	for _, spell in ipairs(filter) do
 		local spellName = GetSpellInfo(spell)
 		local name, _, texture, _, _, duration, expirationTime = UnitAura("player", spellName)
 
 		if name then
 			return texture, duration, expirationTime
+		end
+	end
+	
+	-- Check custom spells for this slot
+	if slotIndex and E.db.general.reminder.customSpells and E.db.general.reminder.customSpells[slotIndex] then
+		for customSpell, enabled in pairs(E.db.general.reminder.customSpells[slotIndex]) do
+			if enabled then
+				-- Convert to lowercase for case-insensitive matching
+				local searchName = string.lower(customSpell)
+				
+				-- Try as spell ID first
+				local spellIDNum = tonumber(customSpell)
+				if spellIDNum then
+					local spellName = GetSpellInfo(spellIDNum)
+					if spellName then
+						local name, _, texture, _, _, duration, expirationTime = UnitAura("player", spellName)
+						if name then
+							return texture, duration, expirationTime
+						end
+					end
+				end
+				
+				-- Scan through all player buffs to find matching name
+				local i = 1
+				while true do
+					local name, _, texture, _, _, duration, expirationTime = UnitAura("player", i, "HELPFUL")
+					if not name then break end
+					
+					if string.lower(name) == searchName then
+						return texture, duration, expirationTime
+					end
+					
+					i = i + 1
+				end
+			end
 		end
 	end
 end
@@ -332,7 +368,7 @@ function RB:UpdateReminder(event, unit)
 	if event == "UNIT_AURA" and unit ~= "player" then return end
 	local wide = E.db.general.reminder.wide
 	for i = 1, wide and 14 or 7 do
-		local texture, duration, expirationTime = self:CheckFilterForActiveBuff(self["Spell"..i.."Buffs"])
+		local texture, duration, expirationTime = self:CheckFilterForActiveBuff(self["Spell"..i.."Buffs"], i)
 		local button = self.frame[i]
 
 		if texture then
