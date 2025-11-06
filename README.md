@@ -20,9 +20,21 @@ This is a **custom fork maintained exclusively by XiusTV** with modifications an
 
 ## Version
 
-- **Version:** 1.3.1
+- **Version:** 1.3.2
 - **Client:** WoW 3.3.5 (WotLK)
 - **Maintained by:** XiusTV
+
+## What's New in v1.3.2
+
+### 🎯 Custom Buff Tracking for Reminder System
+- **Custom Spell Tracking** - Add any buff to the 14 reminder slots (flasks, food, elixirs, etc.)
+- **Add from Current Buffs** - Dropdown showing your active buffs with icons for easy selection
+- **Manual Entry** - Input field to add buffs by name or spell ID even if you don't have them active
+- **Easy Management** - Remove tracked spells via dropdown, real-time reminder updates
+- **Smart Matching** - Case-insensitive buff name detection (e.g., "supreme power" works)
+- **Location:** ElvUI → Buffs and Debuffs → Reminder → Custom Buff Tracking
+
+**Example:** Track Flask of Supreme Power by selecting "Supreme Power" from your current buffs!
 
 ## What's New in v1.3.1
 
