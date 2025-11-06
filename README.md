@@ -1,8 +1,8 @@
-World of Warcraft 3.3.5 (WotLK) Addons by XiusTV:
+**Other WotLK 3.3.5 Addons by XiusTV:**
 
-- [ElvUI VibeUI](https://github.com/XiusTV/Elvui-VibeUI)
-- [PFQuest-WotLK](https://github.com/XiusTV/PFQuest-Wotlk)
-- [pfQuest-BronzeBeard](https://github.com/XiusTV/pfQuest-BronzeBeard)
+* [ElvUI VibeUI](https://github.com/XiusTV/Elvui-VibeUI) - Modern ElvUI configuration
+* [Modern TSM](https://github.com/XiusTV/Modern-TSM-335) - Performance-optimized TradeSkillMaster
+* [PFQuest-WotLK](https://github.com/XiusTV/PFQuest-Wotlk) - Rework Coming Soon
 
 Support: [Buy Me A Coffee](https://buymeacoffee.com/xius)
 
