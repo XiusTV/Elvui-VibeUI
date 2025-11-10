@@ -13,4 +13,5 @@
 	<Script file="RaidMarkersBar.lua"/>
 	<Script file="ProfessionMenu.lua"/>
 	<Script file="AFK.lua"/>
+	<Script file="TrainAll.lua"/>
 </Ui>

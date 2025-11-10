@@ -28,6 +28,14 @@ V.general = {
 	}
 }
 
+V.enhanced = {
+	animatedAchievementBars = false,
+	deathRecap = false,
+	actionbar = {
+		keyPressAnimation = false
+	},
+}
+
 V.bags = {
 	enable = true,
 	bagBar = false

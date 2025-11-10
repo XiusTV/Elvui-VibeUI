@@ -7,6 +7,15 @@
 	
 	<!-- Main Module -->
 	<Script file="WarcraftEnhanced.lua"/>
+	<Script file="MinimapButtonGrabber.lua"/>
+	<Script file="ActionbarKeyPress.lua"/>
+	<Script file="Blizzard.lua"/>
+	<Script file="ErrorFrame.lua"/>
+	<Script file="TakeAllMail.lua"/>
+	<Script file="AnimatedAchievementBars.lua"/>
+	<Script file="TooltipIcon.lua"/>
+	<Script file="ItemQualityBorder.lua"/>
+	<Script file="ProgressionInfo.lua"/>
 	
 	<!-- Omen Threat Meter (load after localization) -->
 	<Script file="Omen.lua"/>

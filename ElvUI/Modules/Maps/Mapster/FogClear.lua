@@ -12,7 +12,7 @@ local MODNAME = "FogClear"
 local FogClear = Mapster:NewModule(MODNAME, "AceHook-3.0", "AceEvent-3.0")
 
 local strlen, strsub = string.len, string.sub
-local mod, floor, ceil = math.fmod, math.floor, math.ceil
+local mod, floor, ceil, max = math.fmod, math.floor, math.ceil, math.max
 local strlower, format = string.lower, string.format
 
 local errata = {
@@ -1135,6 +1135,7 @@ function FogClear:OnEnable()
 	-- Cache to track if textures have been initialized for performance
 	self.texturesInitialized = false
 	self.updateQueued = false
+	self.warmupDone = false
 	
 	self:RawHook("GetNumMapOverlays", true)
 	self:RawHook("WorldMapFrame_Update", true)
@@ -1155,13 +1156,7 @@ function FogClear:OnEnable()
 	end
 	
 	-- Pre-initialize textures in background after entering world to avoid first-open stutter
-	self:RegisterEvent("PLAYER_ENTERING_WORLD", function()
-		FogClear:UnregisterEvent("PLAYER_ENTERING_WORLD")
-		-- Wait a bit for the world to fully load, then pre-cache textures
-		C_Timer.After(2, function()
-			FogClear:PreInitializeTextures()
-		end)
-	end)
+	self:RegisterEvent("PLAYER_ENTERING_WORLD")
 
 	if WorldMapFrame:IsShown() then
 		WorldMapFrame_Update()
@@ -1275,9 +1270,9 @@ local function updateOverlayTextures(frame, frameName, scale, alphaMod)
 		if neededTextures > numOv then
 			-- Create textures as needed (cached for performance)
 			for j = numOv + 1, neededTextures do
-				local cacheKey = frameName .. j
+				local cacheKey = format(frameName, j)
 				if not textureCache[cacheKey] then
-					textureCache[cacheKey] = frame:CreateTexture(format(frameName, j), "ARTWORK")
+					textureCache[cacheKey] = frame:CreateTexture(cacheKey, "ARTWORK")
 				end
 			end
 			numOv = neededTextures
@@ -1360,13 +1355,13 @@ function FogClear:PreInitializeTextures()
 	
 	-- Pre-create a reasonable number of overlay textures to avoid creation during first map open
 	-- This happens in the background after login, so no performance impact
-	local numTexturesToPreCreate = 50 -- Enough for most maps
+	local numTexturesToPreCreate = 150 -- Pre-cache generously to cover large maps
 	for i = 1, numTexturesToPreCreate do
-		local texName = format("WorldMapOverlay%d", i)
-		if not textureCache[texName] then
-			local tex = WorldMapDetailFrame:CreateTexture(texName, "ARTWORK")
+		local cacheKey = format("WorldMapOverlay%d", i)
+		if not textureCache[cacheKey] then
+			local tex = WorldMapDetailFrame:CreateTexture(cacheKey, "ARTWORK")
 			tex:Hide() -- Hide until needed
-			textureCache[texName] = tex
+			textureCache[cacheKey] = tex
 		end
 	end
 	
@@ -1377,12 +1372,14 @@ function FogClear:PreInitializeTextures()
 	self.texturesInitialized = true
 end
 
-function FogClear:UpdateWorldMapOverlays()
-	if not WorldMapFrame:IsShown() then return end
+function FogClear:UpdateWorldMapOverlays(force)
+	if not force and not WorldMapFrame:IsShown() then return end
 	
 	-- If textures weren't pre-initialized (shouldn't happen), fall back to deferred loading
 	if not self.texturesInitialized then
-		if not self.updateQueued then
+		if force then
+			self:PreInitializeTextures()
+		elseif not self.updateQueued then
 			self.updateQueued = true
 			C_Timer.After(0.05, function()
 				self.updateQueued = false
@@ -1391,8 +1388,8 @@ function FogClear:UpdateWorldMapOverlays()
 					updateOverlayTextures(WorldMapDetailFrame, "WorldMapOverlay%d", 1, 0)
 				end
 			end)
+			return
 		end
-		return
 	end
 	
 	updateOverlayTextures(WorldMapDetailFrame, "WorldMapOverlay%d", 1, 0)
@@ -1411,4 +1408,48 @@ end
 function FogClear:SetOverlayColor(info, r,g,b,a)
 	self.db.profile.colorR, self.db.profile.colorG, self.db.profile.colorB, self.db.profile.colorA = r,g,b,a
 	if self:IsEnabled() then self:Refresh() end
+end
+
+function FogClear:PLAYER_ENTERING_WORLD()
+	self:UnregisterEvent("PLAYER_ENTERING_WORLD")
+
+	C_Timer.After(2, function()
+		if not FogClear:IsEnabled() then return end
+
+		FogClear:PreInitializeTextures()
+
+		C_Timer.After(0.1, function()
+			if FogClear:IsEnabled() then
+				FogClear:WarmupWorldMap()
+			end
+		end)
+	end)
+end
+
+function FogClear:WarmupWorldMap()
+	if self.warmupDone then return end
+	self.warmupDone = true
+
+	local currentMapID = GetCurrentMapAreaID and GetCurrentMapAreaID()
+	local currentContinent = GetCurrentMapContinent and GetCurrentMapContinent()
+	local currentZone = GetCurrentMapZone and GetCurrentMapZone()
+	local currentDungeonLevel = GetCurrentMapDungeonLevel and GetCurrentMapDungeonLevel()
+
+	-- Ensure we have a valid map context
+	SetMapToCurrentZone()
+
+	self:UpdateWorldMapOverlays(true)
+
+	-- Restore previous map selection when possible
+	if currentMapID and currentMapID > 0 and SetMapByID then
+		SetMapByID(currentMapID)
+	elseif currentContinent and currentContinent > 0 and SetMapZoom then
+		SetMapZoom(currentContinent, currentZone)
+	else
+		SetMapToCurrentZone()
+	end
+
+	if currentDungeonLevel and SetDungeonMapLevel then
+		SetDungeonMapLevel(currentDungeonLevel)
+	end
 end

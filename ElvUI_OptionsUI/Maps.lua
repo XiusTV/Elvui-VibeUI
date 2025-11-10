@@ -4,6 +4,32 @@ local C, L = unpack(select(2, ...))
 local MM = E:GetModule("Minimap")
 local AB = E:GetModule("ActionBars")
 -- local MMk = E:GetModule("MapMarkers") -- Removed - Using Mapster instead
+local function EnsureButtonGrabberDB()
+	E.db.general = E.db.general or {}
+	E.db.general.minimap = E.db.general.minimap or {}
+	E.db.general.minimap.buttonGrabber = E.db.general.minimap.buttonGrabber or {}
+
+	local db = E.db.general.minimap.buttonGrabber
+	if db.enable == nil then db.enable = false end
+	if db.backdrop == nil then db.backdrop = false end
+	if db.backdropSpacing == nil then db.backdropSpacing = 1 end
+	if db.mouseover == nil then db.mouseover = false end
+	if db.alpha == nil then db.alpha = 1 end
+	if db.buttonSize == nil then db.buttonSize = 22 end
+	if db.buttonSpacing == nil then db.buttonSpacing = 0 end
+	if db.buttonsPerRow == nil then db.buttonsPerRow = 1 end
+	if not db.growFrom then db.growFrom = "TOPLEFT" end
+
+	db.insideMinimap = db.insideMinimap or {}
+	local inside = db.insideMinimap
+	if inside.enable == nil then inside.enable = true end
+	if not inside.position then inside.position = "TOPLEFT" end
+	if inside.xOffset == nil then inside.xOffset = -1 end
+	if inside.yOffset == nil then inside.yOffset = 1 end
+
+	return db
+end
+
 
 local Mapster = E:GetModule("Mapster", true)
 
@@ -20,6 +46,235 @@ local function BuildMapsterOptions()
 					type = "header",
 					name = L["WORLD_MAP"] .. " - Mapster (Loading...)"
 				},
+		buttonGrabber = {
+			order = 6,
+			type = "group",
+			name = L["Minimap Button Grabber"],
+			get = function(info)
+				local db = EnsureButtonGrabberDB()
+				return db[info[#info]]
+			end,
+			set = function(info, value)
+				local db = EnsureButtonGrabberDB()
+				db[info[#info]] = value
+				local module = E:GetModule("WarcraftEnhanced_MinimapButtonGrabber", true)
+				if module then
+					module.db = EnsureButtonGrabberDB()
+					module:UpdateLayout()
+				end
+			end,
+			args = {
+				enable = {
+					order = 1,
+					type = "toggle",
+					name = L["Enable"],
+					get = function()
+						local db = EnsureButtonGrabberDB()
+						return db.enable
+					end,
+					set = function(_, value)
+						local db = EnsureButtonGrabberDB()
+						db.enable = value
+						local module = E:GetModule("WarcraftEnhanced_MinimapButtonGrabber", true)
+						if module then
+							module:HandleEnableState()
+						end
+						if not value then
+							E:StaticPopup_Show("CONFIG_RL")
+						end
+					end,
+					disabled = false
+				},
+				spacer1 = {
+					order = 2,
+					type = "description",
+					name = " ",
+					width = "full"
+				},
+				growFrom = {
+					order = 3,
+					type = "select",
+					name = L["Grow direction"],
+					values = {
+						["TOPLEFT"] = "DOWN -> RIGHT",
+						["TOPRIGHT"] = "DOWN -> LEFT",
+						["BOTTOMLEFT"] = "UP -> RIGHT",
+						["BOTTOMRIGHT"] = "UP -> LEFT"
+					},
+							disabled = function()
+								local db = EnsureButtonGrabberDB()
+								return not db.enable
+							end
+				},
+				buttonsPerRow = {
+					order = 4,
+					type = "range",
+					name = L["Buttons Per Row"],
+					min = 1, max = 12, step = 1,
+							disabled = function()
+								local db = EnsureButtonGrabberDB()
+								return not db.enable
+							end
+				},
+				buttonSize = {
+					order = 5,
+					type = "range",
+					name = L["Button Size"],
+					min = 10, max = 60, step = 1,
+							disabled = function()
+								local db = EnsureButtonGrabberDB()
+								return not db.enable
+							end
+				},
+				buttonSpacing = {
+					order = 6,
+					type = "range",
+					name = L["Button Spacing"],
+					min = -1, max = 24, step = 1,
+							disabled = function()
+								local db = EnsureButtonGrabberDB()
+								return not db.enable
+							end
+				},
+				backdrop = {
+					order = 7,
+					type = "toggle",
+					name = L["Backdrop"],
+					set = function(info, value)
+								local db = EnsureButtonGrabberDB()
+								db[info[#info]] = value
+						local module = E:GetModule("WarcraftEnhanced_MinimapButtonGrabber", true)
+						if module then
+									module.db = EnsureButtonGrabberDB()
+							module:UpdateLayout()
+						end
+					end,
+					disabled = function() return not E.db.general.minimap.buttonGrabber.enable end
+				},
+				backdropSpacing = {
+					order = 8,
+					type = "range",
+					name = L["Backdrop Spacing"],
+					min = -1, max = 15, step = 1,
+							disabled = function()
+								local db = EnsureButtonGrabberDB()
+								return not db.enable or not db.backdrop
+							end,
+				},
+				mouseover = {
+					order = 9,
+					type = "toggle",
+					name = L["Mouse Over"],
+					set = function(info, value)
+								local db = EnsureButtonGrabberDB()
+								db[info[#info]] = value
+						local module = E:GetModule("WarcraftEnhanced_MinimapButtonGrabber", true)
+						if module then
+									module.db = EnsureButtonGrabberDB()
+							module:ToggleMouseover()
+						end
+					end,
+							disabled = function()
+								local db = EnsureButtonGrabberDB()
+								return not db.enable
+							end
+				},
+				alpha = {
+					order = 10,
+					type = "range",
+					name = L["Alpha"],
+					min = 0, max = 1, step = 0.01,
+					set = function(info, value)
+								local db = EnsureButtonGrabberDB()
+								db[info[#info]] = value
+						local module = E:GetModule("WarcraftEnhanced_MinimapButtonGrabber", true)
+						if module then
+									module.db = EnsureButtonGrabberDB()
+							module:UpdateAlpha()
+						end
+					end,
+							disabled = function()
+								local db = EnsureButtonGrabberDB()
+								return not db.enable
+							end
+				},
+				insideMinimap = {
+					order = 11,
+					type = "group",
+					name = L["Inside Minimap"],
+					guiInline = true,
+					get = function(info)
+						local db = EnsureButtonGrabberDB()
+						return db.insideMinimap[info[#info]]
+					end,
+					set = function(info, value)
+						local db = EnsureButtonGrabberDB()
+						db.insideMinimap[info[#info]] = value
+						local module = E:GetModule("WarcraftEnhanced_MinimapButtonGrabber", true)
+						if module then
+							module.db = EnsureButtonGrabberDB()
+							module:UpdatePosition()
+							module:UpdateLayout()
+						end
+					end,
+					disabled = function()
+						local db = EnsureButtonGrabberDB()
+						return not db.enable
+					end,
+					args = {
+						enable = {
+							order = 1,
+							type = "toggle",
+							name = L["Enable"],
+							set = function(info, value)
+								local db = EnsureButtonGrabberDB()
+								db.insideMinimap[info[#info]] = value
+								local module = E:GetModule("WarcraftEnhanced_MinimapButtonGrabber", true)
+								if module then
+									module.db = EnsureButtonGrabberDB()
+									module:UpdatePosition()
+								end
+							end
+						},
+						position = {
+							order = 2,
+							type = "select",
+							name = L["Position"],
+							values = {
+								["TOPLEFT"] = L["Top Left"],
+								["TOPRIGHT"] = L["Top Right"],
+								["BOTTOMLEFT"] = L["Bottom Left"],
+								["BOTTOMRIGHT"] = L["Bottom Right"]
+							},
+									disabled = function()
+										local db = EnsureButtonGrabberDB()
+										return not db.insideMinimap.enable
+									end
+						},
+						xOffset = {
+							order = 3,
+							type = "range",
+							name = L["X-Offset"],
+							min = -100, max = 100, step = 1,
+											disabled = function()
+												local db = EnsureButtonGrabberDB()
+												return not db.insideMinimap.enable
+											end
+						},
+						yOffset = {
+							order = 4,
+							type = "range",
+							name = L["Y-Offset"],
+							min = -100, max = 100, step = 1,
+											disabled = function()
+												local db = EnsureButtonGrabberDB()
+												return not db.insideMinimap.enable
+											end
+						}
+					}
+				}
+			}
+		},
 				info = {
 					order = 2,
 					type = "description",
@@ -32,6 +287,13 @@ local function BuildMapsterOptions()
 	
 	local mapsterOpts = Mapster:GetOptions()
 	if mapsterOpts and mapsterOpts.args then
+		if Mapster.GetModuleOptions then
+			local zoneOptions = Mapster:GetModuleOptions("ZoneLevels")
+			if zoneOptions then
+				mapsterOpts.args.zoneInfo = zoneOptions
+			end
+		end
+
 		-- Return the full Mapster options with all modules
 		return {
 			order = 1,

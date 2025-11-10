@@ -63,6 +63,7 @@ function WE:Initialize()
 	self:InitializeLootRoll()
 	self:InitializeMacroButton()
 	self:InitializePortalBox()
+	self:InitializeMinimapButtonGrabber()
 	
 	-- TomTom and Omen load separately (they're full addons)
 	-- We just integrate their settings into our options
@@ -121,6 +122,12 @@ end
 
 function WE:InitializePortalBox()
 	-- PortalBox auto-initializes
+end
+
+function WE:InitializeMinimapButtonGrabber()
+	if self.modules.MinimapButtonGrabber and self.modules.MinimapButtonGrabber.HandleEnableState then
+		self.modules.MinimapButtonGrabber:HandleEnableState()
+	end
 end
 
 -- Slash commands (WarcraftEnhanced is now fully integrated into ElvUI)

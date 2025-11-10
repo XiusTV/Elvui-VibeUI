@@ -22,9 +22,25 @@ This is a **custom fork maintained exclusively by XiusTV** with modifications an
 
 ## Version
 
-- **Version:** 1.3.2
+- **Version:** 1.4.0
 - **Client:** WoW 3.3.5 (WotLK)
 - **Maintained by:** XiusTV
+
+## What's New in v1.4.0
+
+### 🚀 Enhanced Systems & QoL
+- Integrated ElvUI Enhanced feature set (toggleable) including Minimap Button Grabber, tooltip icons, progression info, and animated achievement bars
+- Added action bar key press animations with configurable color, scale, and rotation
+- Mailbox upgrades: Take All / Take Cash buttons, recent recipient history, and spam-safe automation
+- Configurable error frame sizing, fonts, and movers directly in-game
+
+### 🗺️ Map & Navigation Upgrades
+- Cromulent-style zone info overlay in Mapster with level ranges, instance callouts, and fishing requirements
+- World map warmup + expanded fog-clear preloading to eliminate first-open hitching
+
+### ⚔️ Combat Utilities
+- Totem bar border color shifts to red when the spell is out of range
+- New "Train All" button at class trainers with cost preview and safe retry logic
 
 ## What's New in v1.3.2
 

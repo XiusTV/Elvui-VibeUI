@@ -83,6 +83,23 @@ P.general = {
 				yOffset = 2,
 				hide = false
 			}
+		},
+		buttonGrabber = {
+			enable = false,
+			backdrop = false,
+			backdropSpacing = 1,
+			mouseover = false,
+			alpha = 1,
+			buttonSize = 22,
+			buttonSpacing = 0,
+			buttonsPerRow = 1,
+			growFrom = "TOPLEFT",
+			insideMinimap = {
+				enable = true,
+				position = "TOPLEFT",
+				xOffset = -1,
+				yOffset = 1
+			}
 		}
 	},
 	-- Removed mapMarkers and magnify - Replaced with Mapster (embedded)
@@ -161,6 +178,49 @@ P.general = {
 		}
 	},
 	kittys = false
+}
+
+P.enhanced = {
+	actionbar = {
+		keyPressAnimation = {
+			color = {r = 1, g = 1, b = 1},
+			scale = 1.5,
+			rotation = 90
+		}
+	},
+	blizzard = {
+		takeAllMail = true,
+		mailRecipientHistory = true,
+		errorFrame = {
+			enable = false,
+			width = 300,
+			height = 60,
+			font = "PT Sans Narrow",
+			fontSize = 12,
+			fontOutline = "NONE"
+		}
+	},
+	tooltip = {
+		itemQualityBorderColor = false,
+		tooltipIcon = {
+			enable = false,
+			tooltipIconSpells = true,
+			tooltipIconItems = true,
+			tooltipIconAchievements = true
+		},
+		progressInfo = {
+			enable = false,
+			checkAchievements = false,
+			checkPlayer = false,
+			modifier = "SHIFT",
+			tiers = {
+				["RS"] = true,
+				["ICC"] = true,
+				["ToC"] = true,
+				["Ulduar"] = true
+			}
+		}
+	}
 }
 
 --AddOnSkins
