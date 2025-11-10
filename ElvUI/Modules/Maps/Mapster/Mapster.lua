@@ -9,6 +9,8 @@ local E, L, V, P, G = unpack(select(2, ...)) --Import: Engine, Locales, PrivateD
 local Mapster = E:NewModule("Mapster", "AceEvent-3.0", "AceHook-3.0")
 
 local LibWindow = E.Libs.LibWindow or LibStub("LibWindow-1.1", true)
+local InCombatLockdown = InCombatLockdown
+local C_Timer = C_Timer
 -- Locale will be loaded separately
 
 local defaults = {
@@ -244,6 +246,8 @@ function Mapster:Enable()
 	self:UpdateBorderVisibility()
 	self:UpdateMouseInteractivity()
 
+	self:ScheduleWarmup()
+
 	self:SecureHook("WorldMapFrame_DisplayQuestPOI")
 	self:SecureHook("WorldMapFrame_DisplayQuests")
 	self:SecureHook("WorldMapFrame_SetPOIMaxBounds")
@@ -260,6 +264,10 @@ local blobShowFunc = function() blobWasVisible = true end
 local blobScaleFunc = function(self, scale) blobNewScale = scale end
 
 function Mapster:PLAYER_REGEN_DISABLED()
+	if InCombatLockdown and InCombatLockdown() then
+		return
+	end
+
 	blobWasVisible = WorldMapBlobFrame:IsShown()
 	blobNewScale = nil
 	-- Use pcall to safely handle SetParent in case it's protected
@@ -283,6 +291,10 @@ local function restoreBlobs()
 end
 
 function Mapster:PLAYER_REGEN_ENABLED()
+	if InCombatLockdown and InCombatLockdown() then
+		return
+	end
+
 	-- Use pcall to safely handle SetParent in case it's protected
 	pcall(function() WorldMapBlobFrame:SetParent(WorldMapFrame) end)
 	WorldMapBlobFrame:ClearAllPoints()
@@ -786,3 +798,64 @@ local function InitializeCallback()
 end
 
 E:RegisterInitialModule(Mapster:GetName(), InitializeCallback)
+
+function Mapster:ScheduleWarmup()
+	if self._warmupHooked then return end
+
+	local function hookWarmup()
+		if self._warmupHooked or not WorldMapFrame then
+			return
+		end
+
+		self._warmupHooked = true
+
+		local function performWarmup()
+			if not WorldMapFrame then return end
+
+			self:Unhook(WorldMapFrame, "OnHide")
+			self._warmupHooked = nil
+
+			if WorldMapFrame:IsShown() then return end
+
+			local alpha = WorldMapFrame:GetAlpha()
+			WorldMapFrame:SetAlpha(0)
+
+			local ok, err = pcall(function()
+				WorldMapFrame:Show()
+				WorldMapFrame:Hide()
+			end)
+
+			WorldMapFrame:SetAlpha(alpha)
+
+			if not ok and E.DebugPrint then
+				E:DebugPrint("Mapster warmup failed:", err)
+			end
+		end
+
+		self:SecureHook(_G, "WorldMapFrame_OnShow", function()
+			self:Unhook(_G, "WorldMapFrame_OnShow")
+			if WorldMapFrame then
+				self:SecureHook(_G, "WorldMapFrame_OnHide", function()
+					if not self._deferredWarmup then
+						self._deferredWarmup = true
+						C_Timer.After(0.2 + math.random() * 0.3, function()
+							performWarmup()
+							self._deferredWarmup = nil
+						end)
+					end
+				end)
+			end
+		end)
+	end
+
+	if WorldMapFrame then
+		hookWarmup()
+	else
+		self:RegisterEvent("ADDON_LOADED", function(_, addon)
+			if addon == "Blizzard_WorldMap" or addon == "Blizzard_WorldMapClassic" then
+				self:UnregisterEvent("ADDON_LOADED")
+				hookWarmup()
+			end
+		end)
+	end
+end

@@ -6,10 +6,19 @@ local Totems = E:GetModule("Totems")
 local Blizzard = E:GetModule("Blizzard")
 local Threat = E:GetModule("Threat")
 local AFK = E:GetModule("AFK")
+local LSM = E.Libs.LSM
 
 local _G = _G
 
 local FCF_GetNumActiveChatFrames = FCF_GetNumActiveChatFrames
+
+local function GetTakeAllMailModule()
+	return E:GetModule("Enhanced_TakeAllMail", true)
+end
+
+local function GetEnhancedBlizzardModule()
+	return E:GetModule("Enhanced_Blizzard", true)
+end
 
 local function GetChatWindowInfo()
 	local ChatTabInfo = {}
@@ -665,6 +674,120 @@ E.Options.args.general = {
 						end
 					end
 				},
+				animatedAchievementBars = {
+					order = 4.8,
+					type = "toggle",
+					name = L["Animated Achievement Bars"],
+					get = function() return E.private.enhanced.animatedAchievementBars end,
+					set = function(_, value)
+						E.private.enhanced.animatedAchievementBars = value
+						E:StaticPopup_Show("PRIVATE_RL")
+					end
+				},
+				mailRecipientHistory = {
+					order = 4.95,
+					type = "toggle",
+					name = L["Remember Mail Recipients"],
+					desc = L["Keep the last mail recipient entered and show a list of recent contacts."],
+					get = function()
+						return E.db and E.db.enhanced and E.db.enhanced.blizzard and E.db.enhanced.blizzard.mailRecipientHistory
+					end,
+					set = function(_, value)
+						if not E.db.enhanced then E.db.enhanced = {} end
+						if not E.db.enhanced.blizzard then E.db.enhanced.blizzard = {} end
+
+						E.db.enhanced.blizzard.mailRecipientHistory = value
+
+						if Misc and Misc.Mail_OnSettingChanged then
+							Misc:Mail_OnSettingChanged()
+						end
+					end
+				},
+				worldMapZoneLevels = {
+					order = 4.98,
+					type = "toggle",
+					name = L["Show Zone Levels"],
+					desc = L["Display recommended character levels on the world map zone label."],
+					get = function()
+						return E.global.general.worldMapZoneLevels
+					end,
+					set = function(_, value)
+						E.global.general.worldMapZoneLevels = value
+						local module = E:GetModule("WorldMap", true)
+						if module then
+							module:ResetZoneLevelText()
+							module:UpdateZoneLevelText()
+						end
+					end
+				},
+				errorFrame = {
+					order = 4.99,
+					type = "group",
+					name = L["Error Frame"],
+					guiInline = true,
+					get = function(info) return E.db.enhanced.blizzard.errorFrame[info[#info]] end,
+					set = function(info, value)
+						E.db.enhanced.blizzard.errorFrame[info[#info]] = value
+						local module = GetEnhancedBlizzardModule()
+						if module and module.initialized then
+							if info[#info] == "enable" then
+								module:CustomErrorFrameToggle()
+							else
+								module:ErrorFrameSize()
+							end
+						end
+					end,
+					args = {
+						enable = {
+							order = 1,
+							type = "toggle",
+							name = L["Enable"],
+							set = function(_, value)
+								E.db.enhanced.blizzard.errorFrame.enable = value
+								local module = GetEnhancedBlizzardModule()
+								if module and module.initialized then
+									module:CustomErrorFrameToggle()
+								end
+							end
+						},
+						width = {
+							order = 2,
+							type = "range",
+							name = L["Width"],
+							min = 200, max = 1024, step = 1,
+							disabled = function() return not E.db.enhanced.blizzard.errorFrame.enable end
+						},
+						height = {
+							order = 3,
+							type = "range",
+							name = L["Height"],
+							min = 32, max = 256, step = 1,
+							disabled = function() return not E.db.enhanced.blizzard.errorFrame.enable end
+						},
+						font = {
+							order = 4,
+							type = "select",
+							dialogControl = "LSM30_Font",
+							name = L["Font"],
+							values = LSM:HashTable("font"),
+							disabled = function() return not E.db.enhanced.blizzard.errorFrame.enable end
+						},
+						fontSize = {
+							order = 5,
+							type = "range",
+							name = L["Font Size"],
+							min = 8, max = 32, step = 1,
+							disabled = function() return not E.db.enhanced.blizzard.errorFrame.enable end
+						},
+						fontOutline = {
+							order = 6,
+							type = "select",
+							name = L["Font Outline"],
+							values = C.Values.FontFlags,
+							disabled = function() return not E.db.enhanced.blizzard.errorFrame.enable end
+						}
+					}
+				},
 				enhancedPvpMessages = {
 					order = 5,
 					type = "toggle",
@@ -1146,3 +1269,8 @@ E.Options.args.general = {
 		}
 	}
 }
+
+local takeAllModule = GetTakeAllMailModule()
+if takeAllModule and E.db and E.db.enhanced and E.db.enhanced.blizzard and E.db.enhanced.blizzard.takeAllMail and not takeAllModule.initialized then
+	takeAllModule:Initialize()
+end

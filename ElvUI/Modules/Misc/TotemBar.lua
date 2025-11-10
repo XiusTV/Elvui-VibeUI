@@ -8,6 +8,8 @@ local CooldownFrame_SetTimer = CooldownFrame_SetTimer
 local CreateFrame = CreateFrame
 local DestroyTotem = DestroyTotem
 local GetTotemInfo = GetTotemInfo
+local IsSpellInRange = IsSpellInRange
+local GetSpellInfo = GetSpellInfo
 
 local MAX_TOTEMS = MAX_TOTEMS
 local TOTEM_PRIORITIES = TOTEM_PRIORITIES
@@ -28,17 +30,42 @@ end
 function TOTEMS:UpdateTotem(event, slot)
 	local slotID = TOTEM_PRIORITIES[slot]
 	local _, _, startTime, duration, icon = GetTotemInfo(slot)
+	local button = self.bar[slotID]
 
 	if icon ~= "" then
 		local color = SLOT_BORDER_COLORS[slot]
-		self.bar[slotID].iconTexture:SetTexture(icon)
-		self.bar[slotID]:SetBackdropBorderColor(color.r, color.g, color.b)
+		button.iconTexture:SetTexture(icon)
+		button:SetBackdropBorderColor(color.r, color.g, color.b)
+		button.baseBorderColor = color
 
-		CooldownFrame_SetTimer(self.bar[slotID].cooldown, startTime, duration, 1)
+		CooldownFrame_SetTimer(button.cooldown, startTime, duration, 1)
 
-		self.bar[slotID]:Show()
+		button:Show()
 	else
-		self.bar[slotID]:Hide()
+		button:Hide()
+		button.baseBorderColor = nil
+	end
+end
+
+function TOTEMS:UpdateTotemRange()
+	if not self.bar then return end
+
+	for i = 1, MAX_TOTEMS do
+		local button = self.bar[i]
+		if button:IsShown() and button.baseBorderColor then
+			local slot = button.slot
+			local _, _, _, _, icon = GetTotemInfo(slot)
+
+			if icon and icon ~= "" and button.spellName then
+				local inRange = IsSpellInRange(button.spellName, "player")
+				if inRange == 0 then
+					button:SetBackdropBorderColor(1, 0, 0)
+				else
+					local color = button.baseBorderColor
+					button:SetBackdropBorderColor(color.r, color.g, color.b)
+				end
+			end
+		end
 	end
 end
 
@@ -140,6 +167,7 @@ function TOTEMS:Initialize()
 		frame:StyleButton()
 		frame.ignoreBorderColors = true
 		frame:Hide()
+		frame.spellName = GetSpellInfo(TOTEM_PRIORITIES[i])
 
 		frame.UpdateTooltip = UpdateTooltip
 
@@ -172,6 +200,11 @@ function TOTEMS:Initialize()
 
 	self:RegisterEvent("PLAYER_TOTEM_UPDATE", "UpdateTotem")
 	self:RegisterEvent("PLAYER_ENTERING_WORLD", "UpdateAllTotems")
+	self:RegisterEvent("PLAYER_TARGET_CHANGED", "UpdateTotemRange")
+	self:RegisterEvent("PLAYER_UPDATE_RESTING", "UpdateTotemRange")
+	self:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED", "UpdateTotemRange")
+	self:RegisterEvent("UNIT_AURA", "UpdateTotemRange")
+	self:RegisterEvent("PLAYER_MOVING_UPDATE", "UpdateTotemRange")
 end
 
 local function InitializeCallback()

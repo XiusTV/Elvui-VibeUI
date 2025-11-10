@@ -897,7 +897,8 @@ function CH:DisableChatThrottle()
 end
 
 function CH:ShortChannel()
-	return format("|Hchannel:%s|h[%s]|h", self, DEFAULT_STRINGS[strupper(self)] or gsub(self, "channel:", ""))
+	local key = type(self) == "string" and strupper(self)
+	return format("|Hchannel:%s|h[%s]|h", self or "", (key and DEFAULT_STRINGS[key]) or (type(self) == "string" and gsub(self, "channel:", "")) or "")
 end
 
 function CH:HandleShortChannels(msg)
@@ -936,8 +937,11 @@ function CH:GetColoredName(event, _, arg2, _, _, _, _, _, arg8, _, _, _, arg12)
 	end
 
 	local info = ChatTypeInfo[chatType]
-	if info and info.colorNameByClass and arg12 ~= "" then
-		local _, englishClass = GetPlayerInfoByGUID(arg12)
+	if info and info.colorNameByClass and arg12 and arg12 ~= "" then
+		local success, _, englishClass = pcall(GetPlayerInfoByGUID, arg12)
+		if not success then
+			englishClass = nil
+		end
 
 		if englishClass then
 			local classColorTable = RAID_CLASS_COLORS[englishClass]
@@ -976,7 +980,15 @@ function CH:ChatFrame_MessageEventHandler(frame, event, arg1, arg2, arg3, arg4, 
 			end
 		end
 
-		local _, _, englishClass, _, _, _, name, realm = pcall(GetPlayerInfoByGUID, arg12)
+		local englishClass, name, realm
+		if arg12 and arg12 ~= "" then
+			local success, localizedClass, classTag, localizedRace, englishRace, sex, fullName, playerRealm = pcall(GetPlayerInfoByGUID, arg12)
+			if success then
+				englishClass = classTag
+				name = fullName
+				realm = playerRealm
+			end
+		end
 		local coloredName = historySavedName or CH:GetColoredName(event, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12)
 
 		local nameWithRealm = strmatch(realm ~= "" and realm or E.myrealm, "%s*(%S+)$")
@@ -988,7 +1000,7 @@ function CH:ChatFrame_MessageEventHandler(frame, event, arg1, arg2, arg3, arg4, 
 
 		local channelLength = strlen(arg4)
 		local infoType = chatType
-		if (strsub(chatType, 1, 7) == "CHANNEL") and (chatType ~= "CHANNEL_LIST") and ((arg1 ~= "INVITE") or (chatType ~= "CHANNEL_NOTICE_USER")) then
+		if arg9 and (strsub(chatType, 1, 7) == "CHANNEL") and (chatType ~= "CHANNEL_LIST") and ((arg1 ~= "INVITE") or (chatType ~= "CHANNEL_NOTICE_USER")) then
 			if arg1 == "WRONG_PASSWORD" then
 				local staticPopup = _G[StaticPopup_Visible("CHAT_CHANNEL_PASSWORD") or ""]
 				if staticPopup and strupper(staticPopup.data) == strupper(arg9) then
@@ -1001,7 +1013,7 @@ function CH:ChatFrame_MessageEventHandler(frame, event, arg1, arg2, arg3, arg4, 
 			for index, value in pairs(frame.channelList) do
 				if channelLength > strlen(value) then
 					-- arg9 is the channel name without the number in front...
-					if ((arg7 > 0) and (frame.zoneChannelList[index] == arg7)) or (strupper(value) == strupper(arg9)) then
+					if ((arg7 > 0) and (frame.zoneChannelList[index] == arg7)) or (strupper(value) == strupper(arg9 or "")) then
 						found = 1
 						infoType = "CHANNEL"..arg8
 						info = ChatTypeInfo[infoType]
@@ -1023,7 +1035,7 @@ function CH:ChatFrame_MessageEventHandler(frame, event, arg1, arg2, arg3, arg4, 
 		if chatGroup == "CHANNEL" or chatGroup == "BN_CONVERSATION" then
 			chatTarget = tostring(arg8)
 		elseif chatGroup == "WHISPER" or chatGroup == "BN_WHISPER" then
-			chatTarget = strupper(arg2)
+			chatTarget = strupper(arg2 or "")
 		end
 
 		if FCFManager_ShouldSuppressMessage(frame, chatGroup, chatTarget) then
@@ -1160,10 +1172,12 @@ function CH:ChatFrame_MessageEventHandler(frame, event, arg1, arg2, arg3, arg4, 
 
 			local playerLink
 
+			local lineID = arg11 or 0
+
 			if chatType ~= "BN_WHISPER" and chatType ~= "BN_WHISPER_INFORM" and chatType ~= "BN_CONVERSATION" then
-				playerLink = "|Hplayer:"..arg2..":"..arg11..":"..chatGroup..(chatTarget and ":"..chatTarget or "").."|h"
+				playerLink = "|Hplayer:"..(arg2 or "")..":"..lineID..":"..(chatGroup or "")..(chatTarget and ":"..chatTarget or "").."|h"
 			else
-				playerLink = "|HBNplayer:"..arg2..":"..arg13..":"..arg11..":"..chatGroup..(chatTarget and ":"..chatTarget or "").."|h"
+				playerLink = "|HBNplayer:"..(arg2 or "")..":"..(arg13 or "")..":"..lineID..":"..(chatGroup or "")..(chatTarget and ":"..chatTarget or "").."|h"
 			end
 
 			if arg3 ~= "" and arg3 ~= "Universal" and arg3 ~= frame.defaultLanguage then
@@ -1329,7 +1343,7 @@ end
 
 local function PrepareMessage(author, message)
 	if author ~= "" and message ~= "" then
-		return format("%s%s", strupper(author), message)
+		return format("%s%s", strupper(author or ""), message)
 	end
 end
 
@@ -1930,6 +1944,8 @@ function CH:FCFTab_UpdateColors(tab, selected)
 end
 
 function CH:GetPlayerInfoByGUID(guid)
+	if not guid or guid == "" then return end
+
 	local data = CH.GuidCache[guid]
 	if not data then
 		local ok, localizedClass, englishClass, localizedRace, englishRace, sex, name, realm = pcall(GetPlayerInfoByGUID, guid)

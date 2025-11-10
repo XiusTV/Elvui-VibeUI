@@ -17,6 +17,7 @@
 	<Script file="Mapster\BattleMap.lua"/>
 	<Script file="Mapster\FogClear.lua"/>
 	<Script file="Mapster\InstanceMaps.lua"/>
+	<Script file="Mapster\ZoneLevels.lua"/>
 	<Script file="Mapster\Scaling.lua"/>
 	<Script file="Mapster\Magnify.lua"/>
 </Ui>

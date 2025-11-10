@@ -1,6 +1,6 @@
 ## Interface: 30300
 ## Author: Elv, Bunny, Xius
-## Version: 1.2.0
+## Version: 1.4.0
 ## Title: |cff1784d1E|r|cffe5e3e3lvUI|r |cff1784d1O|r|cffe5e3e3ptionsUI|r
 ## Notes: Options for ElvUI.
 ## RequiredDeps: ElvUI
@@ -8,28 +8,24 @@
 ## X-IconTexture: Interface\AddOns\ElvUI\Media\ElvUILogo
 
 Libraries\Load_Libraries.xml
-Locales\Load_locales.xml
-Core.lua
-General.lua
+Locales\Load_Locales.xml
+Load_Options.xml
+
 ActionBars.lua
-ButtonFacade.lua
-Omen.lua
-Commands.lua
 Auras.lua
 Bags.lua
-Chat.lua
--- Cooldown.lua -- COOLDOWNS DISABLED
+Blizzard.lua
+Cooldowns.lua
 DataTexts.lua
 Filters.lua
-Nameplates.lua
+General.lua
+NamePlates.lua
 StyleFilters.lua
 Skins.lua
 Tooltip.lua
+Enhanced.lua
 UnitFrames.lua
 DataBars.lua
 Maps.lua
-TomTom.lua
-ProfessionMenu.lua
--- ModuleControl.lua -- MODULE CONTROL DISABLED
-Tags.lua
-Search.lua
+Profiles.lua
+Private.lua
