@@ -159,7 +159,6 @@ local defaults = {
 		Warnings = {
 			Sound = true,
 			Flash = true,
-			Shake = false,
 			Message = false,
 			SinkOptions = {},
 			Threshold = 90,
@@ -965,56 +964,9 @@ function Omen:Flash()
 	self.FlashFrame:Show()
 end
 
--- This function is adapted from Omen2 to be self-contained,
--- which was initially taken from BigWigs
-function Omen:Shake()
-	local shaker = self.ShakerFrame
-	if not shaker then
-		shaker = CreateFrame("Frame", "OmenShaker", UIParent)
-		shaker:Hide()
-		shaker:SetScript("OnUpdate", function(self, elapsed)
-			elapsed = self.elapsed + elapsed
-			local x, y = 0, 0 -- Resets to original position if we're supposed to stop.
-			if elapsed >= 0.8 then
-				self:Hide()
-			else
-				x, y = random(-8, 8), random(-8, 8)
-			end
-			if WorldFrame:IsProtected() and InCombatLockdown() then
-				if not shaker.fail then
-					Omen:Print(L["|cffff0000Error:|r Omen cannot use shake warning if you have turned on nameplates at least once since logging in."])
-					shaker.fail = true
-				end
-				self:Hide()
-			else
-				WorldFrame:ClearAllPoints()
-				for i = 1, #self.originalPoints do
-					local v = self.originalPoints[i]
-					WorldFrame:SetPoint(v[1], v[2], v[3], v[4] + x, v[5] + y)
-				end
-			end
-			self.elapsed = elapsed
-		end)
-		shaker:SetScript("OnShow", function(self)
-			-- Store old worldframe positions, we need them all, people have frame modifiers for it
-			if not self.originalPoints then
-				self.originalPoints = {}
-				for i = 1, WorldFrame:GetNumPoints() do
-					tinsert(self.originalPoints, {WorldFrame:GetPoint(i)})
-				end
-			end
-			self.elapsed = 0
-		end)
-		self.ShakerFrame = shaker
-	end
-
-	shaker:Show()
-end
-
-function Omen:Warn(sound, flash, shake, message)
+function Omen:Warn(sound, flash, message)
 	if sound then PlaySoundFile(LSM:Fetch("sound", db.Warnings.SoundFile)) end
 	if flash then self:Flash() end
-	if shake then self:Shake() end
 	if message then self:Pour(message, 1, 0, 0, nil, 24, "OUTLINE", true) end
 end
 
@@ -1684,7 +1636,7 @@ function Omen:UpdateBarsReal()
 			    or GetShapeshiftFormInfo(shapeShiftForm) == "Interface\\Icons\\Spell_Deathknight_FrostPresence"
 			  ))
 		    then
-				self:Warn(t.Sound, t.Flash, t.Shake, t.Message and L["Passed %s%% of %s's threat!"]:format(t.Threshold, guidNameLookup[lastWarn.tankGUID]))
+				self:Warn(t.Sound, t.Flash, t.Message and L["Passed %s%% of %s's threat!"]:format(t.Threshold, guidNameLookup[lastWarn.tankGUID]))
 			end
 		end
 		-- Remove TPS data if the last scanned mob is different
@@ -2973,29 +2925,23 @@ Omen.Options = {
 					name = L["Enable Screen Flash"],
 					desc = L["Causes the entire screen to flash red momentarily"],
 				},
-				Shake = {
-					type = "toggle",
-					order = 4,
-					name = L["Enable Screen Shake"],
-					desc = L["Causes the entire game world to shake momentarily. This option only works if nameplates are turned off."],
-				},
 				Message = {
 					type = "toggle",
-					order = 5,
+					order = 4,
 					name = L["Enable Warning Message"],
 					desc = L["Print a message to screen when you accumulate too much threat"],
 				},
 				Output = Omen:GetSinkAce3OptionsDataTable(),
 				Threshold = {
 					type = "range",
-					order = 7,
+					order = 6,
 					name = L["Warning Threshold %"],
 					desc = L["Warning Threshold %"],
 					min = 60, max = 130, step = 1,
 				},
 				SoundFile = {
 					type = "select", dialogControl = 'LSM30_Sound',
-					order = 8,
+					order = 7,
 					name = L["Sound to play"],
 					desc = L["Sound to play"],
 					values = AceGUIWidgetLSMlists.sound,
@@ -3003,7 +2949,7 @@ Omen.Options = {
 				},
 				DisableWhileTanking = {
 					type = "toggle",
-					order = 9,
+					order = 8,
 					name = L["Disable while tanking"],
 					desc = L["DISABLE_WHILE_TANKING_DESC"],
 				},
@@ -3014,7 +2960,7 @@ Omen.Options = {
 					desc = L["Test warnings"],
 					func = function()
 						local t = db.Warnings
-						Omen:Warn(t.Sound, t.Flash, t.Shake, t.Message and L["Test warnings"])
+						Omen:Warn(t.Sound, t.Flash, t.Message and L["Test warnings"])
 					end,
 				},
 			},

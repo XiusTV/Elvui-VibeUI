@@ -2,80 +2,6 @@
 
 All notable changes to ElvUI will be documented in this file.
 
-## [1.4.0] - 2025-11-10
-
-### Added
-- **Enhanced Systems Integration**
-  - Bundled ElvUI Enhanced features directly (disabled by default) for easy enablement
-  - Minimap Button Grabber module with movable button grid, alpha/mouseover controls, and minimap anchoring
-  - Action bar key press animations with configurable color, scale, and rotation
-  - Animated achievement progress bars, tooltip icons, tooltip progression info, and item border color highlights
-  - Mailbox QoL: Take All / Take Cash buttons, spam-protected automation, and recipient history
-  - Error frame configuration (size, font, toggles) surfaced in-game
-- **Zone Information Overlay**
-  - Cromulent-style zone data overlay for Mapster (level ranges, instance info, fishing skill requirements, faction coloring)
-  - New `LibTourist-3.0`, `LibBabble-Zone-3.0`, and Astrolabe integration for zone metadata
-- **Trainer Quality of Life**
-  - "Train All" button at class trainers with cost preview and safe retry logic
-- **Totem Enhancements**
-  - Totem bar borders now turn red when the associated spell is out of range, retaining element colors otherwise
-
-### Improved
-- Warmed up world map assets after login and expanded fog-clear pre-caching to remove first-open hitching
-- Hardened chat GUID lookups, channel handling, and player link generation to avoid nil errors
-- Deferred protected Mapster calls while in combat to prevent taint
-
-### Technical
-- Registered new libraries: `LibCompress`, `LibAnim`, `LibTourist-3.0`, `LibBabble-Zone-3.0`, and `Astrolabe`
-- Added new saved variable `EnhancedDB` for the integrated modules
-
-## [1.3.2] - 2025-11-06
-
-### Added - Custom Buff Tracking for Reminder System
-- **Custom Spell Tracking**
-  - Add custom buffs/spells to any of the 14 reminder slots
-  - Track flasks, food buffs, elixirs, and any other buffs not in default lists
-  - Each slot can track multiple custom spells simultaneously
-  - Location: ElvUI → Buffs and Debuffs → Reminder → Custom Buff Tracking
-
-- **Add from Current Buffs Dropdown**
-  - Displays all currently active buffs on your character
-  - Shows buff icons alongside buff names for easy identification
-  - Simply select a buff from the dropdown to add it to tracking
-  - Automatically updates when you gain/lose buffs
-
-- **Manual Spell Entry**
-  - Input field for adding buffs you don't currently have active
-  - Supports both spell names and spell IDs
-  - Case-insensitive matching (e.g., "supreme power" matches "Supreme Power")
-  - Perfect for setting up tracking before you have the buff
-
-- **Easy Buff Removal**
-  - Remove Spell dropdown lists all tracked spells for selected slot
-  - One-click removal of unwanted tracked buffs
-  - Changes apply immediately to reminder display
-
-- **Improved UI Layout**
-  - Compact side-by-side layout: Slot Selection | Add from Current Buffs | Manual Entry
-  - Remove option on separate row for better visibility
-  - Current tracked spells display with count and color-coding
-  - Real-time updates when adding/removing spells
-
-### Technical Details
-- Enhanced `CheckFilterForActiveBuff()` to scan all player buffs for custom spell matches
-- Added `customSpells` table to Profile.lua with 14 slot storage
-- Added `reminderSelectedSlot` to Private.lua for UI state tracking
-- Implemented case-insensitive buff name matching with `string.lower()`
-- Support for spell ID lookup via `tonumber()` and `GetSpellInfo()`
-- Automatic reminder refresh on spell add/remove via `RB:UpdateReminder()`
-
-### Example Use Cases
-- Track "Supreme Power" (Flask of Supreme Power buff)
-- Track custom food buffs like "Well Fed" variants
-- Track class-specific buffs not in default reminder lists
-- Track elixirs like "Mongoose" or "Greater Arcane Elixir"
-- Set up tracking before raids by manually entering spell names
-
 ## [1.3.1] - 2025-11-05
 
 ### Added - AuraTracker Enhancements
@@ -253,7 +179,7 @@ All notable changes to ElvUI will be documented in this file.
   - Re-enabled BuffIndicator updates for raid frames
 - Reintegrated Raid-40 frames module
   - Re-enabled Raid40.lua in Groups loader
-  - Restored raid frame configuration options in ElvUI_OptionsUI
+  - Restored raid40 frame configuration options in ElvUI_OptionsUI
   - Re-enabled BuffIndicator updates for raid40 frames
 - Reintegrated Raid Pet frames module
   - Re-enabled RaidPets.lua in Groups loader
@@ -445,3 +371,4 @@ Complete UI replacement addon for World of Warcraft 3.3.5 (WotLK)
 - Additional features based on user feedback
 - Enhanced plugin support
 - More customization options
+

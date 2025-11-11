@@ -19,7 +19,6 @@ L["Toggle Focus"] = true
 L["> Pull Aggro <"] = true
 
 -- Warnings
-L["|cffff0000Error:|r Omen cannot use shake warning if you have turned on nameplates at least once since logging in."] = true
 L["Passed %s%% of %s's threat!"] = true
 
 -- Config module titles
@@ -215,8 +214,6 @@ L["Enable Sound"] = true
 L["Causes Omen to play a chosen sound effect"] = true
 L["Enable Screen Flash"] = true
 L["Causes the entire screen to flash red momentarily"] = true
-L["Enable Screen Shake"] = true
-L["Causes the entire game world to shake momentarily. This option only works if nameplates are turned off."] = true
 L["Enable Warning Message"] = true
 L["Print a message to screen when you accumulate too much threat"] = true
 L["Warning Threshold %"] = true
