@@ -26,6 +26,7 @@ You should **not** load these addons with this Elvui version seperately
 - **Omen** | **Elvui Enhanced** | **Elvui AddonSkin**
 - **Leatrix Plus** | **PortalBox** | **Tomtom**
 - **Profession Menu** | **Mapster** | **Maginify WOTLK**
+- **AutoQuest**
 
 ## Version
 
