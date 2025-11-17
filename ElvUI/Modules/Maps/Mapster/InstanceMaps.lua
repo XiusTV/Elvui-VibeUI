@@ -11,7 +11,7 @@ local Mapster = E:GetModule("Mapster")
 local MODNAME = "InstanceMaps"
 local Maps = Mapster:NewModule(MODNAME, "AceHook-3.0")
 
-local LBZ = LibStub("LibBabble-Zone-3.0", true)
+local LBZ = E.Libs.BabbleZone or LibStub("LibBabble-Zone-3.0", true)
 local BZ = LBZ and LBZ:GetLookupTable() or setmetatable({}, {__index = function(t,k) return k end})
 
 -- Data mostly from http://www.wowwiki.com/API_SetMapByID

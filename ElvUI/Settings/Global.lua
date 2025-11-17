@@ -496,8 +496,9 @@ G.unitframe = {
 	}
 }
 
--- Mapster global settings (for FogClear errata data, etc.)
-G.mapster = {}
+G.maps = {
+	worldMap = {}
+}
 
 G.profileCopy = {
 	--Specific values

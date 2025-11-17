@@ -103,39 +103,41 @@ P.general = {
 		}
 	},
 	-- Removed mapMarkers and magnify - Replaced with Mapster (embedded)
-	mapster = {
-		strata = "HIGH",
-		hideMapButton = false,
-		arrowScale = 0.88,
-		questObjectives = 2,
-		modules = {
-			['*'] = true,
-		},
-		x = 0,
-		y = 0,
-		points = "CENTER",
-		scale = 0.75,
-		poiScale = 0.8,
-		alpha = 1,
-		hideBorder = false,
-		disableMouse = false,
-		miniMap = false,
-		mini = {
+	maps = {
+		worldMap = {
+			strata = "HIGH",
+			hideMapButton = false,
+			arrowScale = 0.88,
+			questObjectives = 2,
+			modules = {
+				['*'] = true,
+			},
 			x = 0,
 			y = 0,
 			point = "CENTER",
-			scale = 1,
-			alpha = 0.9,
-			hideBorder = true,
-			disableMouse = true,
-		},
-		-- Module namespaces (will be populated by RegisterNamespace)
-		Coords = {},
-		FogClear = {},
-		GroupIcons = {},
-		BattleMap = {},
-		InstanceMaps = {},
-		Magnify = {},
+			scale = 0.75,
+			poiScale = 0.8,
+			alpha = 1,
+			hideBorder = false,
+			disableMouse = false,
+			miniMap = false,
+			mini = {
+				x = 0,
+				y = 0,
+				point = "CENTER",
+				scale = 1,
+				alpha = 0.9,
+				hideBorder = true,
+				disableMouse = true,
+			},
+			-- Module namespaces (will be populated by RegisterNamespace)
+			Coords = {},
+			FogClear = {},
+			GroupIcons = {},
+			BattleMap = {},
+			InstanceMaps = {},
+			Magnify = {},
+		}
 	},
 	threat = {
 		enable = true,
@@ -186,18 +188,6 @@ P.enhanced = {
 			color = {r = 1, g = 1, b = 1},
 			scale = 1.5,
 			rotation = 90
-		}
-	},
-	blizzard = {
-		takeAllMail = true,
-		mailRecipientHistory = true,
-		errorFrame = {
-			enable = false,
-			width = 300,
-			height = 60,
-			font = "PT Sans Narrow",
-			fontSize = 12,
-			fontOutline = "NONE"
 		}
 	},
 	tooltip = {
@@ -630,289 +620,708 @@ local NP_QuestIcon = {
 	fontSize = 12
 }
 
---NamePlate
 P.nameplates = {
-	fadeIn = true,
-	font = 'PT Sans Narrow',
-	fontOutline = 'OUTLINE',
-	fontSize = 11,
-	highlight = true,
-	loadDistance = 41,
-	lowHealthThreshold = 0.4,
-	motionType = 'STACKED',
-	nameColoredGlow = false,
-	overlapH = 0.8,
-	overlapV = 1.1,
-	showEnemyCombat = 'DISABLED',
-	showFriendlyCombat = 'DISABLED',
+	statusbar = "ElvUI Norm",
 	smoothbars = false,
-	statusbar = 'ElvUI Norm',
-	thinBorders = true,
 	clickThrough = {
-		personal = false,
 		friendly = false,
 		enemy = false,
 	},
-	bossMods = {
-		enable = true,
-		anchorPoint = 'BOTTOM',
-		growthDirection = 'RIGHT_UP',
-		size = 34,
-		height = 24,
-		spacing = 1,
-		yOffset = -5,
-		xOffset = 0
+	plateSize ={
+		friendlyWidth = 150,
+		friendlyHeight = 30,
+		enemyWidth = 150,
+		enemyHeight = 30,
 	},
-	plateSize = {
-		personalWidth = 150,
-		personalHeight = 30,
-		width = 150,
-		height = 30,
-	},
-	threat = {
-		enable = true,
-		beingTankedByPet = true,
-		beingTankedByTank = true,
-		goodScale = 1,
-		badScale = 1,
-		useThreatColor = true,
-		indicator = false,
-	},
-	filters = {
-		ElvUI_Boss = {triggers = {enable = false}},
-		ElvUI_Target = {triggers = {enable = true}},
-		ElvUI_NonTarget = {triggers = {enable = true}},
-		ElvUI_Explosives = {triggers = {enable = true}},
-	},
+	font = "PT Sans Narrow",
+	fontSize = 11,
+	fontOutline = "OUTLINE",
+
+	useTargetScale = true,
+	targetScale = 1.15,
+	nonTargetTransparency = 0.40,
+
+	motionType = "OVERLAP",
+
+	lowHealthThreshold = 0.4,
+
+	showFriendlyCombat = "DISABLED",
+	showEnemyCombat = "DISABLED",
+
+	nameColoredGlow = false,
+	highlight = true,
+
+	cutawayHealth = false,
+	cutawayHealthLength = 0.3,
+	cutawayHealthFadeOutTime = 0.6,
+
+	alwaysShowTargetHealth = true,
+
 	colors = {
-		auraByType = true,
-		auraByDispels = true,
-		preferGlowColor = true,
 		glowColor = {r = 1, g = 1, b = 1, a = 1},
-		lowHealthColor = {r = 1, g = 1, b = 0.3, a = 1},
-		lowHealthHalf = {r = 1, g = 0.3, b = 0.3, a = 1},
 		castColor = {r = 1, g = 0.81, b = 0},
-		tapped = {r = 0.6, g = 0.6, b = 0.6},
 		castNoInterruptColor = {r = 0.78, g = 0.25, b = 0.25},
 		castInterruptedColor = {r = 0.30, g = 0.30, b = 0.30},
 		castbarDesaturate = true,
-		chargingRunes = true,
-		runeBySpec = true,
 		reactions = {
+			friendlyPlayer = {r = 0.31, g = 0.45, b = 0.63},
 			good = {r = .29, g = .68, b = .30},
 			neutral = {r = .85, g = .77, b = .36},
 			bad = {r = 0.78, g = 0.25, b = 0.25},
 		},
-		healPrediction = {
-			personal = {r = 0, g = 1, b = 0.5, a = 0.25},
-			others = {r = 0, g = 1, b = 0, a = 0.25},
-		},
 		threat = {
-			goodColor = {r = 0.20, g = 0.71, b = 0.00},
-			badColor = {r = 1.00, g = 0.18, b = 0.18},
-			goodTransition = {r = 1.00, g = 0.85, b = 0.20},
-			badTransition ={r = 1.00, g = 0.51, b = 0.20},
-			offTankColor = {r = 0.73, g = 0.20, b = 1.00},
-			offTankColorGoodTransition = {r = .31, g = .45, b = .63},
-			offTankColorBadTransition = {r = 0.71, g = 0.43, b = 0.27},
+			goodColor = {r = 75/255, g = 175/255, b = 76/255},
+			badColor = {r = 0.78, g = 0.25, b = 0.25},
+			goodTransition = {r = 218/255, g = 197/255, b = 92/255},
+			badTransition = {r = 235/255, g = 163/255, b = 40/255},
 		},
-		power = {
-			ENERGY = {r = 1, g = 0.96, b = 0.41},
-			FOCUS = {r = 1, g = 0.50, b = 0.25},
-			MANA = {r = 0.31, g = 0.45, b = 0.63},
-			RAGE = {r = 0.78, g = 0.25, b = 0.25},
-			RUNIC_POWER = {r = 0, g = 0.82, b = 1},
-			ALT_POWER = {r = 0.2, g = 0.4, b = 0.8},
-		},
-		selection = {
-			[ 0] = {r = 1.00, g = 0.18, b = 0.18}, -- HOSTILE
-			[ 1] = {r = 1.00, g = 0.51, b = 0.20}, -- UNFRIENDLY
-			[ 2] = {r = 1.00, g = 0.85, b = 0.20}, -- NEUTRAL
-			[ 3] = {r = 0.20, g = 0.71, b = 0.00}, -- FRIENDLY
-			[ 5] = {r = 0.40, g = 0.53, b = 1.00}, -- PLAYER_EXTENDED
-			[ 6] = {r = 0.40, g = 0.20, b = 1.00}, -- PARTY
-			[ 7] = {r = 0.73, g = 0.20, b = 1.00}, -- PARTY_PVP
-			[ 8] = {r = 0.20, g = 1.00, b = 0.42}, -- FRIEND
-			[ 9] = {r = 0.60, g = 0.60, b = 0.60}, -- DEAD
-			[13] = {r = 0.10, g = 0.58, b = 0.28}, -- BATTLEGROUND_FRIENDLY_PVP
-		},
-		empoweredCast = {
-			{r = 1.00, g = 0.26, b = 0.20, a = 0.3}, -- red
-			{r = 1.00, g = 0.80, b = 0.26, a = 0.3}, -- orange
-			{r = 1.00, g = 1.00, b = 0.26, a = 0.3}, -- yellow
-			{r = 0.66, g = 1.00, b = 0.40, a = 0.3}, -- green
-		},
-		classResources = {
-			chargedComboPoint = { r = 0.16, g = 0.64, b = 1.0 },
-			comboPoints = {
-				{r = 0.75, g = 0.31, b = 0.31},
-				{r = 0.78, g = 0.56, b = 0.31},
-				{r = 0.81, g = 0.81, b = 0.31},
-				{r = 0.56, g = 0.78, b = 0.31},
-				{r = 0.43, g = 0.76, b = 0.31},
-				{r = 0.31, g = 0.75, b = 0.31},
-				{r = 0.36, g = 0.81, b = 0.54},
-			},
-			DEATHKNIGHT = {
-				[-1] = {r = 0.5, g = 0.5, b = 0.5},
-				[0] = {r = 0.8, g = 0.1, b = 0.28},
-				{r = 1, g = 0.25, b = 0.25},
-				{r = 0.25, g = 1, b = 1},
-				{r = 0.25, g = 1, b = 0.25},
-				{r = 0.8, g = 0.4, b = 1}
-			},
-		},
+		comboPoints = {
+			[1] = {r = .69, g = .31, b = .31},
+			[2] = {r = .69, g = .31, b = .31},
+			[3] = {r = .65, g = .63, b = .35},
+			[4] = {r = .65, g = .63, b = .35},
+			[5] = {r = .33, g = .59, b = .33}
+		}
 	},
-	visibility = {
-		showAll = true,
-		showOnlyNames = false,
-		enemy = {
-			guardians = false,
-			pets = false,
-			totems = false,
-		},
-		friendly = {
-			guardians = false,
-			npcs = true,
-			pets = false,
-			totems = false,
-		},
+	cooldown = {
+		override = true,
+		reverse = false,
+		threshold = 3,
+		expiringColor = {r = 1, g = 0, b = 0},
+		secondsColor = {r = 1, g = 1, b = 1},
+		minutesColor = {r = 1, g = 1, b = 1},
+		hoursColor = {r = 1, g = 1, b = 1},
+		daysColor = {r = 1, g = 1, b = 1},
+		expireIndicator = {r = 1, g = 1, b = 1},
+		secondsIndicator = {r = 1, g = 1, b = 1},
+		minutesIndicator = {r = 1, g = 1, b = 1},
+		hoursIndicator = {r = 1, g = 1, b = 1},
+		daysIndicator = {r = 1, g = 1, b = 1},
+		hhmmColorIndicator = {r = 1, g = 1, b = 1},
+		mmssColorIndicator = {r = 1, g = 1, b = 1},
+
+		checkSeconds = false,
+		hhmmColor = {r = 0.43, g = 0.43, b = 0.43},
+		mmssColor = {r = 0.56, g = 0.56, b = 0.56},
+		hhmmThreshold = -1,
+		mmssThreshold = -1,
+
+		fonts = {
+			enable = false,
+			font = "PT Sans Narrow",
+			fontOutline = "OUTLINE",
+			fontSize = 18
+		}
 	},
-	cutaway = {
-		health = {
-			enabled = false,
-			fadeOutTime = 0.6,
-			lengthBeforeFade = 0.3,
-			forceBlankTexture = true,
-		},
-		power = {
-			enabled = false,
-			fadeOutTime = 0.6,
-			lengthBeforeFade = 0.3,
-			forceBlankTexture = true,
-		},
+	fadeIn = true,
+	threat = {
+		goodScale = 0.8,
+		badScale = 1.2,
+		useThreatColor = true
+	},
+	filters = {
+		ElvUI_Boss = {triggers = {enable = false}},
+		ElvUI_Totem = {triggers = {enable = true}}
 	},
 	units = {
-		PLAYER = {
-			useStaticPosition = false,
-			clickthrough = false,
-			classpower = {
-				enable = true,
-				classColor = false,
-				height = 7,
-				sortDirection = 'NONE',
-				width = 130,
-				xOffset = 0,
-				yOffset = 10,
-			},
-			visibility = {
-				alphaDelay = 1,
-				hideDelay = 3,
-				showAlways = false,
-				showInCombat = true,
-				showWithTarget = false,
-			},
-		},
 		TARGET = {
-			arrow = 'Arrow',
-			arrowSize = 48,
-			arrowScale = 1,
-			arrowSpacing = 3,
-			glowStyle = 'style2',
-			classpower = {
-				enable = false,
-				classColor = false,
-				height = 7,
-				sortDirection = 'NONE',
-				width = 125,
+			enable = true,
+			glowStyle = "style4",
+			arrow = "ArrowUp",
+			arrowSize = 20,
+			arrowXOffset = 3,
+			arrowYOffset = 0,
+			comboPoints = {
+				enable = true,
+				width = 8,
+				height = 4,
+				spacing = 5,
 				xOffset = 0,
-				yOffset = 30,
+				yOffset = 0
 			},
 		},
 		FRIENDLY_PLAYER = {
-			markHealers = true,
-			markTanks = true,
+			health = {
+				enable = false,
+				height = 10,
+				width = 150,
+				glowStyle = "TARGET_THREAT",
+				text = {
+					enable = false,
+					format = "CURRENT",
+					position = "CENTER",
+					parent = "Health",
+					xOffset = 0,
+					yOffset = 0,
+					font = "PT Sans Narrow",
+					fontOutline = "OUTLINE",
+					fontSize = 11,
+				},
+				useClassColor = true,
+			},
+			name = {
+				enable = true,
+				useClassColor = true,
+				abbrev = false,
+				position = "TOPLEFT",
+				parent = "Health",
+				xOffset = 0,
+				yOffset = 2,
+				font = "PT Sans Narrow",
+				fontOutline = "OUTLINE",
+				fontSize = 11
+			},
+			level = {
+				enable = false,
+				position = "TOPRIGHT",
+				parent = "Health",
+				xOffset = 0,
+				yOffset = 2,
+				font = "PT Sans Narrow",
+				fontOutline = "OUTLINE",
+				fontSize = 11
+			},
+			castbar = {
+				enable = true,
+				width = 150,
+				height = 8,
+				hideSpellName = false,
+				hideTime = false,
+				textPosition = "BELOW",
+				castTimeFormat = "CURRENT",
+				channelTimeFormat = "CURRENT",
+				timeToHold = 0,
+				iconPosition = "RIGHT",
+				iconSize = 20,
+				iconOffsetX = 2,
+				iconOffsetY = 0,
+				showIcon = true,
+				xOffset = 0,
+				yOffset = -2,
+				font = "PT Sans Narrow",
+				fontSize = 11,
+				fontOutline = "OUTLINE"
+			},
+			buffs = {
+				enable = true,
+				perrow = 6,
+				size = 24,
+				numrows = 1,
+				attachTo = "FRAME",
+				anchorPoint = "TOPLEFT",
+				growthX = "RIGHT",
+				growthY = "UP",
+				spacing = 1,
+				yOffset = 20,
+				xOffset = 0,
+				cooldownOrientation = "VERTICAL",
+				reverseCooldown = false,
+				countFont = "PT Sans Narrow",
+				countFontOutline = "OUTLINE",
+				countFontSize = 11,
+				countPosition = "BOTTOMRIGHT",
+				countXOffset = -1,
+				countYOffset = 1,
+				durationFont = "PT Sans Narrow",
+				durationFontOutline = "OUTLINE",
+				durationFontSize = 11,
+				durationPosition = "CENTER",
+				durationXOffset = 0,
+				durationYOffset = 0,
+				filters = {
+					minDuration = 0,
+					maxDuration = 0,
+					priority = "Blacklist,blockNoDuration,Personal,TurtleBuffs" --NamePlate FriendlyPlayer Buffs
+				},
+			},
+			debuffs = {
+				enable = true,
+				perrow = 6,
+				size = 24,
+				numrows = 1,
+				yOffset = 1,
+				xOffset = 0,
+				attachTo = "BUFFS",
+				anchorPoint = "TOPRIGHT",
+				growthX = "LEFT",
+				growthY = "UP",
+				onlyShowPlayer = false,
+				spacing = 1,
+				cooldownOrientation = "VERTICAL",
+				reverseCooldown = false,
+				countFont = "PT Sans Narrow",
+				countFontOutline = "OUTLINE",
+				countFontSize = 11,
+				countPosition = "BOTTOMRIGHT",
+				countXOffset = -1,
+				countYOffset = 1,
+				durationFont = "PT Sans Narrow",
+				durationFontOutline = "OUTLINE",
+				durationFontSize = 11,
+				durationPosition = "CENTER",
+				durationXOffset = 0,
+				durationYOffset = 0,
+				filters = {
+					minDuration = 0,
+					maxDuration = 0,
+					priority = "Blacklist,blockNoDuration,Personal,CCDebuffs" --NamePlate FriendlyPlayer Debuffs
+				},
+			},
+			raidTargetIndicator = {
+				size = 24,
+				position = "LEFT",
+				xOffset = -4,
+				yOffset = 0
+			}
 		},
 		ENEMY_PLAYER = {
 			markHealers = true,
-			markTanks = true,
+			health = {
+				enable = true,
+				height = 10,
+				width = 150,
+				glowStyle = "TARGET_THREAT",
+				text = {
+					enable = false,
+					format = "CURRENT",
+					position = "CENTER",
+					parent = "Health",
+					xOffset = 0,
+					yOffset = 0,
+					font = "PT Sans Narrow",
+					fontOutline = "OUTLINE",
+					fontSize = 11
+				},
+				useClassColor = true
+			},
+			name = {
+				enable = true,
+				useClassColor = true,
+				abbrev = false,
+				position = "TOPLEFT",
+				parent = "Health",
+				xOffset = 0,
+				yOffset = 2,
+				font = "PT Sans Narrow",
+				fontOutline = "OUTLINE",
+				fontSize = 11
+			},
+			level = {
+				enable = true,
+				position = "TOPRIGHT",
+				parent = "Health",
+				xOffset = 0,
+				yOffset = 2,
+				font = "PT Sans Narrow",
+				fontOutline = "OUTLINE",
+				fontSize = 11
+			},
+			castbar = {
+				enable = true,
+				width = 150,
+				height = 8,
+				hideSpellName = false,
+				hideTime = false,
+				textPosition = "BELOW",
+				castTimeFormat = "CURRENT",
+				channelTimeFormat = "CURRENT",
+				timeToHold = 0,
+				iconPosition = "RIGHT",
+				iconSize = 20,
+				iconOffsetX = 2,
+				iconOffsetY = 0,
+				showIcon = true,
+				xOffset = 0,
+				yOffset = -2,
+				font = "PT Sans Narrow",
+				fontSize = 11,
+				fontOutline = "OUTLINE"
+			},
+			comboPoints = {
+				enable = true,
+				width = 8,
+				height = 4,
+				spacing = 5,
+				xOffset = 0,
+				yOffset = 0
+			},
+			buffs = {
+				enable = true,
+				perrow = 6,
+				size = 24,
+				numrows = 1,
+				yOffset = 20,
+				xOffset = 0,
+				attachTo = "FRAME",
+				anchorPoint = "TOPLEFT",
+				growthX = "RIGHT",
+				growthY = "UP",
+				onlyShowPlayer = false,
+				cooldownOrientation = "VERTICAL",
+				reverseCooldown = false,
+				spacing = 1,
+				countFont = "PT Sans Narrow",
+				countFontOutline = "OUTLINE",
+				countFontSize = 11,
+				countPosition = "BOTTOMRIGHT",
+				countXOffset = -1,
+				countYOffset = 1,
+				durationFont = "PT Sans Narrow",
+				durationFontOutline = "OUTLINE",
+				durationFontSize = 11,
+				durationPosition = "CENTER",
+				durationXOffset = 0,
+				durationYOffset = 0,
+				filters = {
+					minDuration = 0,
+					maxDuration = 300,
+					priority = "Blacklist,PlayerBuffs,TurtleBuffs" --NamePlate EnemyPlayer Buffs
+				},
+			},
+			debuffs = {
+				enable = true,
+				perrow = 6,
+				size = 24,
+				numrows = 1,
+				yOffset = 1,
+				xOffset = 0,
+				attachTo = "BUFFS",
+				anchorPoint = "TOPRIGHT",
+				growthX = "LEFT",
+				growthY = "UP",
+				onlyShowPlayer = false,
+				spacing = 1,
+				cooldownOrientation = "VERTICAL",
+				reverseCooldown = false,
+				countFont = "PT Sans Narrow",
+				countFontOutline = "OUTLINE",
+				countFontSize = 11,
+				countPosition = "BOTTOMRIGHT",
+				countXOffset = -1,
+				countYOffset = 1,
+				durationFont = "PT Sans Narrow",
+				durationFontOutline = "OUTLINE",
+				durationFontSize = 11,
+				durationPosition = "CENTER",
+				durationXOffset = 0,
+				durationYOffset = 0,
+				filters = {
+					minDuration = 0,
+					maxDuration = 0,
+					priority = "Blacklist,blockNoDuration,Personal,CCDebuffs,RaidDebuffs" --NamePlate EnemyPlayer Debuffs
+				},
+			},
+			raidTargetIndicator = {
+				size = 24,
+				position = "LEFT",
+				xOffset = -4,
+				yOffset = 0
+			},
 		},
-		FRIENDLY_NPC = {},
-		ENEMY_NPC = {},
-	},
+		FRIENDLY_NPC = {
+			health = {
+				enable = false,
+				height = 10,
+				width = 150,
+				glowStyle = "TARGET_THREAT",
+				text = {
+					enable = false,
+					format = "CURRENT",
+					position = "CENTER",
+					parent = "Health",
+					xOffset = 0,
+					yOffset = 0,
+					font = "PT Sans Narrow",
+					fontOutline = "OUTLINE",
+					fontSize = 11
+				}
+			},
+			name = {
+				enable = true,
+				abbrev = false,
+				position = "TOPLEFT",
+				parent = "Health",
+				xOffset = 0,
+				yOffset = 2,
+				font = "PT Sans Narrow",
+				fontOutline = "OUTLINE",
+				fontSize = 11
+			},
+			level = {
+				enable = true,
+				position = "TOPRIGHT",
+				parent = "Health",
+				xOffset = 0,
+				yOffset = 2,
+				font = "PT Sans Narrow",
+				fontOutline = "OUTLINE",
+				fontSize = 11
+			},
+			castbar = {
+				enable = true,
+				width = 150,
+				height = 8,
+				hideSpellName = false,
+				hideTime = false,
+				textPosition = "BELOW",
+				castTimeFormat = "CURRENT",
+				channelTimeFormat = "CURRENT",
+				timeToHold = 0,
+				iconPosition = "RIGHT",
+				iconSize = 20,
+				iconOffsetX = 2,
+				iconOffsetY = 0,
+				showIcon = true,
+				xOffset = 0,
+				yOffset = -2,
+				font = "PT Sans Narrow",
+				fontSize = 11,
+				fontOutline = "OUTLINE"
+			},
+			buffs = {
+				enable = true,
+				perrow = 6,
+				size = 24,
+				numrows = 1,
+				yOffset = 20,
+				xOffset = 0,
+				attachTo = "FRAME",
+				anchorPoint = "TOPLEFT",
+				growthX = "RIGHT",
+				growthY = "UP",
+				onlyShowPlayer = false,
+				spacing = 1,
+				cooldownOrientation = "VERTICAL",
+				reverseCooldown = false,
+				countFont = "PT Sans Narrow",
+				countFontOutline = "OUTLINE",
+				countFontSize = 11,
+				countPosition = "BOTTOMRIGHT",
+				countXOffset = -1,
+				countYOffset = 1,
+				durationFont = "PT Sans Narrow",
+				durationFontOutline = "OUTLINE",
+				durationFontSize = 11,
+				durationPosition = "CENTER",
+				durationXOffset = 0,
+				durationYOffset = 0,
+				filters = {
+					minDuration = 0,
+					maxDuration = 0,
+					priority = "Blacklist,blockNoDuration,Personal,TurtleBuffs" --NamePlate FriendlyNPC Buffs
+				},
+			},
+			debuffs = {
+				enable = true,
+				perrow = 6,
+				size = 24,
+				numrows = 1,
+				yOffset = 1,
+				xOffset = 0,
+				attachTo = "BUFFS",
+				anchorPoint = "TOPRIGHT",
+				growthX = "LEFT",
+				growthY = "UP",
+				onlyShowPlayer = false,
+				spacing = 1,
+				cooldownOrientation = "VERTICAL",
+				reverseCooldown = false,
+				countFont = "PT Sans Narrow",
+				countFontOutline = "OUTLINE",
+				countFontSize = 11,
+				countPosition = "BOTTOMRIGHT",
+				countXOffset = -1,
+				countYOffset = 1,
+				durationFont = "PT Sans Narrow",
+				durationFontOutline = "OUTLINE",
+				durationFontSize = 11,
+				durationPosition = "CENTER",
+				durationXOffset = 0,
+				durationYOffset = 0,
+				filters = {
+					minDuration = 0,
+					maxDuration = 0,
+					priority = "Blacklist,CCDebuffs,RaidDebuffs" --NamePlate FriendlyNPC Debuffs
+				},
+			},
+			eliteIcon = {
+				enable = false,
+				size = 15,
+				position = "RIGHT",
+				xOffset = 10,
+				yOffset = 0
+			},
+			raidTargetIndicator = {
+				size = 24,
+				position = "LEFT",
+				xOffset = -4,
+				yOffset = 0
+			},
+			iconFrame = {
+				enable = false,
+				size = 24,
+				parent = "Nameplate",
+				position = "CENTER",
+				xOffset = 0,
+				yOffset = 42
+			}
+		},
+		ENEMY_NPC = {
+			health = {
+				enable = true,
+				height = 10,
+				width = 150,
+				glowStyle = "TARGET_THREAT",
+				text = {
+					enable = false,
+					format = "CURRENT",
+					position = "CENTER",
+					parent = "Health",
+					xOffset = 0,
+					yOffset = 0,
+					font = "PT Sans Narrow",
+					fontOutline = "OUTLINE",
+					fontSize = 11
+				}
+			},
+			name = {
+				enable = true,
+				abbrev = false,
+				position = "TOPLEFT",
+				parent = "Health",
+				xOffset = 0,
+				yOffset = 2,
+				font = "PT Sans Narrow",
+				fontOutline = "OUTLINE",
+				fontSize = 11
+			},
+			level = {
+				enable = true,
+				position = "TOPRIGHT",
+				parent = "Health",
+				xOffset = 0,
+				yOffset = 2,
+				font = "PT Sans Narrow",
+				fontOutline = "OUTLINE",
+				fontSize = 11
+			},
+			castbar = {
+				enable = true,
+				width = 150,
+				height = 8,
+				hideSpellName = false,
+				hideTime = false,
+				textPosition = "BELOW",
+				castTimeFormat = "CURRENT",
+				channelTimeFormat = "CURRENT",
+				timeToHold = 0,
+				iconPosition = "RIGHT",
+				iconSize = 20,
+				iconOffsetX = 2,
+				iconOffsetY = 0,
+				showIcon = true,
+				xOffset = 0,
+				yOffset = -2,
+				font = "PT Sans Narrow",
+				fontSize = 11,
+				fontOutline = "OUTLINE"
+			},
+			comboPoints = {
+				enable = true,
+				width = 8,
+				height = 4,
+				spacing = 5,
+				xOffset = 0,
+				yOffset = 0
+			},
+			buffs = {
+				enable = true,
+				perrow = 6,
+				size = 24,
+				numrows = 1,
+				yOffset = 20,
+				xOffset = 0,
+				attachTo = "FRAME",
+				anchorPoint = "TOPLEFT",
+				growthX = "RIGHT",
+				growthY = "UP",
+				spacing = 1,
+				cooldownOrientation = "VERTICAL",
+				reverseCooldown = false,
+				countFont = "PT Sans Narrow",
+				countFontOutline = "OUTLINE",
+				countFontSize = 11,
+				countPosition = "BOTTOMRIGHT",
+				countXOffset = -1,
+				countYOffset = 1,
+				durationFont = "PT Sans Narrow",
+				durationFontOutline = "OUTLINE",
+				durationFontSize = 11,
+				durationPosition = "CENTER",
+				durationXOffset = 0,
+				durationYOffset = 0,
+				filters = {
+					minDuration = 0,
+					maxDuration = 0,
+					priority = "Blacklist,blockNoDuration,PlayerBuffs,TurtleBuffs" --NamePlate EnemyNPC Buffs
+				},
+			},
+			debuffs = {
+				enable = true,
+				perrow = 6,
+				size = 24,
+				numrows = 1,
+				yOffset = 1,
+				xOffset = 0,
+				attachTo = "BUFFS",
+				anchorPoint = "TOPRIGHT",
+				growthX = "LEFT",
+				growthY = "UP",
+				spacing = 1,
+				cooldownOrientation = "VERTICAL",
+				reverseCooldown = false,
+				countFont = "PT Sans Narrow",
+				countFontOutline = "OUTLINE",
+				countFontSize = 11,
+				countPosition = "BOTTOMRIGHT",
+				countXOffset = -1,
+				countYOffset = 1,
+				durationFont = "PT Sans Narrow",
+				durationFontOutline = "OUTLINE",
+				durationFontSize = 11,
+				durationPosition = "CENTER",
+				durationXOffset = 0,
+				durationYOffset = 0,
+				filters = {
+					minDuration = 0,
+					maxDuration = 0,
+					priority = "Blacklist,Personal,CCDebuffs" --NamePlate EnemyNPC Debuffs
+				},
+			},
+			eliteIcon = {
+				enable = false,
+				size = 15,
+				position = "RIGHT",
+				xOffset = 10,
+				yOffset = 0
+			},
+			raidTargetIndicator = {
+				size = 24,
+				position = "LEFT",
+				xOffset = -4,
+				yOffset = 0
+			},
+			iconFrame = {
+				enable = false,
+				size = 24,
+				parent = "Nameplate",
+				position = "CENTER",
+				xOffset = 0,
+				yOffset = 42
+			}
+		}
+	}
 }
-
-for unit, data in next, P.nameplates.units do
-	data.enable = unit ~= 'PLAYER'
-
-	if unit ~= 'TARGET' then
-		data.showTitle = true
-		data.smartAuraPosition = 'DISABLED'
-		data.nameOnly = unit == 'FRIENDLY_NPC'
-
-		data.buffs = CopyTable(NP_Auras)
-		data.castbar = CopyTable(NP_Castbar)
-		data.debuffs = CopyTable(NP_Auras)
-		data.health = CopyTable(NP_Health)
-		data.level = CopyTable(NP_Level)
-		data.name = CopyTable(NP_Name)
-		data.portrait = CopyTable(NP_Portrait)
-		data.power = CopyTable(NP_Power)
-		data.pvpindicator = CopyTable(NP_PvPIcon)
-		data.raidTargetIndicator = CopyTable(NP_RaidTargetIndicator)
-		data.title = CopyTable(NP_Title)
-
-		if strfind(unit, '_NPC') then
-			data.eliteIcon = CopyTable(NP_EliteIcon)
-			data.questIcon = CopyTable(NP_QuestIcon)
-		else
-			data.pvpclassificationindicator = CopyTable(NP_PvPClassificationIndicator)
-		end
-	end
-end
-
-P.nameplates.units.PLAYER.buffs.maxDuration = 300
-P.nameplates.units.PLAYER.buffs.priority = 'Blacklist,Dispellable,blockNoDuration,Personal,TurtleBuffs,PlayerBuffs'
-P.nameplates.units.PLAYER.debuffs.anchorPoint = 'TOPRIGHT'
-P.nameplates.units.PLAYER.debuffs.growthDirection = 'LEFT_UP'
-P.nameplates.units.PLAYER.debuffs.yOffset = 35
-P.nameplates.units.PLAYER.debuffs.priority = 'Blacklist,blockNoDuration,Personal,Boss,CCDebuffs,RaidDebuffs,Dispellable'
-P.nameplates.units.PLAYER.name.enable = false
-P.nameplates.units.PLAYER.name.format = '[name]'
-P.nameplates.units.PLAYER.level.enable = false
-P.nameplates.units.PLAYER.power.enable = true
-P.nameplates.units.PLAYER.castbar.yOffset = -20
-
-P.nameplates.units.FRIENDLY_PLAYER.buffs.priority = 'Blacklist,Dispellable,blockNoDuration,Personal,TurtleBuffs,PlayerBuffs'
-P.nameplates.units.FRIENDLY_PLAYER.debuffs.anchorPoint = 'TOPRIGHT'
-P.nameplates.units.FRIENDLY_PLAYER.debuffs.growthDirection = 'LEFT_UP'
-P.nameplates.units.FRIENDLY_PLAYER.debuffs.yOffset = 35
-P.nameplates.units.FRIENDLY_PLAYER.debuffs.priority = 'Blacklist,Personal,RaidDebuffs,CCDebuffs,Whitelist'
-
-P.nameplates.units.ENEMY_PLAYER.buffs.priority = 'Blacklist,Dispellable,blockNoDuration,Personal,TurtleBuffs,PlayerBuffs'
-P.nameplates.units.ENEMY_PLAYER.buffs.maxDuration = 300
-P.nameplates.units.ENEMY_PLAYER.debuffs.anchorPoint = 'TOPRIGHT'
-P.nameplates.units.ENEMY_PLAYER.debuffs.growthDirection = 'LEFT_UP'
-P.nameplates.units.ENEMY_PLAYER.debuffs.yOffset = 35
-P.nameplates.units.ENEMY_PLAYER.debuffs.priority = 'Blacklist,Personal,RaidDebuffs,CCDebuffs,Whitelist'
-P.nameplates.units.ENEMY_PLAYER.name.format = '[classcolor][name:abbrev:long]'
-
-P.nameplates.units.FRIENDLY_NPC.buffs.priority = 'Blacklist,Dispellable,blockNoDuration,Personal,TurtleBuffs,PlayerBuffs'
-P.nameplates.units.FRIENDLY_NPC.debuffs.anchorPoint = 'TOPRIGHT'
-P.nameplates.units.FRIENDLY_NPC.debuffs.growthDirection = 'LEFT_UP'
-P.nameplates.units.FRIENDLY_NPC.debuffs.yOffset = 35
-P.nameplates.units.FRIENDLY_NPC.debuffs.priority = 'Blacklist,Personal,RaidDebuffs,CCDebuffs,Whitelist'
-P.nameplates.units.FRIENDLY_NPC.level.format = '[difficultycolor][level][shortclassification]'
-P.nameplates.units.FRIENDLY_NPC.title.format = '[npctitle]'
-
-P.nameplates.units.ENEMY_NPC.buffs.priority = 'Blacklist,Dispellable,blockNoDuration,Personal,TurtleBuffs,PlayerBuffs'
-P.nameplates.units.ENEMY_NPC.debuffs.anchorPoint = 'TOPRIGHT'
-P.nameplates.units.ENEMY_NPC.debuffs.growthDirection = 'LEFT_UP'
-P.nameplates.units.ENEMY_NPC.debuffs.yOffset = 35
-P.nameplates.units.ENEMY_NPC.debuffs.priority = 'Blacklist,Personal,RaidDebuffs,CCDebuffs,Whitelist'
-P.nameplates.units.ENEMY_NPC.level.format = '[difficultycolor][level][shortclassification]'
-P.nameplates.units.ENEMY_NPC.title.format = '[npctitle]'
-P.nameplates.units.ENEMY_NPC.name.format = '[name]'
 
 --Auras
 P.auras = {
@@ -4428,15 +4837,219 @@ P.buttonFacade = {
 
 -- WarcraftEnhanced Settings
 P.warcraftenhanced = {
-	-- AutoQuest
-	autoAccept = false,
-	autoDaily = true,
-	autoFate = true,
-	autoRepeat = true,
-	autoComplete = true,
-	autoHighRisk = false,
-	-- Social Blocking
-	blockDuels = false,
-	blockGuildInvites = false,
-	blockPartyInvites = false,
+	uiEnhancements = {
+		errorFiltering = true,
+		autoDelete = true,
+		errorFilters = {},
+		itemBorderColor = false,
+		tooltipIcon = {
+			enable = false,
+			tooltipIconItems = true,
+			tooltipIconSpells = true,
+			tooltipIconAchievements = true,
+		},
+	},
+	autoQuest = {
+		autoAccept = false,
+		autoDaily = true,
+		autoFate = true,
+		autoRepeat = true,
+		autoComplete = true,
+		autoHighRisk = false,
+		overrideList = {},
+	},
+	portalBox = {
+		hideMinimapButton = false,
+		keepWindowOpen = false,
+		detachMinimapButton = false,
+		minimapAngle = 1,
+		unboundX = 0,
+		unboundY = 0,
+		windowCollapsed = false,
+	},
+	buttonGrabber = {
+		enable = false,
+		backdrop = false,
+		backdropSpacing = 1,
+		mouseover = false,
+		alpha = 1,
+		buttonSize = 22,
+		buttonSpacing = 0,
+		buttonsPerRow = 1,
+		growFrom = "TOPLEFT",
+		insideMinimap = {
+			enable = true,
+			position = "TOPLEFT",
+			xOffset = -1,
+			yOffset = 1,
+		},
+	},
+	social = {
+		blockDuels = false,
+		blockGuildInvites = false,
+		blockPartyInvites = false,
+		acceptPartyFriends = false,
+		friendlyGuild = false,
+	},
+	automation = {
+		autoReleasePvP = false,
+		autoSpiritRes = false,
+		autoSellJunk = false,
+		autoSellJunkSummary = true,
+		autoRepair = false,
+		autoRepairGuildFunds = true,
+		autoRepairSummary = true,
+	},
+	system = {
+		maxCameraZoom = false,
+	},
+	lootRoll = {
+		skipConfirmation = false,
+	},
+	progression = {
+		enable = false,
+		checkAchievements = false,
+		checkPlayer = false,
+		modifier = "SHIFT",
+		tiers = {
+			RS = true,
+			ICC = true,
+			ToC = true,
+			ToGC = true,
+			Ulduar = true,
+		},
+	},
+	achievements = {
+		animatedBars = false,
+	},
+	blizzard = {
+		takeAllMail = false,
+		mailRecipientHistory = true,
+		errorFrame = {
+			enable = false,
+			width = 300,
+			height = 60,
+			font = "PT Sans Narrow",
+			fontSize = 12,
+			fontOutline = "NONE",
+		},
+	},
+	omen = {
+		Alpha = 1,
+		Scale = 1,
+		GrowUp = false,
+		Autocollapse = false,
+		NumBars = 10,
+		CollapseHide = false,
+		Locked = false,
+		PositionW = 200,
+		PositionH = 82,
+		VGrip1 = 85,
+		VGrip2 = 115,
+		UseFocus = false,
+		IgnorePlayerPets = true,
+		FrameStrata = "3-MEDIUM",
+		ClampToScreen = true,
+		ClickThrough = false,
+		Shown = true,
+		Background = {
+			Texture = "Blizzard Parchment",
+			BorderTexture = "Blizzard Dialog",
+			Color = {r = 1, g = 1, b = 1, a = 1},
+			BorderColor = {r = 0.8, g = 0.6, b = 0, a = 1},
+			Tile = false,
+			TileSize = 32,
+			EdgeSize = 8,
+			BarInset = 3,
+		},
+		TitleBar = {
+			Height = 16,
+			Font = "Friz Quadrata TT",
+			FontOutline = "",
+			FontColor = {r = 1, g = 1, b = 1, a = 1},
+			FontSize = 10,
+			ShowTitleBar = true,
+			UseSameBG = true,
+			Texture = "Blizzard Parchment",
+			BorderTexture = "Blizzard Dialog",
+			Color = {r = 1, g = 1, b = 1, a = 1},
+			BorderColor = {r = 0.8, g = 0.6, b = 0, a = 1},
+			Tile = false,
+			TileSize = 32,
+			EdgeSize = 8,
+		},
+		Bar = {
+			Texture = "Blizzard",
+			Height = 12,
+			Spacing = 0,
+			AnimateBars = true,
+			ShortNumbers = true,
+			Font = "Friz Quadrata TT",
+			FontOutline = "",
+			FontColor = {r = 1, g = 1, b = 1, a = 1},
+			FontSize = 10,
+			Classes = {
+				DEATHKNIGHT = true,
+				DRUID = true,
+				HUNTER = true,
+				MAGE = true,
+				PALADIN = true,
+				PET = true,
+				PRIEST = true,
+				ROGUE = true,
+				SHAMAN = true,
+				WARLOCK = true,
+				WARRIOR = true,
+				HERO = true,
+				["*NOTINPARTY*"] = true,
+			},
+			ShowTPS = true,
+			TPSWindow = 10,
+			ShowHeadings = true,
+			HeadingBGColor = {r = 0, g = 0, b = 0, a = 0},
+			UseMyBarColor = false,
+			MyBarColor = {r = 1, g = 0, b = 0, a = 1},
+			ShowPercent = true,
+			ShowValue = true,
+			UseClassColors = true,
+			BarColor = {r = 1, g = 0, b = 0, a = 1},
+			UseTankBarColor = false,
+			TankBarColor = {r = 1, g = 0, b = 0, a = 1},
+			AlwaysShowSelf = true,
+			ShowAggroBar = true,
+			AggroBarColor = {r = 1, g = 0, b = 0, a = 1},
+			PetBarColor = {r = 0.77, g = 0, b = 1, a = 1},
+			FadeBarColor = {r = 0.5, g = 0.5, b = 0.5, a = 1},
+			UseCustomClassColors = true,
+			InvertColors = false,
+		},
+		ShowWith = {
+			UseShowWith = true,
+			Pet = true,
+			Alone = false,
+			Party = true,
+			Raid = true,
+			HideWhileResting = true,
+			HideInPVP = true,
+			HideWhenOOC = false,
+		},
+		FuBar = {
+			HideMinimapButton = true,
+			AttachMinimap = false,
+		},
+		Warnings = {
+			Sound = true,
+			Flash = true,
+			Message = false,
+			SinkOptions = {},
+			Threshold = 90,
+			SoundFile = "Fel Nova",
+			DisableWhileTanking = true,
+		},
+		MinimapIcon = {
+			hide = false,
+			minimapPos = 220,
+			radius = 80,
+		},
+	},
 }

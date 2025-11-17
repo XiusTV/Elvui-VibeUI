@@ -1,3 +1,53 @@
+local function EnsureWarcraftEnhancedBlizzardDB()
+	E.db.warcraftenhanced = E.db.warcraftenhanced or {}
+
+	local defaults = (P.warcraftenhanced and P.warcraftenhanced.blizzard) or {}
+	local db = E.db.warcraftenhanced.blizzard
+	if not db then
+		db = E:CopyTable({}, defaults)
+		E.db.warcraftenhanced.blizzard = db
+	end
+
+	if db.takeAllMail == nil then
+		db.takeAllMail = defaults.takeAllMail or false
+	end
+
+	if db.mailRecipientHistory == nil then
+		db.mailRecipientHistory = defaults.mailRecipientHistory or false
+	end
+
+	local errorDefaults = defaults.errorFrame or {
+		enable = false,
+		width = 300,
+		height = 60,
+		font = "PT Sans Narrow",
+		fontSize = 12,
+		fontOutline = "NONE",
+	}
+
+	db.errorFrame = db.errorFrame or E:CopyTable({}, errorDefaults)
+
+	if E.db.enhanced and E.db.enhanced.blizzard then
+		local legacy = E.db.enhanced.blizzard
+		if legacy.takeAllMail ~= nil then
+			db.takeAllMail = legacy.takeAllMail
+			legacy.takeAllMail = nil
+		end
+		if legacy.mailRecipientHistory ~= nil then
+			db.mailRecipientHistory = legacy.mailRecipientHistory
+			legacy.mailRecipientHistory = nil
+		end
+		if legacy.errorFrame then
+			E:CopyTable(db.errorFrame, legacy.errorFrame)
+			legacy.errorFrame = nil
+		end
+		if not next(legacy) then
+			E.db.enhanced.blizzard = nil
+		end
+	end
+
+	return db
+end
 local E, _, V, P, G = unpack(ElvUI)
 local C, L = unpack(select(2, ...))
 local LSM = E.Libs.LSM
@@ -11,48 +61,8 @@ local function EnsureEnhancedDB()
 	if kpa.scale == nil then kpa.scale = 1.5 end
 	if kpa.rotation == nil then kpa.rotation = 90 end
 
-	E.db.enhanced.blizzard = E.db.enhanced.blizzard or {}
-	local blizz = E.db.enhanced.blizzard
-	if blizz.takeAllMail == nil then blizz.takeAllMail = false end
-	blizz.errorFrame = blizz.errorFrame or {}
-	local ef = blizz.errorFrame
-	if ef.enable == nil then ef.enable = false end
-	if ef.width == nil then ef.width = 300 end
-	if ef.height == nil then ef.height = 60 end
-	if not ef.font then ef.font = "PT Sans Narrow" end
-	if ef.fontSize == nil then ef.fontSize = 12 end
-	if not ef.fontOutline then ef.fontOutline = "NONE" end
-
-	E.db.enhanced.tooltip = E.db.enhanced.tooltip or {}
-	local tooltip = E.db.enhanced.tooltip
-	if tooltip.itemQualityBorderColor == nil then tooltip.itemQualityBorderColor = false end
-	tooltip.tooltipIcon = tooltip.tooltipIcon or {}
-	local icon = tooltip.tooltipIcon
-	if icon.enable == nil then icon.enable = false end
-	if icon.tooltipIconItems == nil then icon.tooltipIconItems = true end
-	if icon.tooltipIconSpells == nil then icon.tooltipIconSpells = true end
-	if icon.tooltipIconAchievements == nil then icon.tooltipIconAchievements = true end
-
-	tooltip.progressInfo = tooltip.progressInfo or {}
-	local progress = tooltip.progressInfo
-	if progress.enable == nil then progress.enable = false end
-	if progress.checkAchievements == nil then progress.checkAchievements = false end
-	if progress.checkPlayer == nil then progress.checkPlayer = false end
-	if not progress.modifier then progress.modifier = "SHIFT" end
-	progress.tiers = progress.tiers or {}
-	local tiers = progress.tiers
-	if tiers.RS == nil then tiers.RS = true end
-	if tiers.ICC == nil then tiers.ICC = true end
-	if tiers.ToC == nil then tiers.ToC = true end
-	if tiers.ToGC == nil then tiers.ToGC = true end
-	if tiers.Ulduar == nil then tiers.Ulduar = true end
-
 	return {
-		keyPress = kpa,
-		blizzard = blizz,
-		tooltip = tooltip,
-		progress = progress,
-		icon = icon
+		keyPress = kpa
 	}
 end
 
@@ -78,6 +88,155 @@ end
 
 local function GetProgressionModule()
 	return E:GetModule("Enhanced_ProgressionInfo", true)
+end
+
+local function EnsureProgressionDB()
+	E.db.warcraftenhanced = E.db.warcraftenhanced or {}
+	local db = E.db.warcraftenhanced.progression
+	if not db then
+		db = E:CopyTable({}, P.warcraftenhanced.progression)
+		E.db.warcraftenhanced.progression = db
+	end
+
+	db.tiers = db.tiers or {}
+
+	return db
+end
+
+local function ApplyProgressionSettings()
+	local db = EnsureProgressionDB()
+	local module = GetProgressionModule()
+	if not module then return end
+
+	if db.enable then
+		if not module.initialized then
+			module:Initialize()
+		else
+			module:ToggleState()
+		end
+	elseif module.initialized then
+		module:ToggleState()
+	end
+end
+
+local function EnsureUIEnhancementsDB()
+	E.db.warcraftenhanced = E.db.warcraftenhanced or {}
+
+	local defaults = (P.warcraftenhanced and P.warcraftenhanced.uiEnhancements) or {}
+	local db = E.db.warcraftenhanced.uiEnhancements
+	if not db then
+		db = E:CopyTable({}, defaults)
+		E.db.warcraftenhanced.uiEnhancements = db
+	end
+
+	db.errorFilters = db.errorFilters or {}
+	if db.itemBorderColor == nil then
+		db.itemBorderColor = defaults.itemBorderColor or false
+	end
+
+	return db
+end
+
+local function EnsureTooltipIconDB()
+	local parent = EnsureUIEnhancementsDB()
+
+	local defaultChild = (P.warcraftenhanced and P.warcraftenhanced.uiEnhancements and P.warcraftenhanced.uiEnhancements.tooltipIcon) or {
+		enable = false,
+		tooltipIconItems = true,
+		tooltipIconSpells = true,
+		tooltipIconAchievements = true
+	}
+
+	parent.tooltipIcon = parent.tooltipIcon or E:CopyTable({}, defaultChild)
+
+	return parent.tooltipIcon
+end
+
+local function EnsureWarcraftEnhancedBlizzardDB()
+	E.db.warcraftenhanced = E.db.warcraftenhanced or {}
+
+	local defaults = (P.warcraftenhanced and P.warcraftenhanced.blizzard) or {}
+	local db = E.db.warcraftenhanced.blizzard
+	if not db then
+		db = E:CopyTable({}, defaults)
+		E.db.warcraftenhanced.blizzard = db
+	end
+
+	if db.takeAllMail == nil then
+		db.takeAllMail = defaults.takeAllMail or false
+	end
+
+	local errorDefaults = defaults.errorFrame or {
+		enable = false,
+		width = 300,
+		height = 60,
+		font = "PT Sans Narrow",
+		fontSize = 12,
+		fontOutline = "NONE",
+	}
+
+	db.errorFrame = db.errorFrame or E:CopyTable({}, errorDefaults)
+
+	if E.db.enhanced and E.db.enhanced.blizzard then
+		local legacy = E.db.enhanced.blizzard
+		if legacy.takeAllMail ~= nil then
+			db.takeAllMail = legacy.takeAllMail
+			legacy.takeAllMail = nil
+		end
+		if legacy.errorFrame then
+			E:CopyTable(db.errorFrame, legacy.errorFrame)
+			legacy.errorFrame = nil
+		end
+		if not next(legacy) then
+			E.db.enhanced.blizzard = nil
+		end
+	end
+
+	return db
+end
+
+local function EnsureErrorFrameDB()
+	return EnsureWarcraftEnhancedBlizzardDB().errorFrame
+end
+
+local function ApplyErrorFrameDimensions()
+	local module = GetBlizzardModule()
+	if module and module.initialized then
+		module:ErrorFrameSize()
+	end
+end
+
+local function ToggleErrorFrame()
+	local module = GetBlizzardModule()
+	if module and module.initialized then
+		module:CustomErrorFrameToggle()
+	end
+end
+
+local function ApplyTooltipIconSettings()
+	local module = GetTooltipIconModule()
+	if not module then return end
+
+	if EnsureTooltipIconDB().enable then
+		if not module.initialized then
+			module:Initialize()
+		else
+			module:ToggleItemsState()
+			module:ToggleSpellsState()
+			module:ToggleAchievementsState()
+		end
+	else
+		module:ToggleItemsState()
+		module:ToggleSpellsState()
+		module:ToggleAchievementsState()
+	end
+end
+
+local function UpdateProgressionModifier()
+	local module = GetProgressionModule()
+	if module and module.initialized then
+		module:UpdateModifier()
+	end
 end
 
 local function EnhancedConfig()
@@ -210,12 +369,11 @@ local function EnhancedConfig()
 						type = "toggle",
 						name = L["Take All Mail"],
 						get = function()
-							local data = EnsureEnhancedDB()
-							return data.blizzard.takeAllMail
+							return EnsureWarcraftEnhancedBlizzardDB().takeAllMail
 						end,
 						set = function(_, value)
-							local data = EnsureEnhancedDB()
-							data.blizzard.takeAllMail = value
+							local db = EnsureWarcraftEnhancedBlizzardDB()
+							db.takeAllMail = value
 							if value then
 								local module = GetTakeAllMailModule()
 								if module and not module.initialized then
@@ -232,16 +390,13 @@ local function EnhancedConfig()
 						name = L["Error Frame"],
 						guiInline = true,
 						get = function(info)
-							local data = EnsureEnhancedDB()
-							return data.blizzard.errorFrame[info[#info]]
+							local db = EnsureErrorFrameDB()
+							return db[info[#info]]
 						end,
 						set = function(info, value)
-							local data = EnsureEnhancedDB()
-							data.blizzard.errorFrame[info[#info]] = value
-							local module = GetBlizzardModule()
-							if module and module.initialized then
-								module:ErrorFrameSize()
-							end
+							local db = EnsureErrorFrameDB()
+							db[info[#info]] = value
+							ApplyErrorFrameDimensions()
 						end,
 						args = {
 							enable = {
@@ -249,16 +404,12 @@ local function EnhancedConfig()
 								type = "toggle",
 								name = L["Enable"],
 								get = function()
-									local data = EnsureEnhancedDB()
-									return data.blizzard.errorFrame.enable
+									return EnsureErrorFrameDB().enable
 								end,
 								set = function(_, value)
-									local data = EnsureEnhancedDB()
-									data.blizzard.errorFrame.enable = value
-									local module = GetBlizzardModule()
-									if module and module.initialized then
-										module:CustomErrorFrameToggle()
-									end
+									local db = EnsureErrorFrameDB()
+									db.enable = value
+									ToggleErrorFrame()
 								end
 							},
 							width = {
@@ -266,14 +417,14 @@ local function EnhancedConfig()
 								type = "range",
 								name = L["Width"],
 								min = 200, max = 1024, step = 1,
-								disabled = function() return not E.db.enhanced.blizzard.errorFrame.enable end
+								disabled = function() return not EnsureErrorFrameDB().enable end
 							},
 							height = {
 								order = 3,
 								type = "range",
 								name = L["Height"],
 								min = 32, max = 256, step = 1,
-								disabled = function() return not E.db.enhanced.blizzard.errorFrame.enable end
+								disabled = function() return not EnsureErrorFrameDB().enable end
 							},
 							font = {
 								order = 4,
@@ -281,21 +432,21 @@ local function EnhancedConfig()
 								dialogControl = "LSM30_Font",
 								name = L["Font"],
 								values = LSM:HashTable("font"),
-								disabled = function() return not E.db.enhanced.blizzard.errorFrame.enable end
+								disabled = function() return not EnsureErrorFrameDB().enable end
 							},
 							fontSize = {
 								order = 5,
 								type = "range",
 								name = L["Font Size"],
 								min = 8, max = 32, step = 1,
-								disabled = function() return not E.db.enhanced.blizzard.errorFrame.enable end
+								disabled = function() return not EnsureErrorFrameDB().enable end
 							},
 							fontOutline = {
 								order = 6,
 								type = "select",
 								name = L["Font Outline"],
 								values = C.Values.FontFlags,
-								disabled = function() return not E.db.enhanced.blizzard.errorFrame.enable end
+								disabled = function() return not EnsureErrorFrameDB().enable end
 							}
 						}
 					}
@@ -316,12 +467,12 @@ local function EnhancedConfig()
 						type = "toggle",
 						name = L["Item Border Color"],
 						get = function()
-							local data = EnsureEnhancedDB()
-							return data.tooltip.itemQualityBorderColor
+							return EnsureUIEnhancementsDB().itemBorderColor
 						end,
 						set = function(_, value)
-							local data = EnsureEnhancedDB()
-							data.tooltip.itemQualityBorderColor = value
+							local db = EnsureUIEnhancementsDB()
+							db.itemBorderColor = value
+
 							local module = GetItemBorderModule()
 							if module then
 								if value and not module.initialized then
@@ -337,83 +488,38 @@ local function EnhancedConfig()
 						type = "group",
 						name = L["Tooltip Icon"],
 						guiInline = true,
+						get = function(info)
+							local db = EnsureTooltipIconDB()
+							return db[info[#info]] ~= nil and db[info[#info]] or false
+						end,
+						set = function(info, value)
+							local db = EnsureTooltipIconDB()
+							db[info[#info]] = value
+							ApplyTooltipIconSettings()
+						end,
 						args = {
 							enable = {
 								order = 1,
 								type = "toggle",
-								name = L["Enable"],
-								get = function()
-									local data = EnsureEnhancedDB()
-									return data.icon.enable
-								end,
-								set = function(_, value)
-									local data = EnsureEnhancedDB()
-									data.icon.enable = value
-									local module = GetTooltipIconModule()
-									if module then
-										if value and not module.initialized then
-											module:Initialize()
-										else
-											module:ToggleItemsState()
-											module:ToggleSpellsState()
-											module:ToggleAchievementsState()
-										end
-									end
-								end
+								name = L["Enable"]
 							},
 							tooltipIconItems = {
 								order = 2,
 								type = "toggle",
 								name = L["ITEMS"],
-								get = function()
-									local data = EnsureEnhancedDB()
-									return data.icon.tooltipIconItems
-								end,
-								set = function(_, value)
-									local data = EnsureEnhancedDB()
-									data.icon.tooltipIconItems = value
-									local module = GetTooltipIconModule()
-									if module and module.initialized then
-										module:ToggleItemsState()
-									end
-								end,
-								disabled = function() return not E.db.enhanced.tooltip.tooltipIcon.enable end
+								disabled = function() return not EnsureTooltipIconDB().enable end
 							},
 							tooltipIconSpells = {
 								order = 3,
 								type = "toggle",
 								name = L["Spells"],
-								get = function()
-									local data = EnsureEnhancedDB()
-									return data.icon.tooltipIconSpells
-								end,
-								set = function(_, value)
-									local data = EnsureEnhancedDB()
-									data.icon.tooltipIconSpells = value
-									local module = GetTooltipIconModule()
-									if module and module.initialized then
-										module:ToggleSpellsState()
-									end
-								end,
-								disabled = function() return not E.db.enhanced.tooltip.tooltipIcon.enable end
+								disabled = function() return not EnsureTooltipIconDB().enable end
 							},
 							tooltipIconAchievements = {
 								order = 4,
 								type = "toggle",
 								name = L["Achievements"],
-								get = function()
-									local data = EnsureEnhancedDB()
-									return data.icon.tooltipIconAchievements
-								end,
-								set = function(_, value)
-									local data = EnsureEnhancedDB()
-									data.icon.tooltipIconAchievements = value
-									local module = GetTooltipIconModule()
-									if module and module.initialized then
-										module:ToggleAchievementsState()
-									end
-								end,
-								disabled = function() return not E.db.enhanced.tooltip.tooltipIcon.enable end
+								disabled = function() return not EnsureTooltipIconDB().enable end
 							}
 						}
 					},
@@ -422,39 +528,40 @@ local function EnhancedConfig()
 						type = "group",
 						name = L["Progress Info"],
 						guiInline = true,
-						get = function(info)
-							local data = EnsureEnhancedDB()
-							return data.progress[info[#info]]
-						end,
-						set = function(info, value)
-							local data = EnsureEnhancedDB()
-							data.progress[info[#info]] = value
-							local module = GetProgressionModule()
-							if module then
-								if not module.initialized and E.db.enhanced.tooltip.progressInfo.enable then
-									module:Initialize()
-								else
-									module:ToggleState()
-								end
-							end
-						end,
 						args = {
 							enable = {
 								order = 1,
 								type = "toggle",
-								name = L["Enable"]
+								name = L["Enable"],
+								get = function() return EnsureProgressionDB().enable end,
+								set = function(_, value)
+									local db = EnsureProgressionDB()
+									db.enable = value
+									ApplyProgressionSettings()
+								end
 							},
 							checkAchievements = {
 								order = 2,
 								type = "toggle",
 								name = L["Check Achievements"],
-								disabled = function() return not E.db.enhanced.tooltip.progressInfo.enable end
+								get = function() return EnsureProgressionDB().checkAchievements end,
+								set = function(_, value)
+									local db = EnsureProgressionDB()
+									db.checkAchievements = value
+									ApplyProgressionSettings()
+								end,
+								disabled = function() return not EnsureProgressionDB().enable end
 							},
 							checkPlayer = {
 								order = 3,
 								type = "toggle",
 								name = L["Check Player"],
-								disabled = function() return not E.db.enhanced.tooltip.progressInfo.enable end
+								get = function() return EnsureProgressionDB().checkPlayer end,
+								set = function(_, value)
+									local db = EnsureProgressionDB()
+									db.checkPlayer = value
+								end,
+								disabled = function() return not EnsureProgressionDB().enable end
 							},
 							modifier = {
 								order = 4,
@@ -466,19 +573,13 @@ local function EnhancedConfig()
 									CTRL = L["CTRL_KEY"],
 									ALT = L["ALT_KEY"]
 								},
-								get = function() return E.db.enhanced.tooltip.progressInfo.modifier end,
+								get = function() return EnsureProgressionDB().modifier end,
 								set = function(_, value)
-									E.db.enhanced.tooltip.progressInfo.modifier = value
-									local module = GetProgressionModule()
-									if module then
-										if not module.initialized and E.db.enhanced.tooltip.progressInfo.enable then
-											module:Initialize()
-										else
-											module:UpdateModifier()
-										end
-									end
+									local db = EnsureProgressionDB()
+									db.modifier = value
+									UpdateProgressionModifier()
 								end,
-								disabled = function() return not E.db.enhanced.tooltip.progressInfo.enable end
+								disabled = function() return not EnsureProgressionDB().enable end
 							},
 							groups = {
 								order = 5,
@@ -486,22 +587,15 @@ local function EnhancedConfig()
 								name = L["Tiers"],
 								guiInline = true,
 								get = function(info)
-									local data = EnsureEnhancedDB()
-									return data.progress.tiers[info[#info]]
+									local db = EnsureProgressionDB()
+									return db.tiers[info[#info]]
 								end,
 								set = function(info, value)
-									local data = EnsureEnhancedDB()
-									data.progress.tiers[info[#info]] = value
-									local module = GetProgressionModule()
-									if module then
-										if not module.initialized and E.db.enhanced.tooltip.progressInfo.enable then
-											module:Initialize()
-										else
-											module:UpdateSettings()
-										end
-									end
+									local db = EnsureProgressionDB()
+									db.tiers[info[#info]] = value
+									ApplyProgressionSettings()
 								end,
-								disabled = function() return not E.db.enhanced.tooltip.progressInfo.enable end,
+								disabled = function() return not EnsureProgressionDB().enable end,
 								args = {
 									RS = {
 										order = 1,

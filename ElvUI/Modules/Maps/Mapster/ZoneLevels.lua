@@ -10,7 +10,7 @@ if not Mapster then return end
 local MODNAME = "ZoneLevels"
 local ZoneLevels = Mapster:NewModule(MODNAME, "AceHook-3.0")
 
-local Tourist
+local Tourist = E.Libs.Tourist
 local LibStub = LibStub
 local pairs = pairs
 local string_format = string.format
@@ -142,7 +142,7 @@ function ZoneLevels:OnInitialize()
 end
 
 function ZoneLevels:OnEnable()
-	Tourist = LibStub("LibTourist-3.0", true)
+	Tourist = E.Libs.Tourist or LibStub("LibTourist-3.0", true)
 	if not Tourist then
 		E:Print("LibTourist-3.0 was not found; Zone Info module disabled.")
 		self:SetEnabledState(false)

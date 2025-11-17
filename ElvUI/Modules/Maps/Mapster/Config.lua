@@ -9,28 +9,37 @@ local E, L, V, P, G = unpack(select(2, ...))
 local Mapster = E:GetModule("Mapster")
 -- Locale reference will be set during initialization
 
+local function GetWorldMapProfile()
+	if Mapster and Mapster.EnsureProfileDefaults then
+		return Mapster:EnsureProfileDefaults()
+	end
+
+	E.db.maps = E.db.maps or {}
+	E.db.maps.worldMap = E.db.maps.worldMap or {}
+	return E.db.maps.worldMap
+end
+
 local optGetter, optSetter
 do
 	function optGetter(info)
-		if not E.db.mapster then return end
+		local profileDB = GetWorldMapProfile()
 		local key = info[#info]
-		if key:sub(0,5) == "mini_" then
-			return E.db.mapster.mini and E.db.mapster.mini[key:sub(6)]
+		if key:sub(1,5) == "mini_" then
+			local mini = profileDB.mini
+			return mini and mini[key:sub(6)]
 		else
-			return E.db.mapster[key]
+			return profileDB[key]
 		end
 	end
 
 	function optSetter(info, value)
-		if not E.db.mapster then return end
+		local profileDB = GetWorldMapProfile()
 		local key = info[#info]
-		if key:sub(0,5) == "mini_" then
-			if not E.db.mapster.mini then
-				E.db.mapster.mini = {}
-			end
-			E.db.mapster.mini[key:sub(6)] = value
+		if key:sub(1,5) == "mini_" then
+			profileDB.mini = profileDB.mini or {}
+			profileDB.mini[key:sub(6)] = value
 		else
-			E.db.mapster[key] = value
+			profileDB[key] = value
 		end
 		Mapster:Refresh()
 	end
@@ -54,48 +63,6 @@ local function getOptions()
 							order = 1,
 							type = "description",
 							name = L["Mapster allows you to control various aspects of your World Map. You can change the style of the map, control the plugins that extend the map with new functionality, and configure different profiles for every of your characters."],
-						},
-						alphadesc = {
-							order = 2,
-							type = "description",
-							name = L["You can change the transparency of the world map to allow you to continue seeing the world environment while your map is open for navigation."],
-						},
-						alpha = {
-							order = 3,
-							name = L["Alpha"],
-							desc = L["The transparency of the big map."],
-							type = "range",
-							min = 0, max = 1, bigStep = 0.01,
-							isPercent = true,
-						},
-						mini_alpha = {
-							order = 4,
-							name = L["Minimized Alpha"],
-							desc = L["The transparency of the minimized map."],
-							type = "range",
-							min = 0, max = 1, bigStep = 0.01,
-							isPercent = true,
-						},
-						scaledesc = {
-							order = 5,
-							type = "description",
-							name = L["Change the scale of the world map if you do not want the whole screen filled while the map is open."],
-						},
-						scale = {
-							order = 6,
-							name = L["Scale"],
-							desc = L["Scale of the big map."],
-							type = "range",
-							min = 0.1, max = 2, bigStep = 0.01,
-							isPercent = true,
-						},
-						mini_scale = {
-							order = 7,
-							name = L["Minimized Scale"],
-							desc = L["Scale of the minimized map."],
-							type = "range",
-							min = 0.1, max = 2, bigStep = 0.01,
-							isPercent = true,
 						},
 						nl = {
 							order = 10,
@@ -209,7 +176,8 @@ function Mapster:SetupMapButton()
 	self.optionsButton:ClearAllPoints()
 	self.optionsButton:SetPoint("TOPRIGHT", WorldMapPositioningGuide, "TOPRIGHT", -43, -2)
 
-	if E.db.mapster.hideMapButton then
+	local profileDB = GetWorldMapProfile()
+	if profileDB.hideMapButton then
 		self.optionsButton:Hide()
 	else
 		self.optionsButton:Show()

@@ -1,14 +1,50 @@
 -- WarcraftEnhanced Leatrix Features Module
 -- Integrated features from Leatrix Plus
 
-local QH = WarcraftEnhanced or QuestHelper
-if not QH then return end
+local E, L, V, P, G = unpack(ElvUI)
+local WE = E.WarcraftEnhanced
+local QH = WarcraftEnhanced or QuestHelper or WE
+if not WE then return end
 
 local LF = {}
-QH.LeatrixFeatures = LF
+WE.LeatrixFeatures = LF
 
--- Event frame
 local LFEvt = CreateFrame("Frame")
+local cameraCVarSettings = {
+	{
+		name = "cameraDistanceMaxZoomFactor",
+		enabled = 2.6,
+		disabled = 1.9,
+	},
+	{
+		name = "cameraDistanceMaxFactor",
+		enabled = 4,
+		disabled = 1,
+	},
+	{
+		name = "cameraDistanceMax",
+		enabled = 50,
+		disabled = 15,
+	},
+}
+
+local function GetSocialDB()
+	if not WE or not WE.db then return end
+	WE.db.social = WE.db.social or E:CopyTable({}, P.warcraftenhanced.social)
+	return WE.db.social
+end
+
+local function GetAutomationDB()
+	if not WE or not WE.db then return end
+	WE.db.automation = WE.db.automation or E:CopyTable({}, P.warcraftenhanced.automation)
+	return WE.db.automation
+end
+
+local function GetSystemDB()
+	if not WE or not WE.db then return end
+	WE.db.system = WE.db.system or E:CopyTable({}, P.warcraftenhanced.system)
+	return WE.db.system
+end
 
 ----------------------------------------------------------------------
 -- Helper: Friend Check (including guild members if enabled)
@@ -38,7 +74,8 @@ function LF:FriendCheck(name, guid)
 	end
 	
 	-- Check guild members if enabled
-	if QH.db.friendlyGuild then
+	local social = GetSocialDB()
+	if social and social.friendlyGuild then
 		if IsInGuild() then
 			local gCount = GetNumGuildMembers()
 			for i = 1, gCount do
@@ -62,7 +99,8 @@ end
 
 -- Block Duels
 function LF:SetupBlockDuels()
-	if QH.db.blockDuels then
+	local social = GetSocialDB()
+	if social and social.blockDuels then
 		LFEvt:RegisterEvent("DUEL_REQUESTED")
 	else
 		LFEvt:UnregisterEvent("DUEL_REQUESTED")
@@ -71,7 +109,8 @@ end
 
 -- Block Guild Invites
 function LF:SetupBlockGuildInvites()
-	if QH.db.blockGuildInvites then
+	local social = GetSocialDB()
+	if social and social.blockGuildInvites then
 		LFEvt:RegisterEvent("GUILD_INVITE_REQUEST")
 	else
 		LFEvt:UnregisterEvent("GUILD_INVITE_REQUEST")
@@ -85,7 +124,13 @@ end
 
 -- Party from Friends
 function LF:SetupPartyFromFriends()
-	if QH.db.acceptPartyFriends or QH.db.blockPartyInvites then
+	local social = GetSocialDB()
+	if not social then
+		LFEvt:UnregisterEvent("PARTY_INVITE_REQUEST")
+		return
+	end
+
+	if social.acceptPartyFriends or social.blockPartyInvites then
 		LFEvt:RegisterEvent("PARTY_INVITE_REQUEST")
 	else
 		LFEvt:UnregisterEvent("PARTY_INVITE_REQUEST")
@@ -98,7 +143,8 @@ end
 
 -- Release in PvP
 function LF:SetupAutoReleasePvP()
-	if QH.db.autoReleasePvP then
+	local automation = GetAutomationDB()
+	if automation and automation.autoReleasePvP then
 		LFEvt:RegisterEvent("PLAYER_DEAD")
 	else
 		LFEvt:UnregisterEvent("PLAYER_DEAD")
@@ -107,7 +153,8 @@ end
 
 -- Auto Spirit Res
 function LF:SetupAutoSpiritRes()
-	if QH.db.autoSpiritRes then
+	local automation = GetAutomationDB()
+	if automation and automation.autoSpiritRes then
 		LFEvt:RegisterEvent("RESURRECT_REQUEST")
 	else
 		LFEvt:UnregisterEvent("RESURRECT_REQUEST")
@@ -116,7 +163,8 @@ end
 
 -- Auto Sell Junk
 function LF:SetupAutoSellJunk()
-	if QH.db.autoSellJunk then
+	local automation = GetAutomationDB()
+	if automation and automation.autoSellJunk then
 		LFEvt:RegisterEvent("MERCHANT_SHOW")
 		LFEvt:RegisterEvent("MERCHANT_CLOSED")
 	else
@@ -127,7 +175,8 @@ end
 
 -- Auto Repair
 function LF:SetupAutoRepair()
-	if QH.db.autoRepair then
+	local automation = GetAutomationDB()
+	if automation and automation.autoRepair then
 		LFEvt:RegisterEvent("MERCHANT_SHOW")
 	else
 		LFEvt:UnregisterEvent("MERCHANT_SHOW")
@@ -140,28 +189,22 @@ end
 
 -- Max Camera Zoom
 function LF:SetupMaxCameraZoom()
-	-- Try different CVar names for different client versions
-	local cvarName = nil
-	if GetCVar("cameraDistanceMaxZoomFactor") ~= nil then
-		cvarName = "cameraDistanceMaxZoomFactor"
-	elseif GetCVar("cameraDistanceMaxFactor") ~= nil then
-		cvarName = "cameraDistanceMaxFactor"
-	elseif GetCVar("cameraDistanceMax") ~= nil then
-		cvarName = "cameraDistanceMax"
+	local system = GetSystemDB()
+	if not system then return end
+
+	local applied = false
+	for _, data in ipairs(cameraCVarSettings) do
+		local name = data.name
+		if GetCVar(name) ~= nil then
+			local value = system.maxCameraZoom and data.enabled or data.disabled
+			SetCVar(name, tostring(value))
+			applied = true
+		end
 	end
-	
-	if cvarName then
-		if QH.db.maxCameraZoom then
-			SetCVar(cvarName, 2.6)
-		else
-			SetCVar(cvarName, 1.9)
-		end
-	else
-		-- No compatible CVar found, disable feature
-		if QH.db.maxCameraZoom then
-			QH:Print("Max camera zoom not supported on this client version")
-			QH.db.maxCameraZoom = false
-		end
+
+	if not applied and system.maxCameraZoom then
+		WE:Print("Max camera zoom not supported on this client version")
+		system.maxCameraZoom = false
 	end
 end
 
@@ -172,11 +215,13 @@ end
 
 LFEvt:SetScript("OnEvent", function(self, event, ...)
 	local arg1, arg2, arg3, arg4, guid = ...
+	local social = GetSocialDB()
+	local automation = GetAutomationDB()
 	
 	----------------------------------------------------------------------
 	-- Block Duels
 	----------------------------------------------------------------------
-	if event == "DUEL_REQUESTED" and not LF:FriendCheck(arg1) then
+	if event == "DUEL_REQUESTED" and social and social.blockDuels and not LF:FriendCheck(arg1) then
 		CancelDuel()
 		StaticPopup_Hide("DUEL_REQUESTED")
 		return
@@ -185,7 +230,7 @@ LFEvt:SetScript("OnEvent", function(self, event, ...)
 	----------------------------------------------------------------------
 	-- Block Guild Invites
 	----------------------------------------------------------------------
-	if event == "GUILD_INVITE_REQUEST" then
+	if event == "GUILD_INVITE_REQUEST" and social and social.blockGuildInvites then
 		if not LF:FriendCheck(arg1, guid) then
 			DeclineGuild()
 			StaticPopup_Hide("GUILD_INVITE")
@@ -198,7 +243,7 @@ LFEvt:SetScript("OnEvent", function(self, event, ...)
 	----------------------------------------------------------------------
 	if event == "PARTY_INVITE_REQUEST" then
 		-- If a friend, accept if you're accepting friends
-		if QH.db.acceptPartyFriends and LF:FriendCheck(arg1, guid) then
+		if social and social.acceptPartyFriends and LF:FriendCheck(arg1, guid) then
 			AcceptGroup()
 			for i = 1, STATICPOPUP_NUMDIALOGS do
 				if _G["StaticPopup" .. i].which == "PARTY_INVITE" then
@@ -215,7 +260,7 @@ LFEvt:SetScript("OnEvent", function(self, event, ...)
 		end
 		
 		-- If not a friend and you're blocking invites, decline
-		if QH.db.blockPartyInvites then
+		if social and social.blockPartyInvites then
 			if not LF:FriendCheck(arg1, guid) then
 				DeclineGroup()
 				StaticPopup_Hide("PARTY_INVITE")
@@ -228,9 +273,9 @@ LFEvt:SetScript("OnEvent", function(self, event, ...)
 	----------------------------------------------------------------------
 	-- Auto Release in PvP
 	----------------------------------------------------------------------
-	if event == "PLAYER_DEAD" then
+	if event == "PLAYER_DEAD" and automation and automation.autoReleasePvP then
 		local sType = select(2, IsActiveBattlefieldArena())
-		if sType and sType == "DEATH" and QH.db.autoReleasePvP then
+		if sType and sType == "DEATH" then
 			C_Timer.After(0.5, function()
 				RepopMe()
 			end)
@@ -241,13 +286,11 @@ LFEvt:SetScript("OnEvent", function(self, event, ...)
 	----------------------------------------------------------------------
 	-- Auto Spirit Res
 	----------------------------------------------------------------------
-	if event == "RESURRECT_REQUEST" then
-		if QH.db.autoSpiritRes then
-			AcceptResurrect()
-			StaticPopup_Hide("RESURRECT")
-			StaticPopup_Hide("RESURRECT_NO_SICKNESS")
-			StaticPopup_Hide("RESURRECT_NO_TIMER")
-		end
+	if event == "RESURRECT_REQUEST" and automation and automation.autoSpiritRes then
+		AcceptResurrect()
+		StaticPopup_Hide("RESURRECT")
+		StaticPopup_Hide("RESURRECT_NO_SICKNESS")
+		StaticPopup_Hide("RESURRECT_NO_TIMER")
 		return
 	end
 	
@@ -255,7 +298,7 @@ LFEvt:SetScript("OnEvent", function(self, event, ...)
 	-- Auto Sell Junk
 	----------------------------------------------------------------------
 	if event == "MERCHANT_SHOW" then
-		if QH.db.autoSellJunk and not IsShiftKeyDown() then
+		if automation and automation.autoSellJunk and not IsShiftKeyDown() then
 			C_Timer.After(0.2, function()
 				local totalPrice = 0
 				local itemsSold = 0
@@ -275,24 +318,24 @@ LFEvt:SetScript("OnEvent", function(self, event, ...)
 					end
 				end
 				
-				if itemsSold > 0 and QH.db.autoSellJunkSummary then
+				if itemsSold > 0 and automation.autoSellJunkSummary then
 					local gold, silver, copper = floor(totalPrice / 10000), floor((totalPrice % 10000) / 100), totalPrice % 100
-					QH:Print(string.format("Sold %d items for |cffffffff%dg %ds %dc|r", itemsSold, gold, silver, copper))
+					WE:Print(string.format("Sold %d items for |cffffffff%dg %ds %dc|r", itemsSold, gold, silver, copper))
 				end
 			end)
 		end
 		
 		-- Auto Repair
-		if QH.db.autoRepair and not IsShiftKeyDown() and CanMerchantRepair() then
+		if automation and automation.autoRepair and not IsShiftKeyDown() and CanMerchantRepair() then
 			local repairCost, canRepair = GetRepairAllCost()
 			if canRepair and repairCost > 0 then
-				local useGuildFunds = QH.db.autoRepairGuildFunds and CanGuildBankRepair() and repairCost <= GetGuildBankWithdrawMoney()
+				local useGuildFunds = automation.autoRepairGuildFunds and CanGuildBankRepair() and repairCost <= GetGuildBankWithdrawMoney()
 				RepairAllItems(useGuildFunds)
 				
-				if QH.db.autoRepairSummary then
+				if automation.autoRepairSummary then
 					local gold, silver, copper = floor(repairCost / 10000), floor((repairCost % 10000) / 100), repairCost % 100
 					local source = useGuildFunds and " (Guild)" or ""
-					QH:Print(string.format("Repaired for |cffffffff%dg %ds %dc|r%s", gold, silver, copper, source))
+					WE:Print(string.format("Repaired for |cffffffff%dg %ds %dc|r%s", gold, silver, copper, source))
 				end
 			end
 		end
@@ -310,24 +353,33 @@ end)
 ----------------------------------------------------------------------
 
 function LF:Initialize()
-	-- Social
+	self.social = GetSocialDB()
+	self.automation = GetAutomationDB()
+	self.system = GetSystemDB()
+
+	self:ApplySocial()
+	self:ApplyAutomation()
+	self:ApplySystem()
+-- Silent load
+end
+
+function LF:ApplySocial()
 	self:SetupBlockDuels()
 	self:SetupBlockGuildInvites()
-	
-	-- Groups
 	self:SetupPartyFromFriends()
-	
-	-- Automation
+end
+
+function LF:ApplyAutomation()
 	self:SetupAutoReleasePvP()
 	self:SetupAutoSpiritRes()
 	self:SetupAutoSellJunk()
 	self:SetupAutoRepair()
-	
-	-- System
+end
+
+function LF:ApplySystem()
 	self:SetupMaxCameraZoom()
--- Silent load
 end
 
 -- Register this module
-QH:RegisterModule("LeatrixFeatures", LF)
+WE:RegisterModule("LeatrixFeatures", LF)
 

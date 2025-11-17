@@ -73,6 +73,11 @@ do
 	AddOn:AddLib('Deflate', 'LibDeflate')
 	AddOn:AddLib("Base64", "LibBase64-1.0-ElvUI")
 	AddOn:AddLib("Translit", "LibTranslit-1.0")
+	AddOn:AddLib("LDBIcon", "LibDBIcon-1.0", true)
+	AddOn:AddLib("Tourist", "LibTourist-3.0", true)
+	AddOn:AddLib("BabbleZone", "LibBabble-Zone-3.0", true)
+	AddOn:AddLib("Sink", "LibSink-2.0", true)
+	AddOn:AddLib("LibWindow", "LibWindow-1.1", true)
 	-- added on ElvUI_OptionsUI load: AceGUI, AceConfig, AceConfigDialog, AceConfigRegistry, AceDBOptions
 
 	-- backwards compatible for plugins

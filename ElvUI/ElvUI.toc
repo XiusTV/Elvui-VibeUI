@@ -3,7 +3,7 @@
 ## Version: 1.3.1
 ## Title: |cff1784d1E|r|cffe5e3e3lvUI|r
 ## Notes: User Interface replacement AddOn for World of Warcraft.
-## SavedVariables: ElvDB, ElvPrivateDB, Omen3DB, EnhancedDB
+## SavedVariables: ElvDB, ElvPrivateDB, EnhancedDB, Omen3DB
 ## SavedVariablesPerCharacter: ElvCharacterDB, AutoQuestSave
 ## OptionalDeps: Blizzard_DebugTools, SharedMedia, Tukui, ButtonFacade
 ## X-oUF: ElvUF

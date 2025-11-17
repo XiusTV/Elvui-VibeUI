@@ -31,6 +31,222 @@ local function GetChatWindowInfo()
 	return ChatTabInfo
 end
 
+local function EnsurePortalBoxDB()
+	E.db.warcraftenhanced = E.db.warcraftenhanced or {}
+	local db = E.db.warcraftenhanced.portalBox
+	if not db then
+		db = E:CopyTable({}, P.warcraftenhanced.portalBox)
+		E.db.warcraftenhanced.portalBox = db
+	end
+
+	return db
+end
+local function EnsureButtonGrabberDB()
+	E.db.warcraftenhanced = E.db.warcraftenhanced or {}
+	local db = E.db.warcraftenhanced.buttonGrabber
+	if not db then
+		db = E:CopyTable({}, P.warcraftenhanced.buttonGrabber)
+		E.db.warcraftenhanced.buttonGrabber = db
+	end
+
+	return db
+end
+
+local function SavePortalBoxSettings()
+	local we = _G.WarcraftEnhanced
+	if we and we.PortalBox and we.PortalBox.SaveSettings then
+		we.PortalBox:SaveSettings()
+	end
+end
+
+local function EnsureAutoQuestDB()
+	E.db.warcraftenhanced = E.db.warcraftenhanced or {}
+	local db = E.db.warcraftenhanced.autoQuest
+	if not db then
+		db = E:CopyTable({}, P.warcraftenhanced.autoQuest)
+		E.db.warcraftenhanced.autoQuest = db
+	end
+
+	db.overrideList = db.overrideList or {}
+
+	return db
+end
+
+local function EnsureUIEnhancementDB()
+	E.db.warcraftenhanced = E.db.warcraftenhanced or {}
+	local db = E.db.warcraftenhanced.uiEnhancements
+	if not db then
+		db = E:CopyTable({}, P.warcraftenhanced.uiEnhancements)
+		E.db.warcraftenhanced.uiEnhancements = db
+	end
+
+	db.errorFilters = db.errorFilters or {}
+	if not db.tooltipIcon then
+		db.tooltipIcon = E:CopyTable({}, P.warcraftenhanced.uiEnhancements.tooltipIcon)
+	end
+
+	return db
+end
+
+local function EnsureSocialDB()
+	E.db.warcraftenhanced = E.db.warcraftenhanced or {}
+	local db = E.db.warcraftenhanced.social
+	if not db then
+		db = E:CopyTable({}, P.warcraftenhanced.social)
+		E.db.warcraftenhanced.social = db
+	end
+
+	return db
+end
+
+local function EnsureAutomationDB()
+	E.db.warcraftenhanced = E.db.warcraftenhanced or {}
+	local db = E.db.warcraftenhanced.automation
+	if not db then
+		db = E:CopyTable({}, P.warcraftenhanced.automation)
+		E.db.warcraftenhanced.automation = db
+	end
+
+	return db
+end
+
+local function EnsureSystemDB()
+	E.db.warcraftenhanced = E.db.warcraftenhanced or {}
+	local db = E.db.warcraftenhanced.system
+	if not db then
+		db = E:CopyTable({}, P.warcraftenhanced.system)
+		E.db.warcraftenhanced.system = db
+	end
+
+	return db
+end
+
+local function EnsureAchievementDB()
+	E.db.warcraftenhanced = E.db.warcraftenhanced or {}
+	local db = E.db.warcraftenhanced.achievements
+	if not db then
+		db = E:CopyTable({}, P.warcraftenhanced.achievements)
+		E.db.warcraftenhanced.achievements = db
+	end
+
+	return db
+end
+
+local function EnsureLootRollDB()
+	E.db.warcraftenhanced = E.db.warcraftenhanced or {}
+	local db = E.db.warcraftenhanced.lootRoll
+	if not db then
+		db = E:CopyTable({}, P.warcraftenhanced.lootRoll)
+		E.db.warcraftenhanced.lootRoll = db
+	end
+
+	return db
+end
+
+local function EnsureBlizzardExtrasDB()
+	E.db.warcraftenhanced = E.db.warcraftenhanced or {}
+
+	local defaults = (P.warcraftenhanced and P.warcraftenhanced.blizzard) or {}
+	local db = E.db.warcraftenhanced.blizzard
+	if not db then
+		db = E:CopyTable({}, defaults)
+		E.db.warcraftenhanced.blizzard = db
+	end
+
+	if db.takeAllMail == nil then
+		db.takeAllMail = defaults.takeAllMail or false
+	end
+
+	if db.mailRecipientHistory == nil then
+		if defaults.mailRecipientHistory ~= nil then
+			db.mailRecipientHistory = defaults.mailRecipientHistory
+		else
+			db.mailRecipientHistory = true
+		end
+	end
+
+	local errorDefaults = defaults.errorFrame or {
+		enable = false,
+		width = 300,
+		height = 60,
+		font = "PT Sans Narrow",
+		fontSize = 12,
+		fontOutline = "NONE",
+	}
+
+	db.errorFrame = db.errorFrame or E:CopyTable({}, errorDefaults)
+
+	if E.db.enhanced and E.db.enhanced.blizzard then
+		local legacy = E.db.enhanced.blizzard
+		if legacy.takeAllMail ~= nil then
+			db.takeAllMail = legacy.takeAllMail
+			legacy.takeAllMail = nil
+		end
+		if legacy.mailRecipientHistory ~= nil then
+			db.mailRecipientHistory = legacy.mailRecipientHistory
+			legacy.mailRecipientHistory = nil
+		end
+		if legacy.errorFrame then
+			E:CopyTable(db.errorFrame, legacy.errorFrame)
+			legacy.errorFrame = nil
+		end
+		if not next(legacy) then
+			E.db.enhanced.blizzard = nil
+		end
+	end
+
+	return db
+end
+
+local function EnsureErrorFrameDB()
+	return EnsureBlizzardExtrasDB().errorFrame
+end
+
+local function ApplyUIEnhancements()
+	local module = E:GetModule("UIEnhancements", true)
+	if module then
+		module.db = EnsureUIEnhancementDB()
+	end
+end
+
+local function ApplyLeatrixSocial()
+	local module = E:GetModule("LeatrixFeatures", true)
+	if module and module.ApplySocial then
+		module:ApplySocial()
+	end
+end
+
+local function ApplyLeatrixAutomation()
+	local module = E:GetModule("LeatrixFeatures", true)
+	if module and module.ApplyAutomation then
+		module:ApplyAutomation()
+	end
+end
+
+local function ApplyLeatrixSystem()
+	local module = E:GetModule("LeatrixFeatures", true)
+	if module and module.ApplySystem then
+		module:ApplySystem()
+	end
+end
+
+local function ApplyLootRollSettings()
+	local module = E:GetModule("LootRollEnhancement", true)
+	if module and module.SetSkipConfirmation then
+		module:SetSkipConfirmation(EnsureLootRollDB().skipConfirmation)
+	end
+end
+
+local function ApplyAchievementSettings()
+	if not IsAddOnLoaded("Blizzard_AchievementUI") then
+		return
+	end
+
+	if AchievementFrameSummaryCategoriesStatusBar_Update then
+		AchievementFrameSummaryCategoriesStatusBar_Update()
+	end
+end
+
 E.Options.args.general = {
 	order = 2, -- Below Search (moved from alphabetical position)
 	type = "group",
@@ -643,63 +859,97 @@ E.Options.args.general = {
 					type = "toggle",
 					name = "Filter Script Errors",
 					desc = "Filters out common annoying error messages from the error frame (prevents specific errors from showing)",
-					get = function(info) return E.db and E.db.warcraftenhanced and E.db.warcraftenhanced.errorFiltering or false end,
-					set = function(info, value)
-						if E.db and E.db.warcraftenhanced then
-							E.db.warcraftenhanced.errorFiltering = value
-						end
+				get = function() return EnsureUIEnhancementDB().errorFiltering end,
+				set = function(_, value)
+					local db = EnsureUIEnhancementDB()
+					db.errorFiltering = value
+					local module = E:GetModule("UIEnhancements", true)
+					if module and module.ToggleErrorFiltering then
+						module:ToggleErrorFiltering(value)
 					end
+				end
 				},
 				autoFillDelete = {
 					order = 4.6,
 					type = "toggle",
 					name = "Auto-Fill Delete Confirmation",
 					desc = "Automatically fills 'Delete' in item deletion confirmation dialogs",
-					get = function(info) return E.db and E.db.warcraftenhanced and E.db.warcraftenhanced.autoDelete or false end,
-					set = function(info, value)
-						if E.db and E.db.warcraftenhanced then
-							E.db.warcraftenhanced.autoDelete = value
-						end
+				get = function() return EnsureUIEnhancementDB().autoDelete end,
+				set = function(_, value)
+					local db = EnsureUIEnhancementDB()
+					db.autoDelete = value
+					local module = E:GetModule("UIEnhancements", true)
+					if module and module.ToggleAutoDelete then
+						module:ToggleAutoDelete(value)
 					end
+				end
 				},
 				maxCameraZoom = {
 					order = 4.7,
 					type = "toggle",
 					name = "Max Camera Zoom",
 					desc = "Increase maximum camera zoom distance",
-					get = function(info) return E.db and E.db.warcraftenhanced and E.db.warcraftenhanced.maxCameraZoom or false end,
-					set = function(info, value)
-						if E.db and E.db.warcraftenhanced then
-							E.db.warcraftenhanced.maxCameraZoom = value
-						end
+					get = function() return EnsureSystemDB().maxCameraZoom end,
+					set = function(_, value)
+						local db = EnsureSystemDB()
+						db.maxCameraZoom = value
+						ApplyLeatrixSystem()
 					end
 				},
 				animatedAchievementBars = {
 					order = 4.8,
 					type = "toggle",
 					name = L["Animated Achievement Bars"],
-					get = function() return E.private.enhanced.animatedAchievementBars end,
+					get = function() return EnsureAchievementDB().animatedBars end,
 					set = function(_, value)
-						E.private.enhanced.animatedAchievementBars = value
-						E:StaticPopup_Show("PRIVATE_RL")
+						local db = EnsureAchievementDB()
+						db.animatedBars = value
+						ApplyAchievementSettings()
 					end
 				},
 				mailRecipientHistory = {
-					order = 4.95,
+					order = 4.9,
 					type = "toggle",
 					name = L["Remember Mail Recipients"],
 					desc = L["Keep the last mail recipient entered and show a list of recent contacts."],
 					get = function()
-						return E.db and E.db.enhanced and E.db.enhanced.blizzard and E.db.enhanced.blizzard.mailRecipientHistory
+						return EnsureBlizzardExtrasDB().mailRecipientHistory
 					end,
 					set = function(_, value)
-						if not E.db.enhanced then E.db.enhanced = {} end
-						if not E.db.enhanced.blizzard then E.db.enhanced.blizzard = {} end
-
-						E.db.enhanced.blizzard.mailRecipientHistory = value
+						local db = EnsureBlizzardExtrasDB()
+						db.mailRecipientHistory = value
 
 						if Misc and Misc.Mail_OnSettingChanged then
 							Misc:Mail_OnSettingChanged()
+						end
+					end
+				},
+				takeAllMail = {
+					order = 4.95,
+					type = "toggle",
+					name = L["Take All Mail"],
+					desc = L["Adds buttons to the mailbox frame to loot all mail or only gold with one click."],
+					get = function()
+						return EnsureBlizzardExtrasDB().takeAllMail
+					end,
+					set = function(_, value)
+						local db = EnsureBlizzardExtrasDB()
+						db.takeAllMail = value
+
+						if value then
+							local module = GetTakeAllMailModule()
+							if module then
+								if not module.initialized then
+									module:Initialize()
+								else
+									module:UpdateState()
+								end
+							end
+						else
+							local module = GetTakeAllMailModule()
+							if module and module.initialized and module.UpdateState then
+								module:UpdateState()
+							end
 						end
 					end
 				},
@@ -725,9 +975,12 @@ E.Options.args.general = {
 					type = "group",
 					name = L["Error Frame"],
 					guiInline = true,
-					get = function(info) return E.db.enhanced.blizzard.errorFrame[info[#info]] end,
+					get = function(info)
+						return EnsureErrorFrameDB()[info[#info]]
+					end,
 					set = function(info, value)
-						E.db.enhanced.blizzard.errorFrame[info[#info]] = value
+						local db = EnsureErrorFrameDB()
+						db[info[#info]] = value
 						local module = GetEnhancedBlizzardModule()
 						if module and module.initialized then
 							if info[#info] == "enable" then
@@ -743,7 +996,8 @@ E.Options.args.general = {
 							type = "toggle",
 							name = L["Enable"],
 							set = function(_, value)
-								E.db.enhanced.blizzard.errorFrame.enable = value
+								local db = EnsureErrorFrameDB()
+								db.enable = value
 								local module = GetEnhancedBlizzardModule()
 								if module and module.initialized then
 									module:CustomErrorFrameToggle()
@@ -755,14 +1009,14 @@ E.Options.args.general = {
 							type = "range",
 							name = L["Width"],
 							min = 200, max = 1024, step = 1,
-							disabled = function() return not E.db.enhanced.blizzard.errorFrame.enable end
+							disabled = function() return not EnsureErrorFrameDB().enable end
 						},
 						height = {
 							order = 3,
 							type = "range",
 							name = L["Height"],
 							min = 32, max = 256, step = 1,
-							disabled = function() return not E.db.enhanced.blizzard.errorFrame.enable end
+							disabled = function() return not EnsureErrorFrameDB().enable end
 						},
 						font = {
 							order = 4,
@@ -770,21 +1024,21 @@ E.Options.args.general = {
 							dialogControl = "LSM30_Font",
 							name = L["Font"],
 							values = LSM:HashTable("font"),
-							disabled = function() return not E.db.enhanced.blizzard.errorFrame.enable end
+							disabled = function() return not EnsureErrorFrameDB().enable end
 						},
 						fontSize = {
 							order = 5,
 							type = "range",
 							name = L["Font Size"],
 							min = 8, max = 32, step = 1,
-							disabled = function() return not E.db.enhanced.blizzard.errorFrame.enable end
+							disabled = function() return not EnsureErrorFrameDB().enable end
 						},
 						fontOutline = {
 							order = 6,
 							type = "select",
 							name = L["Font Outline"],
 							values = C.Values.FontFlags,
-							disabled = function() return not E.db.enhanced.blizzard.errorFrame.enable end
+							disabled = function() return not EnsureErrorFrameDB().enable end
 						}
 					}
 				},
@@ -830,6 +1084,12 @@ E.Options.args.general = {
 				type = "toggle",
 				name = L["Skip Loot Roll Confirmation"],
 				desc = L["Skip the confirmation dialog when clicking Need, Greed, Disenchant, or Pass on BoP loot rolls. Your selection will be immediately submitted."],
+				get = function() return EnsureLootRollDB().skipConfirmation end,
+				set = function(_, value)
+					local db = EnsureLootRollDB()
+					db.skipConfirmation = value
+					ApplyLootRollSettings()
+				end,
 				disabled = function() return not E.private.general.lootRoll end
 			}
 		}
@@ -885,10 +1145,11 @@ E.Options.args.general = {
 					type = "toggle",
 					name = "Auto Accept All Quests",
 					desc = "Automatically accept all available quests",
-					get = function(info) return E.db.warcraftenhanced.autoAccept end,
+					get = function() return EnsureAutoQuestDB().autoAccept end,
 					set = function(info, value)
-						E.db.warcraftenhanced.autoAccept = value
-						if AutoQuestSave then AutoQuestSave.autoAccept = value end
+						local db = EnsureAutoQuestDB()
+						db.autoAccept = value
+						AutoQuestSave = db
 					end,
 				},
 				autoDaily = {
@@ -896,10 +1157,11 @@ E.Options.args.general = {
 					type = "toggle",
 					name = "Auto Accept Daily Quests",
 					desc = "Automatically accept daily quests",
-					get = function(info) return E.db.warcraftenhanced.autoDaily end,
+					get = function() return EnsureAutoQuestDB().autoDaily end,
 					set = function(info, value)
-						E.db.warcraftenhanced.autoDaily = value
-						if AutoQuestSave then AutoQuestSave.autoDaily = value end
+						local db = EnsureAutoQuestDB()
+						db.autoDaily = value
+						AutoQuestSave = db
 					end,
 				},
 				autoFate = {
@@ -907,10 +1169,11 @@ E.Options.args.general = {
 					type = "toggle",
 					name = "Auto Accept Fate Quests",
 					desc = "Automatically accept Hand of Fate leveling quests",
-					get = function(info) return E.db.warcraftenhanced.autoFate end,
+					get = function() return EnsureAutoQuestDB().autoFate end,
 					set = function(info, value)
-						E.db.warcraftenhanced.autoFate = value
-						if AutoQuestSave then AutoQuestSave.autoFate = value end
+						local db = EnsureAutoQuestDB()
+						db.autoFate = value
+						AutoQuestSave = db
 					end,
 				},
 				autoRepeatQuests = {
@@ -918,10 +1181,11 @@ E.Options.args.general = {
 					type = "toggle",
 					name = "Auto Accept Repeatable Quests",
 					desc = "Automatically accept repeatable quests if you have the required items",
-					get = function(info) return E.db.warcraftenhanced.autoRepeat end,
+					get = function() return EnsureAutoQuestDB().autoRepeat end,
 					set = function(info, value)
-						E.db.warcraftenhanced.autoRepeat = value
-						if AutoQuestSave then AutoQuestSave.autoRepeat = value end
+						local db = EnsureAutoQuestDB()
+						db.autoRepeat = value
+						AutoQuestSave = db
 					end,
 				},
 				autoComplete = {
@@ -929,10 +1193,11 @@ E.Options.args.general = {
 					type = "toggle",
 					name = "Auto Complete Quests",
 					desc = "Automatically complete and turn in quests",
-					get = function(info) return E.db.warcraftenhanced.autoComplete end,
+					get = function() return EnsureAutoQuestDB().autoComplete end,
 					set = function(info, value)
-						E.db.warcraftenhanced.autoComplete = value
-						if AutoQuestSave then AutoQuestSave.autoComplete = value end
+						local db = EnsureAutoQuestDB()
+						db.autoComplete = value
+						AutoQuestSave = db
 					end,
 				},
 				autoHighRisk = {
@@ -940,10 +1205,11 @@ E.Options.args.general = {
 					type = "toggle",
 					name = "Auto Accept High-Risk Quests",
 					desc = "Automatically accept high-risk quests (Bloody Expedition, Ill Gotten Goods, etc.)",
-					get = function(info) return E.db.warcraftenhanced.autoHighRisk end,
+					get = function() return EnsureAutoQuestDB().autoHighRisk end,
 					set = function(info, value)
-						E.db.warcraftenhanced.autoHighRisk = value
-						if AutoQuestSave then AutoQuestSave.autoHR = value end
+						local db = EnsureAutoQuestDB()
+						db.autoHighRisk = value
+						AutoQuestSave = db
 					end,
 				},
 				questAdvanced = {
@@ -967,30 +1233,57 @@ E.Options.args.general = {
 					type = "toggle",
 					name = "Sell Junk Automatically",
 					desc = "Automatically sell all grey items at vendors (hold Shift to skip)",
+					get = function() return EnsureAutomationDB().autoSellJunk end,
+					set = function(_, value)
+						local db = EnsureAutomationDB()
+						db.autoSellJunk = value
+						ApplyLeatrixAutomation()
+					end
 				},
 				autoSellJunkSummary = {
 					order = 32,
 					type = "toggle",
 					name = "Show Sell Junk Summary",
 					desc = "Show chat message with total from selling junk",
+					get = function() return EnsureAutomationDB().autoSellJunkSummary end,
+					set = function(_, value)
+						local db = EnsureAutomationDB()
+						db.autoSellJunkSummary = value
+					end
 				},
 				autoRepair = {
 					order = 33,
 					type = "toggle",
 					name = "Repair Automatically",
 					desc = "Automatically repair at vendors (hold Shift to skip)",
+					get = function() return EnsureAutomationDB().autoRepair end,
+					set = function(_, value)
+						local db = EnsureAutomationDB()
+						db.autoRepair = value
+						ApplyLeatrixAutomation()
+					end
 				},
 				autoRepairGuildFunds = {
 					order = 34,
 					type = "toggle",
 					name = "Repair Using Guild Funds",
 					desc = "Use guild funds for repairs if available and permitted",
+					get = function() return EnsureAutomationDB().autoRepairGuildFunds end,
+					set = function(_, value)
+						local db = EnsureAutomationDB()
+						db.autoRepairGuildFunds = value
+					end
 				},
 				autoRepairSummary = {
 					order = 35,
 					type = "toggle",
 					name = "Show Repair Summary",
 					desc = "Show chat message with repair costs",
+					get = function() return EnsureAutomationDB().autoRepairSummary end,
+					set = function(_, value)
+						local db = EnsureAutomationDB()
+						db.autoRepairSummary = value
+					end
 				},
 				spacer3 = {
 					order = 45,
@@ -1008,12 +1301,24 @@ E.Options.args.general = {
 					type = "toggle",
 					name = "Release in PvP",
 					desc = "Automatically release spirit in battlegrounds/arenas",
+					get = function() return EnsureAutomationDB().autoReleasePvP end,
+					set = function(_, value)
+						local db = EnsureAutomationDB()
+						db.autoReleasePvP = value
+						ApplyLeatrixAutomation()
+					end
 				},
 				autoSpiritRes = {
 					order = 52,
 					type = "toggle",
 					name = "Auto Spirit Res Confirm",
 					desc = "Automatically accept resurrection from spirit healer",
+					get = function() return EnsureAutomationDB().autoSpiritRes end,
+					set = function(_, value)
+						local db = EnsureAutomationDB()
+						db.autoSpiritRes = value
+						ApplyLeatrixAutomation()
+					end
 				},
 			}
 		},
@@ -1070,11 +1375,11 @@ E.Options.args.general = {
 				type = "toggle",
 				name = "Block Duels",
 				desc = "Block duel requests unless from friends/guild",
-				get = function(info) return E.db and E.db.warcraftenhanced and E.db.warcraftenhanced.blockDuels or false end,
-				set = function(info, value) 
-					if E.db and E.db.warcraftenhanced then
-						E.db.warcraftenhanced.blockDuels = value
-					end
+				get = function() return EnsureSocialDB().blockDuels end,
+				set = function(_, value)
+					local db = EnsureSocialDB()
+					db.blockDuels = value
+					ApplyLeatrixSocial()
 				end
 			},
 			blockGuildInvites = {
@@ -1082,11 +1387,11 @@ E.Options.args.general = {
 				type = "toggle",
 				name = "Block Guild Invites",
 				desc = "Block guild invitations unless from friends",
-				get = function(info) return E.db and E.db.warcraftenhanced and E.db.warcraftenhanced.blockGuildInvites or false end,
-				set = function(info, value) 
-					if E.db and E.db.warcraftenhanced then
-						E.db.warcraftenhanced.blockGuildInvites = value
-					end
+				get = function() return EnsureSocialDB().blockGuildInvites end,
+				set = function(_, value)
+					local db = EnsureSocialDB()
+					db.blockGuildInvites = value
+					ApplyLeatrixSocial()
 				end
 			},
 			blockPartyInvites = {
@@ -1094,11 +1399,11 @@ E.Options.args.general = {
 				type = "toggle",
 				name = "Block Party Invites",
 				desc = "Block party invitations unless from friends/guild",
-				get = function(info) return E.db and E.db.warcraftenhanced and E.db.warcraftenhanced.blockPartyInvites or false end,
-				set = function(info, value) 
-					if E.db and E.db.warcraftenhanced then
-						E.db.warcraftenhanced.blockPartyInvites = value
-					end
+				get = function() return EnsureSocialDB().blockPartyInvites end,
+				set = function(_, value)
+					local db = EnsureSocialDB()
+					db.blockPartyInvites = value
+					ApplyLeatrixSocial()
 				end
 			},
 			portalBoxHeader = {
@@ -1129,11 +1434,14 @@ E.Options.args.general = {
 				type = "toggle",
 				name = "Hide PortalBox Minimap Button",
 				desc = "Hide the PortalBox minimap button",
-				get = function(info) 
-					return HideMMIcon == "1"
+				get = function()
+					return EnsurePortalBoxDB().hideMinimapButton
 				end,
-				set = function(info, value)
+				set = function(_, value)
+					local db = EnsurePortalBoxDB()
+					db.hideMinimapButton = value
 					HideMMIcon = value and "1" or "0"
+
 					if value then
 						if PortalBox_MinimapButton then PortalBox_MinimapButton:Hide() end
 						if PortalBox_MinimapButtonUnbound then PortalBox_MinimapButtonUnbound:Hide() end
@@ -1144,6 +1452,50 @@ E.Options.args.general = {
 							PortalBox_MinimapButtonUnbound:Show()
 						end
 					end
+
+					SavePortalBoxSettings()
+				end,
+			},
+			detachPortalBoxMinimap = {
+				order = 23.5,
+				type = "toggle",
+				name = "Detach Minimap Button",
+				desc = "Allows the PortalBox minimap button to be moved freely",
+				get = function()
+					return EnsurePortalBoxDB().detachMinimapButton
+				end,
+				set = function(_, value)
+					local db = EnsurePortalBoxDB()
+					db.detachMinimapButton = value
+					MinimapButtonUnbind = value and "1" or "0"
+
+					if value then
+						if PortalBox_MinimapButton then PortalBox_MinimapButton:Hide() end
+						if PortalBox_MinimapButtonUnbound then PortalBox_MinimapButtonUnbound:Show() end
+					else
+						if HideMMIcon ~= "1" and PortalBox_MinimapButton then
+							PortalBox_MinimapButton:Show()
+						end
+						if PortalBox_MinimapButtonUnbound then PortalBox_MinimapButtonUnbound:Hide() end
+					end
+
+					SavePortalBoxSettings()
+				end,
+			},
+			portalBoxKeepWindowOpen = {
+				order = 23.6,
+				type = "toggle",
+				name = "Keep Window Open",
+				desc = "Keeps the PortalBox window open after casting a teleport or portal",
+				get = function()
+					return EnsurePortalBoxDB().keepWindowOpen
+				end,
+				set = function(_, value)
+					local db = EnsurePortalBoxDB()
+					db.keepWindowOpen = value
+					KeepWindowOpen = value and "1" or "0"
+
+					SavePortalBoxSettings()
 				end,
 			},
 			portalBoxCommand = {
@@ -1271,6 +1623,6 @@ E.Options.args.general = {
 }
 
 local takeAllModule = GetTakeAllMailModule()
-if takeAllModule and E.db and E.db.enhanced and E.db.enhanced.blizzard and E.db.enhanced.blizzard.takeAllMail and not takeAllModule.initialized then
+if takeAllModule and E.db and E.db.warcraftenhanced and E.db.warcraftenhanced.blizzard and E.db.warcraftenhanced.blizzard.takeAllMail and not takeAllModule.initialized then
 	takeAllModule:Initialize()
 end

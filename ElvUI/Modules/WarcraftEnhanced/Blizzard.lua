@@ -1,8 +1,11 @@
 local _, _, _, enhancedEnabled = GetAddOnInfo and GetAddOnInfo("ElvUI_Enhanced")
 if enhancedEnabled then return end
 
-local E = unpack(ElvUI)
+local E, _, _, P = unpack(ElvUI)
+local WE = E.WarcraftEnhanced
 local mod = E:NewModule("Enhanced_Blizzard", "AceEvent-3.0")
+
+local defaults = P and P.warcraftenhanced and P.warcraftenhanced.blizzard
 
 function mod:PLAYER_ENTERING_WORLD()
 	self:UnregisterEvent("PLAYER_ENTERING_WORLD")
@@ -10,29 +13,64 @@ function mod:PLAYER_ENTERING_WORLD()
 end
 
 local function EnsureBlizzardDB()
-	E.db.enhanced = E.db.enhanced or {}
-	E.db.enhanced.blizzard = E.db.enhanced.blizzard or {}
+	if not WE then return end
 
-	local db = E.db.enhanced.blizzard
-	db.errorFrame = db.errorFrame or {}
-	local ef = db.errorFrame
-	if ef.enable == nil then ef.enable = false end
-	if ef.width == nil then ef.width = 300 end
-	if ef.height == nil then ef.height = 60 end
-	if not ef.font then ef.font = "PT Sans Narrow" end
-	if ef.fontSize == nil then ef.fontSize = 12 end
-	if not ef.fontOutline then ef.fontOutline = "NONE" end
+	WE.db = WE.db or {}
 
-	if db.takeAllMail == nil then db.takeAllMail = false end
+	if not WE.db.blizzard then
+		WE.db.blizzard = E:CopyTable({}, defaults or {})
+	end
+
+	local db = WE.db.blizzard
+
+	if db.takeAllMail == nil then
+		db.takeAllMail = defaults and defaults.takeAllMail or false
+	end
+
+	local errorDefaults = defaults and defaults.errorFrame or {
+		enable = false,
+		width = 300,
+		height = 60,
+		font = "PT Sans Narrow",
+		fontSize = 12,
+		fontOutline = "NONE",
+	}
+
+	db.errorFrame = db.errorFrame or E:CopyTable({}, errorDefaults)
 
 	return db
 end
 
+local function MigrateLegacyBlizzardDB()
+	if not E.db.enhanced or not E.db.enhanced.blizzard then return end
+
+	local legacy = E.db.enhanced.blizzard
+	local db = EnsureBlizzardDB()
+	if not db then return end
+
+	if legacy.takeAllMail ~= nil then
+		db.takeAllMail = legacy.takeAllMail
+	end
+
+	if legacy.errorFrame then
+		db.errorFrame = db.errorFrame or {}
+		E:CopyTable(db.errorFrame, legacy.errorFrame)
+	end
+
+	E.db.enhanced.blizzard = nil
+end
+
 function mod:Initialize()
-	EnsureBlizzardDB()
+	MigrateLegacyBlizzardDB()
+
+	local db = EnsureBlizzardDB()
+	if not db then return end
+
+	self.db = db
+
 	self:RegisterEvent("PLAYER_ENTERING_WORLD")
 
-	if E.db.enhanced.blizzard.takeAllMail then
+	if db.takeAllMail then
 		local TAM = E:GetModule("Enhanced_TakeAllMail", true)
 		if TAM and not TAM.initialized then
 			TAM:Initialize()

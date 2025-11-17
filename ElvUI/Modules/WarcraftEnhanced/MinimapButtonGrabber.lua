@@ -1,4 +1,8 @@
-local _, _, _, enhancedEnabled = GetAddOnInfo and GetAddOnInfo("ElvUI_Enhanced")
+local enhancedEnabled
+if GetAddOnInfo then
+	local _, _, _, enabled = GetAddOnInfo("ElvUI_Enhanced")
+	enhancedEnabled = enabled
+end
 if enhancedEnabled then return end
 
 local E, L = unpack(ElvUI)
@@ -415,11 +419,8 @@ function MBG:StopGrabTimer()
 end
 
 local function EnsureButtonGrabberDB()
-	E.db.general = E.db.general or {}
-	E.db.general.minimap = E.db.general.minimap or {}
-	local minimap = E.db.general.minimap
-	minimap.buttonGrabber = minimap.buttonGrabber or {}
-	local db = minimap.buttonGrabber
+	WE.db.buttonGrabber = WE.db.buttonGrabber or {}
+	local db = WE.db.buttonGrabber
 
 	if db.enable == nil then db.enable = false end
 	if db.backdrop == nil then db.backdrop = false end
@@ -479,11 +480,11 @@ end
 function MBG:HandleEnableState()
 	if not self.initialized then return end
 
-	if E.db.general.minimap.buttonGrabber.enable then
+	if WE.db.buttonGrabber.enable then
 		if not self.enabled then
 			self:EnableModule()
 		else
-			self.db = E.db.general.minimap.buttonGrabber
+			self.db = WE.db.buttonGrabber
 			self:ToggleMouseover()
 			self:UpdateAlpha()
 			self:UpdatePosition()

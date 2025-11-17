@@ -79,6 +79,9 @@
 						end
 					end
 					
+					if (PB and PB.SaveSettings) then
+						PB:SaveSettings();
+					end
 					
 				</OnClick>
 				<OnShow>
@@ -112,6 +115,9 @@
 						MinimapButtonUnbind = "0";
 					end
 					
+					if (PB and PB.SaveSettings) then
+						PB:SaveSettings();
+					end
 				</OnClick>
 				<OnShow>
 					if (MinimapButtonUnbind == "1") then
@@ -138,6 +144,9 @@
 						KeepWindowOpen = "0";
 					end
 					
+					if (PB and PB.SaveSettings) then
+						PB:SaveSettings();
+					end
 				</OnClick>
 				<OnShow>
 					if (KeepWindowOpen == "1") then

@@ -4,47 +4,73 @@
 local QH = QH or WarcraftEnhanced
 local PB = {}
 QH.PortalBox = PB
+local HookSettingsSave
+
+local function GetPortalBoxDB()
+	if not QH or not QH.db then return end
+
+	QH.db.portalBox = QH.db.portalBox or {}
+	local db = QH.db.portalBox
+
+	if db.hideMinimapButton == nil then db.hideMinimapButton = false end
+	if db.keepWindowOpen == nil then db.keepWindowOpen = false end
+	if db.detachMinimapButton == nil then db.detachMinimapButton = false end
+	if db.minimapAngle == nil then db.minimapAngle = 1 end
+	if db.unboundX == nil then db.unboundX = 0 end
+	if db.unboundY == nil then db.unboundY = 0 end
+	if db.windowCollapsed == nil then db.windowCollapsed = false end
+
+	return db
+end
+
+local function LoadSettingsFromDB()
+	local db = GetPortalBoxDB()
+	if not db then return end
+
+	HideMMIcon = db.hideMinimapButton and "1" or "0"
+	KeepWindowOpen = db.keepWindowOpen and "1" or "0"
+	MinimapButtonUnbind = db.detachMinimapButton and "1" or "0"
+	MinimapPos = db.minimapAngle or 1
+	MinimapPosUnboundX = db.unboundX or 0
+	MinimapPosUnboundY = db.unboundY or 0
+	windowCollapseState = db.windowCollapsed and "1" or "0"
+end
 
 -- Initialize global variables (for compatibility with XML)
-HideMMIcon = "0"
-KeepWindowOpen = "0"
-MinimapButtonUnbind = "0"
-MinimapPos = 1
-MinimapPosUnboundX = 0
-MinimapPosUnboundY = 0
-windowCollapseState = "0"
+HideMMIcon = HideMMIcon or "0"
+KeepWindowOpen = KeepWindowOpen or "0"
+MinimapButtonUnbind = MinimapButtonUnbind or "0"
+MinimapPos = MinimapPos or 1
+MinimapPosUnboundX = MinimapPosUnboundX or 0
+MinimapPosUnboundY = MinimapPosUnboundY or 0
+windowCollapseState = windowCollapseState or "0"
 
 -- Module initialization
 function PB:Initialize()
-	-- Load saved variables from WarcraftEnhanced DB
-	if QH.db then
-		HideMMIcon = QH.db.portalboxHideMMIcon or "0"
-		KeepWindowOpen = QH.db.portalboxKeepWindowOpen or "0"
-		MinimapButtonUnbind = QH.db.portalboxMinimapButtonUnbind or "0"
-		MinimapPos = QH.db.portalboxMinimapPos or 1
-		MinimapPosUnboundX = QH.db.portalboxMinimapPosUnboundX or 0
-		MinimapPosUnboundY = QH.db.portalboxMinimapPosUnboundY or 0
-		windowCollapseState = QH.db.portalboxWindowCollapseState or "0"
-	end
+	LoadSettingsFromDB()
 	
 	-- Register slash commands
 	SLASH_PORTALBOX1 = "/portalbox"
 	SLASH_PORTALBOX2 = "/port"
 	SlashCmdList["PORTALBOX"] = portalbox_SlashCommandHandler
 	
+	HookSettingsSave()
+
 	-- Silent load
 end
 
 -- Save settings to DB
 function PB:SaveSettings()
-	if not QH.db then return end
-	QH.db.portalboxHideMMIcon = HideMMIcon
-	QH.db.portalboxKeepWindowOpen = KeepWindowOpen
-	QH.db.portalboxMinimapButtonUnbind = MinimapButtonUnbind
-	QH.db.portalboxMinimapPos = MinimapPos
-	QH.db.portalboxMinimapPosUnboundX = MinimapPosUnboundX
-	QH.db.portalboxMinimapPosUnboundY = MinimapPosUnboundY
-	QH.db.portalboxWindowCollapseState = windowCollapseState
+	local db = GetPortalBoxDB()
+	if not db then return end
+
+	db.hideMinimapButton = HideMMIcon == "1"
+	db.keepWindowOpen = KeepWindowOpen == "1"
+	db.detachMinimapButton = MinimapButtonUnbind == "1"
+	db.minimapAngle = MinimapPos
+	db.unboundX = MinimapPosUnboundX
+	db.unboundY = MinimapPosUnboundY
+	db.windowCollapsed = windowCollapseState == "1"
 end
 
 function PortalBox_MinimapButton_Reposition()
@@ -200,6 +226,10 @@ function portalBox_toggleCollapseState()
 		collapseButtonHorde:SetPushedTexture("Interface/Buttons/UI-MinusButton-Down");
 		windowCollapseState = "0";
 	end
+
+	if PB and PB.SaveSettings then
+		PB:SaveSettings()
+	end
 end
 
 function portalbox_toggle(num)
@@ -228,10 +258,18 @@ function portalbox_toggle(num)
 end
 
 -- Hook to save settings when they change
-local function HookSettingsSave()
+HookSettingsSave = function()
 	local originalReposition = PortalBox_MinimapButton_Reposition
-	PortalBox_MinimapButton_Reposition = function(...)
-		originalReposition(...)
+	PortalBox_MinimapButton_Reposition = function()
+		originalReposition()
+		if PB and PB.SaveSettings then
+			PB:SaveSettings()
+		end
+	end
+
+	local originalUnbound = PortalBox_MinimapButtonUnbound_Reposition
+	PortalBox_MinimapButtonUnbound_Reposition = function()
+		originalUnbound()
 		if PB and PB.SaveSettings then
 			PB:SaveSettings()
 		end

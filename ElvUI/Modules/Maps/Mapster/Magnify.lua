@@ -9,6 +9,7 @@ local Mapster = E:GetModule("Mapster")
 
 local MODNAME = "Magnify"
 local Magnify = Mapster:NewModule(MODNAME)
+local InCombatLockdown = InCombatLockdown
 
 -- Constants (EXACT from Magnify-WotLK)
 Magnify.MIN_ZOOM = 1.0
@@ -301,9 +302,11 @@ function Magnify.SetupWorldMapFrame()
     pcall(function() WorldMapButton:SetParent(WorldMapDetailFrame) end)
 
     pcall(function() WorldMapPOIFrame:SetParent(WorldMapDetailFrame) end)
-    pcall(function() WorldMapBlobFrame:SetParent(WorldMapDetailFrame) end)
-    WorldMapBlobFrame:ClearAllPoints()
-    WorldMapBlobFrame:SetAllPoints(WorldMapDetailFrame)
+    if not (InCombatLockdown and InCombatLockdown()) then
+        pcall(function() WorldMapBlobFrame:SetParent(WorldMapDetailFrame) end)
+        WorldMapBlobFrame:ClearAllPoints()
+        WorldMapBlobFrame:SetAllPoints(WorldMapDetailFrame)
+    end
 
     pcall(function() WorldMapPlayer:SetParent(WorldMapDetailFrame) end)
 

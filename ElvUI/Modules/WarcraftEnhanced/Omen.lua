@@ -2,11 +2,13 @@
 -- Addon declaration
 -- Use ElvUI's libraries if available, otherwise fall back to LibStub
 local E = unpack(ElvUI)
-local Omen = LibStub("AceAddon-3.0"):NewAddon("Omen", "AceConsole-3.0", "AceEvent-3.0", "AceTimer-3.0", "LibSink-2.0")
+local AceAddon = E.Libs.AceAddon or LibStub("AceAddon-3.0")
+local AceDB = E.Libs.AceDB or LibStub("AceDB-3.0")
+local Omen = AceAddon:NewAddon("Omen", "AceConsole-3.0", "AceEvent-3.0", "AceTimer-3.0", "LibSink-2.0")
 local L = LibStub("AceLocale-3.0"):GetLocale("Omen", false)
-local LSM = LibStub("LibSharedMedia-3.0")
-local LDB = LibStub("LibDataBroker-1.1", true)
-local LDBIcon = LDB and LibStub("LibDBIcon-1.0", true)
+local LSM = E.Libs.LSM or LibStub("LibSharedMedia-3.0")
+local LDB = E.Libs.LDB or LibStub("LibDataBroker-1.1", true)
+local LDBIcon = (E.Libs.LDBIcon or (LDB and LibStub("LibDBIcon-1.0", true)))
 Omen.version = GetAddOnMetadata("WarcraftEnhanced", "Version") or GetAddOnMetadata("ElvUI", "Version") or "1.1.0"
 Omen.versionstring = "Omen v"..(Omen.version)
 _G["Omen"] = Omen
@@ -172,6 +174,22 @@ local defaults = {
 		},
 	},
 }
+
+local function MergeDefaults(target, source)
+	if type(target) ~= 'table' or type(source) ~= 'table' then return end
+
+	for key, value in pairs(source) do
+		if type(value) == 'table' then
+			if type(target[key]) ~= 'table' then
+				target[key] = {}
+			end
+			MergeDefaults(target[key], value)
+		elseif target[key] == nil then
+			target[key] = value
+		end
+	end
+end
+
 local guidNameLookup = {}   -- Format: guidNameLookup[guid] = "Unit Name"
 local guidClassLookup = {}  -- Format: guidClassLookup[guid] = "CLASS"
 local timers = {}           -- Format: timers.timerName = timer returned from AceTimer-3.0
@@ -469,12 +487,22 @@ function Omen:CreateFrames()
 end
 
 function Omen:OnInitialize()
-	-- Create savedvariables
-	self.db = LibStub("AceDB-3.0"):New("Omen3DB", defaults)
-	self.db.RegisterCallback(self, "OnProfileChanged", "OnProfileChanged")
+	-- Initialize independent AceDB so settings persist reliably
+	self.db = AceDB:New("Omen3DB", defaults, true)
+	self.db.RegisterCallback(self, "OnProfileChanged")
 	self.db.RegisterCallback(self, "OnProfileCopied", "OnProfileChanged")
 	self.db.RegisterCallback(self, "OnProfileReset", "OnProfileChanged")
+
 	db = self.db.profile
+
+	-- One-time migration from ElvUI's shared database if it exists
+	self.db.global = self.db.global or {}
+	if E and E.db and E.db.warcraftenhanced and E.db.warcraftenhanced.omen and not self.db.global.elvMigrated then
+		self.db.global.elvMigrated = true
+		E:CopyTable(db, E.db.warcraftenhanced.omen)
+	end
+
+	MergeDefaults(db, defaults.profile)
 	self:SetSinkStorage(db.Warnings.SinkOptions)
 
 	LSM.RegisterCallback(self, "LibSharedMedia_Registered", "UpdateUsedMedia")
@@ -625,8 +653,11 @@ function Omen:OnDisable()
 	self:_toggle(false)
 end
 
-function Omen:OnProfileChanged(event, database, newProfileKey)
-	db = database.profile
+function Omen:OnProfileChanged()
+	-- Refresh db reference (in case profile was switched)
+	db = self.db.profile
+	MergeDefaults(db, defaults.profile)
+	self:SetSinkStorage(db.Warnings.SinkOptions)
 	self:SetAnchors(true)
 	self.Anchor:SetAlpha(db.Alpha)
 	self.Anchor:SetFrameStrata(strsub(db.FrameStrata, 3))
@@ -1844,7 +1875,21 @@ function Omen:SetupOptions()
 	self.optionsFrames.Bars = ACD3:AddToBlizOptions("Omen", L["Bar Settings"], self.versionstring, "Bars")
 	self.optionsFrames.Warnings = ACD3:AddToBlizOptions("Omen", L["Warning Settings"], self.versionstring, "Warnings")
 	self:RegisterModuleOptions("OmenSlashCommand", self.OptionsSlash, L["Slash Command"])
-	self:RegisterModuleOptions("Profiles", function() return LibStub("AceDBOptions-3.0"):GetOptionsTable(self.db) end, L["Profiles"])
+	self:RegisterModuleOptions("Profiles", function()
+		return {
+			order = -2,
+			type = "group",
+			name = L["Profiles"],
+			args = {
+				desc = {
+					order = 1,
+					type = "description",
+					fontSize = "medium",
+					name = "Omen now uses ElvUI profiles. Configure them from /elvui → Profiles.",
+				},
+			},
+		}
+	end, L["Profiles"])
 	self.optionsFrames.Help = ACD3:AddToBlizOptions("Omen", L["Help File"], self.versionstring, "Help")
 
 	self.SetupOptions = nil

@@ -24,7 +24,7 @@ local defaults = {
 		},
 		x = 0,
 		y = 0,
-		points = "CENTER",
+		point = "CENTER",
 		scale = 0.75,
 		poiScale = 0.8,
 		alpha = 1,
@@ -65,24 +65,91 @@ local db = setmetatable({}, {
 })
 
 local format = string.format
+local abs = math.abs
+
+local function FrameExists()
+	return WorldMapFrame or _G.WorldMapFrame
+end
+
+local function MergeDefaults(target, source)
+	if not target or not source then return end
+
+	for k, v in pairs(source) do
+		if type(v) == "table" then
+			if type(target[k]) ~= "table" then
+				target[k] = {}
+			end
+			MergeDefaults(target[k], v)
+		elseif target[k] == nil then
+			target[k] = v
+		end
+	end
+end
+
+function Mapster:EnsureProfileDefaults()
+	E.db.maps = E.db.maps or {}
+	E.db.maps.worldMap = E.db.maps.worldMap or {}
+
+	MergeDefaults(E.db.maps.worldMap, defaults.profile)
+
+	if E.db.maps.worldMap.points and not E.db.maps.worldMap.point then
+		E.db.maps.worldMap.point = E.db.maps.worldMap.points
+	end
+	E.db.maps.worldMap.points = nil
+
+	return E.db.maps.worldMap
+end
+
+-- Cache frequently accessed frames and APIs for performance
+local WorldMapFrame, WorldMapDetailFrame, WorldMapBlobFrame
+local WorldMapButton, WorldMapPositioningGuide
+local GetCurrentMapZone, GetCurrentMapContinent, GetPlayerMapPosition
+local WORLDMAP_SETTINGS
 
 local wmfOnShow, wmfStartMoving, wmfStopMoving, dropdownScaleFix
 local questObjDropDownInit, questObjDropDownUpdate
 
+-- Cache function to update frame references (called when frames become available)
+local function CacheFrames()
+	WorldMapFrame = WorldMapFrame or _G.WorldMapFrame
+	WorldMapDetailFrame = WorldMapDetailFrame or _G.WorldMapDetailFrame
+	WorldMapBlobFrame = WorldMapBlobFrame or _G.WorldMapBlobFrame
+	WorldMapButton = WorldMapButton or _G.WorldMapButton
+	WorldMapPositioningGuide = WorldMapPositioningGuide or _G.WorldMapPositioningGuide
+	WORLDMAP_SETTINGS = WORLDMAP_SETTINGS or _G.WORLDMAP_SETTINGS
+	GetCurrentMapZone = GetCurrentMapZone or _G.GetCurrentMapZone
+	GetCurrentMapContinent = GetCurrentMapContinent or _G.GetCurrentMapContinent
+	GetPlayerMapPosition = GetPlayerMapPosition or _G.GetPlayerMapPosition
+end
+
 function Mapster:Initialize()
-	-- Initialize global database first
-	if not E.global.mapster then
-		E.global.mapster = {}
+	-- Ensure global maps table exists and migrate any legacy data
+	if not E.global.maps then
+		E.global.maps = {}
 	end
-	
-	-- Use ElvUI's database system
-	db_ = E.db.mapster
-	if not db_ then
-		-- First time initialization, merge defaults into ElvUI's db
-		E.db.mapster = E:CopyTable({}, defaults.profile)
-		db_ = E.db.mapster
+	if E.global.mapster then
+		if not E.global.maps.worldMap or not next(E.global.maps.worldMap) then
+			E.global.maps.worldMap = E.global.mapster
+		else
+			MergeDefaults(E.global.maps.worldMap, E.global.mapster)
+		end
+		E.global.mapster = nil
 	end
-	
+	if not E.global.maps.worldMap then
+		E.global.maps.worldMap = {}
+	end
+
+	-- Ensure profile maps table exists and migrate legacy profile data
+	local legacyProfile = rawget(E.db, "mapster")
+	if legacyProfile then
+		E.db.maps = E.db.maps or {}
+		E.db.maps.worldMap = legacyProfile
+		E.db.mapster = nil
+	end
+
+	local profileDB = self:EnsureProfileDefaults()
+	db_ = profileDB
+
 	-- Ensure modules table exists with proper default
 	if not db_.modules then
 		db_.modules = {}
@@ -96,58 +163,52 @@ function Mapster:Initialize()
 			return rawget(t, k)
 		end
 	})
-	
+
 	-- Create a database wrapper for child modules to use
 	-- This provides compatibility with ACE database namespaces
 	self.db = {
 		profile = db_,
-		global = E.global.mapster,
+		global = E.global.maps.worldMap,
 		RegisterNamespace = function(db, name, defaults)
-			-- Initialize namespace in ElvUI's database
-			if not E.db.mapster[name] then
-				E.db.mapster[name] = {}
+			local profileParent = Mapster:EnsureProfileDefaults()
+			if not profileParent[name] then
+				profileParent[name] = {}
 			end
 			if defaults and defaults.profile then
 				for k, v in pairs(defaults.profile) do
-					if E.db.mapster[name][k] == nil then
-						-- Deep copy for tables
+					if profileParent[name][k] == nil then
 						if type(v) == "table" then
-							E.db.mapster[name][k] = E:CopyTable({}, v)
+							profileParent[name][k] = E:CopyTable({}, v)
 						else
-							E.db.mapster[name][k] = v
+							profileParent[name][k] = v
 						end
 					end
 				end
 			end
-			
-			-- Initialize global namespace
-			if not E.global.mapster then
-				E.global.mapster = {}
-			end
-			if not E.global.mapster[name] then
-				E.global.mapster[name] = {}
+
+			local globalParent = E.global.maps.worldMap
+			if not globalParent[name] then
+				globalParent[name] = {}
 			end
 			if defaults and defaults.global then
 				for k, v in pairs(defaults.global) do
-					if E.global.mapster[name][k] == nil then
-						-- Deep copy for tables
+					if globalParent[name][k] == nil then
 						if type(v) == "table" then
-							E.global.mapster[name][k] = E:CopyTable({}, v)
+							globalParent[name][k] = E:CopyTable({}, v)
 						else
-							E.global.mapster[name][k] = v
+							globalParent[name][k] = v
 						end
 					end
 				end
 			end
-			
-			-- Return a namespace object
+
 			return {
-				profile = E.db.mapster[name],
-				global = E.global.mapster[name]
+				profile = profileParent[name],
+				global = globalParent[name]
 			}
 		end
 	}
-	
+
 	self.elementsToHide = {}
 
 	self:SetupOptions()
@@ -155,6 +216,9 @@ end
 
 local realZone
 function Mapster:Enable()
+	-- Cache frames on enable
+	CacheFrames()
+	
 	local advanced, mini = GetCVarBool("advancedWorldMap"), GetCVarBool("miniWorldMap")
 	SetCVar("miniWorldMap", nil)
 	SetCVar("advancedWorldMap", nil)
@@ -181,6 +245,12 @@ function Mapster:Enable()
 	WorldMapFrame:SetAttribute("UIPanelLayout-enabled", false)
 	WorldMapFrame:HookScript("OnShow", wmfOnShow)
 	WorldMapFrame:HookScript("OnHide", wmfOnHide)
+	if not self.visualsHooked then
+		self.visualsHooked = true
+		WorldMapFrame:HookScript("OnUpdate", function()
+			Mapster:ApplyVisualSettings()
+		end)
+	end
 	BlackoutWorld:Hide()
 	WorldMapTitleButton:Hide()
 
@@ -243,6 +313,7 @@ function Mapster:Enable()
 	self:SetPosition()
 	self:SetAlpha()
 	self:SetArrow()
+	self:SetPOIScale()
 	self:UpdateBorderVisibility()
 	self:UpdateMouseInteractivity()
 
@@ -268,24 +339,32 @@ function Mapster:PLAYER_REGEN_DISABLED()
 		return
 	end
 
-	blobWasVisible = WorldMapBlobFrame:IsShown()
+	-- Cache frame reference for performance
+	local blobFrame = WorldMapBlobFrame or _G.WorldMapBlobFrame
+	if not blobFrame then return end
+
+	blobWasVisible = blobFrame:IsShown()
 	blobNewScale = nil
 	-- Use pcall to safely handle SetParent in case it's protected
-	pcall(function() WorldMapBlobFrame:SetParent(nil) end)
-	WorldMapBlobFrame:ClearAllPoints()
+	pcall(function() blobFrame:SetParent(nil) end)
+	blobFrame:ClearAllPoints()
 	-- dummy position, off screen, so calculations don't go boom
-	WorldMapBlobFrame:SetPoint("TOP", UIParent, "BOTTOM")
-	WorldMapBlobFrame:Hide()
-	WorldMapBlobFrame.Hide = blobHideFunc
-	WorldMapBlobFrame.Show = blobShowFunc
-	WorldMapBlobFrame.SetScale = blobScaleFunc
+	blobFrame:SetPoint("TOP", UIParent, "BOTTOM")
+	blobFrame:Hide()
+	blobFrame.Hide = blobHideFunc
+	blobFrame.Show = blobShowFunc
+	blobFrame.SetScale = blobScaleFunc
 end
 
 local updateFrame = CreateFrame("Frame")
 local function restoreBlobs()
+	local blobFrame = WorldMapBlobFrame or _G.WorldMapBlobFrame
+	if not blobFrame then return end
+	
 	WorldMapBlobFrame_CalculateHitTranslations()
-	if WorldMapQuestScrollChildFrame.selected and not WorldMapQuestScrollChildFrame.selected.completed then
-		WorldMapBlobFrame:DrawQuestBlob(WorldMapQuestScrollChildFrame.selected.questId, true)
+	local selected = WorldMapQuestScrollChildFrame.selected
+	if selected and not selected.completed then
+		blobFrame:DrawQuestBlob(selected.questId, true)
 	end
 	updateFrame:SetScript("OnUpdate", nil)
 end
@@ -295,25 +374,32 @@ function Mapster:PLAYER_REGEN_ENABLED()
 		return
 	end
 
+	-- Cache frame references for performance
+	local blobFrame = WorldMapBlobFrame or _G.WorldMapBlobFrame
+	local mapFrame = WorldMapFrame or _G.WorldMapFrame
+	local detailFrame = WorldMapDetailFrame or _G.WorldMapDetailFrame
+	if not blobFrame or not mapFrame or not detailFrame then return end
+
 	-- Use pcall to safely handle SetParent in case it's protected
-	pcall(function() WorldMapBlobFrame:SetParent(WorldMapFrame) end)
-	WorldMapBlobFrame:ClearAllPoints()
-	WorldMapBlobFrame:SetPoint("TOPLEFT", WorldMapDetailFrame)
-	WorldMapBlobFrame.Hide = nil
-	WorldMapBlobFrame.Show = nil
-	WorldMapBlobFrame.SetScale = nil
+	pcall(function() blobFrame:SetParent(mapFrame) end)
+	blobFrame:ClearAllPoints()
+	blobFrame:SetPoint("TOPLEFT", detailFrame)
+	blobFrame.Hide = nil
+	blobFrame.Show = nil
+	blobFrame.SetScale = nil
 	if blobWasVisible then
-		WorldMapBlobFrame:Show()
+		blobFrame:Show()
 		updateFrame:SetScript("OnUpdate", restoreBlobs)
 	end
 	if blobNewScale then
-		WorldMapBlobFrame:SetScale(blobNewScale)
-		WorldMapBlobFrame.xRatio = nil
+		blobFrame:SetScale(blobNewScale)
+		blobFrame.xRatio = nil
 		blobNewScale = nil
 	end
 
-	if WorldMapQuestScrollChildFrame.selected then
-		WorldMapBlobFrame:DrawQuestBlob(WorldMapQuestScrollChildFrame.selected.questId, false)
+	local selected = WorldMapQuestScrollChildFrame.selected
+	if selected then
+		blobFrame:DrawQuestBlob(selected.questId, false)
 	end
 end
 
@@ -326,9 +412,15 @@ function Mapster:WorldMapFrame_DisplayQuestPOI(questFrame, isComplete)
 	-- Recalculate Position to adjust for Scale
 	local _, posX, posY = QuestPOIGetIconInfo(questFrame.questId)
 	if posX and posY then
-		local POIscale = WORLDMAP_SETTINGS.size
-		posX = posX * WorldMapDetailFrame:GetWidth() * POIscale
-		posY = -posY * WorldMapDetailFrame:GetHeight() * POIscale
+		-- Cache frame reference and dimensions for performance
+		local detailFrame = WorldMapDetailFrame or _G.WorldMapDetailFrame
+		if not detailFrame then return end
+		
+		local POIscale = (WORLDMAP_SETTINGS or _G.WORLDMAP_SETTINGS).size
+		local detailWidth = detailFrame:GetWidth()
+		local detailHeight = detailFrame:GetHeight()
+		posX = posX * detailWidth * POIscale
+		posY = -posY * detailHeight * POIscale
 
 		-- keep outlying POIs within map borders
 		if ( posY > WORLDMAP_POI_MIN_Y ) then
@@ -341,18 +433,43 @@ function Mapster:WorldMapFrame_DisplayQuestPOI(questFrame, isComplete)
 		elseif ( posX > WORLDMAP_POI_MAX_X ) then
 			posX = WORLDMAP_POI_MAX_X
 		end
-		questFrame.poiIcon:SetPoint("CENTER", "WorldMapPOIFrame", "TOPLEFT", posX / db.poiScale, posY / db.poiScale)
-		questFrame.poiIcon:SetScale(db.poiScale)
+		-- Avoid tainting secure POI frames (e.g., quick travel points that use CastSpellByID)
+		-- Only apply scaling/positioning if the frame is not protected
+		if questFrame.poiIcon and not questFrame.poiIcon:IsProtected() then
+			questFrame.poiIcon:SetPoint("CENTER", "WorldMapPOIFrame", "TOPLEFT", posX / db.poiScale, posY / db.poiScale)
+			questFrame.poiIcon:SetScale(db.poiScale)
+		end
 	end
 end
 
 function Mapster:WorldMapFrame_SetPOIMaxBounds()
-	WORLDMAP_POI_MAX_Y = WorldMapDetailFrame:GetHeight() * -WORLDMAP_SETTINGS.size + 12;
-	WORLDMAP_POI_MAX_X = WorldMapDetailFrame:GetWidth() * WORLDMAP_SETTINGS.size + 12;
+	-- Cache frame reference for performance
+	local detailFrame = WorldMapDetailFrame or _G.WorldMapDetailFrame
+	local settings = WORLDMAP_SETTINGS or _G.WORLDMAP_SETTINGS
+	if not detailFrame or not settings then return end
+	
+	WORLDMAP_POI_MAX_Y = detailFrame:GetHeight() * -settings.size + 12;
+	WORLDMAP_POI_MAX_X = detailFrame:GetWidth() * settings.size + 12;
 end
 
 function Mapster:Refresh()
 	db_ = self.db.profile
+	
+	-- Ensure modules table exists and has metatable set
+	if not db_.modules then
+		db_.modules = {}
+	end
+	-- Reapply metatable in case it was lost (shouldn't happen, but be safe)
+	if not getmetatable(db_.modules) then
+		setmetatable(db_.modules, {
+			__index = function(t, k)
+				if rawget(t, k) == nil then
+					return true  -- Default to enabled
+				end
+				return rawget(t, k)
+			end
+		})
+	end
 
 	for k,v in self:IterateModules() do
 		if self:GetModuleEnabled(k) and not v:IsEnabled() then
@@ -378,6 +495,7 @@ function Mapster:Refresh()
 	self:SetStrata()
 	self:SetAlpha()
 	self:SetArrow()
+	self:SetPOIScale()
 	self:SetScale()
 	self:SetPosition()
 
@@ -523,12 +641,16 @@ function Mapster:SizeDown()
 end
 
 local function getZoneId()
-	return (GetCurrentMapZone() + GetCurrentMapContinent() * 100)
+	-- Use cached API functions if available
+	local getZone = GetCurrentMapZone or _G.GetCurrentMapZone
+	local getContinent = GetCurrentMapContinent or _G.GetCurrentMapContinent
+	return (getZone() + getContinent() * 100)
 end
 
 function Mapster:ZONE_CHANGED_NEW_AREA()
 	local curZone = getZoneId()
-	if realZone == curZone or ((curZone % 100) > 0 and (GetPlayerMapPosition("player")) ~= 0) then
+	local getPlayerPos = GetPlayerMapPosition or _G.GetPlayerMapPosition
+	if realZone == curZone or ((curZone % 100) > 0 and getPlayerPos("player") ~= 0) then
 		SetMapToCurrentZone()
 		realZone = getZoneId()
 	end
@@ -544,14 +666,19 @@ function wmfOnShow(frame)
 		Mapster:SetScale()
 	end
 	
+	-- Always apply arrow and POI scale when map is shown
+	Mapster:SetArrow()
+	Mapster:SetPOIScale()
+	
 	realZone = getZoneId()
 	if BattlefieldMinimap then
 		oldBFMOnUpdate = BattlefieldMinimap:GetScript("OnUpdate")
 		BattlefieldMinimap:SetScript("OnUpdate", nil)
 	end
 
-	if WORLDMAP_SETTINGS.selectedQuest then
-		WorldMapFrame_SelectQuestFrame(WORLDMAP_SETTINGS.selectedQuest)
+	local settings = WORLDMAP_SETTINGS or _G.WORLDMAP_SETTINGS
+	if settings and settings.selectedQuest then
+		WorldMapFrame_SelectQuestFrame(settings.selectedQuest)
 	end
 end
 
@@ -581,41 +708,209 @@ function dropdownScaleFix(self)
 end
 
 function Mapster:ShowBlobs()
+	local blobFrame = WorldMapBlobFrame or _G.WorldMapBlobFrame
+	local settings = WORLDMAP_SETTINGS or _G.WORLDMAP_SETTINGS
+	if not blobFrame or not settings then return end
+	
 	WorldMapBlobFrame_CalculateHitTranslations()
-	if WORLDMAP_SETTINGS.selectedQuest and not WORLDMAP_SETTINGS.selectedQuest.completed then
-		WorldMapBlobFrame:DrawQuestBlob(WORLDMAP_SETTINGS.selectedQuest.questId, true)
+	local selectedQuest = settings.selectedQuest
+	if selectedQuest and not selectedQuest.completed then
+		blobFrame:DrawQuestBlob(selectedQuest.questId, true)
 	end
 end
 
 function Mapster:HideBlobs()
-	if WORLDMAP_SETTINGS.selectedQuest then
-		WorldMapBlobFrame:DrawQuestBlob(WORLDMAP_SETTINGS.selectedQuest.questId, false)
+	local blobFrame = WorldMapBlobFrame or _G.WorldMapBlobFrame
+	local settings = WORLDMAP_SETTINGS or _G.WORLDMAP_SETTINGS
+	if not blobFrame or not settings then return end
+	
+	local selectedQuest = settings.selectedQuest
+	if selectedQuest then
+		blobFrame:DrawQuestBlob(selectedQuest.questId, false)
 	end
 end
 
 function Mapster:SetStrata()
-	WorldMapFrame:SetFrameStrata(db.strata)
+	local mapFrame = WorldMapFrame or _G.WorldMapFrame
+	if mapFrame then
+		mapFrame:SetFrameStrata(db.strata)
+	end
 end
 
 function Mapster:SetAlpha()
-	WorldMapFrame:SetAlpha(db.alpha)
+	self:ApplyVisualSettings(true)
 end
 
 function Mapster:SetArrow()
-	PlayerArrowFrame:SetModelScale(db.arrowScale)
-	PlayerArrowEffectFrame:SetModelScale(db.arrowScale)
+	-- Ensure we read fresh value from database
+	local arrowScale = db.arrowScale
+	
+	local arrowFrame = _G.PlayerArrowFrame or PlayerArrowFrame
+	local effectFrame = _G.PlayerArrowEffectFrame or PlayerArrowEffectFrame
+	
+	-- Always try to update immediately
+	if arrowFrame then
+		arrowFrame:SetModelScale(arrowScale)
+		-- Force a visual refresh by toggling model
+		if arrowFrame.ShowModel then
+			arrowFrame:ShowModel()
+		end
+	end
+	if effectFrame then
+		effectFrame:SetModelScale(arrowScale)
+		if effectFrame.ShowModel then
+			effectFrame:ShowModel()
+		end
+	end
+	
+	-- If map is visible, use multiple delayed updates to ensure it sticks
+	if WorldMapFrame and WorldMapFrame:IsVisible() then
+		for _, delay in ipairs({0.01, 0.05, 0.1}) do
+			C_Timer.After(delay, function()
+				if arrowFrame then
+					arrowFrame:SetModelScale(arrowScale)
+				end
+				if effectFrame then
+					effectFrame:SetModelScale(arrowScale)
+				end
+			end)
+		end
+	end
+end
+
+function Mapster:SetPOIScale()
+	-- Ensure we read fresh value from database
+	local poiScale = db.poiScale
+	
+	-- Update POI max bounds first
+	if WorldMapFrame_SetPOIMaxBounds then
+		WorldMapFrame_SetPOIMaxBounds()
+	end
+	
+	-- Function to update all POIs
+	local function updatePOIs()
+		-- Update POI max bounds
+		if WorldMapFrame_SetPOIMaxBounds then
+			WorldMapFrame_SetPOIMaxBounds()
+		end
+		
+		-- Try to update existing POI icons directly
+		local updatedCount = 0
+		if WorldMapQuestScrollChildFrame then
+			local numEntries = WorldMapQuestScrollChildFrame:GetNumChildren()
+			for i = 1, numEntries do
+				local questFrame = select(i, WorldMapQuestScrollChildFrame:GetChildren())
+				if questFrame and questFrame.questId and questFrame.poiIcon then
+					if questFrame.poiIcon and not questFrame.poiIcon:IsProtected() then
+						-- Recalculate position and apply new scale
+						local _, posX, posY = QuestPOIGetIconInfo(questFrame.questId)
+						if posX and posY then
+							local detailFrame = WorldMapDetailFrame or _G.WorldMapDetailFrame
+							if detailFrame then
+								local POIscale = (WORLDMAP_SETTINGS or _G.WORLDMAP_SETTINGS).size
+								local detailWidth = detailFrame:GetWidth()
+								local detailHeight = detailFrame:GetHeight()
+								posX = posX * detailWidth * POIscale
+								posY = -posY * detailHeight * POIscale
+								
+								-- Keep within bounds
+								if (posY > WORLDMAP_POI_MIN_Y) then
+									posY = WORLDMAP_POI_MIN_Y
+								elseif (posY < WORLDMAP_POI_MAX_Y) then
+									posY = WORLDMAP_POI_MAX_Y
+								end
+								if (posX < WORLDMAP_POI_MIN_X) then
+									posX = WORLDMAP_POI_MIN_X
+								elseif (posX > WORLDMAP_POI_MAX_X) then
+									posX = WORLDMAP_POI_MAX_X
+								end
+								
+								questFrame.poiIcon:SetPoint("CENTER", "WorldMapPOIFrame", "TOPLEFT", posX / poiScale, posY / poiScale)
+								questFrame.poiIcon:SetScale(poiScale)
+								updatedCount = updatedCount + 1
+							end
+						end
+					end
+				end
+			end
+		end
+		
+		-- Also try to find POI icons via WorldMapPOIFrame directly
+		if WorldMapPOIFrame then
+			for i = 1, NUM_WORLDMAP_POI_TEXTURES or 512 do
+				local poiTexture = _G["WorldMapPOI" .. i]
+				if poiTexture then
+					if poiTexture:IsShown() then
+						poiTexture:SetScale(poiScale)
+						updatedCount = updatedCount + 1
+					end
+				else
+					break
+				end
+			end
+		end
+		
+		-- Force re-display of all quest POIs by calling the display functions
+		-- This ensures any POIs we missed get updated via the hook
+		if WorldMapFrame_DisplayQuests then
+			WorldMapFrame_DisplayQuests()
+		end
+		if WorldMapFrame_UpdateQuests then
+			WorldMapFrame_UpdateQuests()
+		end
+	end
+	
+	-- If map is visible, update immediately and multiple times with delays
+	if WorldMapFrame and WorldMapFrame:IsVisible() then
+		-- Immediate update
+		updatePOIs()
+		
+		-- Multiple delayed updates to catch any frames that get recreated
+		for _, delay in ipairs({0.01, 0.05, 0.1, 0.2}) do
+			C_Timer.After(delay, updatePOIs)
+		end
+	else
+		-- If map not visible, still update bounds for when it opens
+		if WorldMapFrame_SetPOIMaxBounds then
+			WorldMapFrame_SetPOIMaxBounds()
+		end
+	end
 end
 
 function Mapster:SetScale()
-	WorldMapFrame:SetScale(db.scale)
+	self:ApplyVisualSettings(true)
+end
+
+function Mapster:ApplyVisualSettings(force)
+	local mapFrame = FrameExists()
+	if not mapFrame then return end
+
+	local desiredAlpha = db.alpha or 1
+	if force or abs(mapFrame:GetAlpha() - desiredAlpha) > 0.001 then
+		mapFrame:SetAlpha(desiredAlpha)
+	end
+
+	local desiredScale = db.scale or 1
+	if force or abs(mapFrame:GetScale() - desiredScale) > 0.001 then
+		mapFrame:SetScale(desiredScale)
+	end
 end
 
 function Mapster:SetPosition()
-	LibWindow.RestorePosition(WorldMapFrame)
+	local mapFrame = WorldMapFrame or _G.WorldMapFrame
+	if mapFrame then
+		LibWindow.RestorePosition(mapFrame)
+	end
 end
 
 function Mapster:GetModuleEnabled(module)
-	return db.modules[module]
+	-- Use rawget to bypass metatable default and get actual stored value
+	-- This ensures false values are properly returned instead of defaulting to true
+	local value = rawget(db_.modules, module)
+	if value == nil then
+		return true  -- Default to enabled if never set
+	end
+	return value
 end
 
 function Mapster:UpdateBorderVisibility()
@@ -667,8 +962,14 @@ function Mapster:UpdateBorderVisibility()
 end
 
 function Mapster:UpdateMapElements()
-	local mouseOver = WorldMapFrame:IsMouseOver()
-	if self.elementsHidden and (mouseOver or not db.hideBorder) then
+	-- Cache frame reference and hideBorder check for performance
+	local mapFrame = WorldMapFrame or _G.WorldMapFrame
+	if not mapFrame then return end
+	
+	local mouseOver = mapFrame:IsMouseOver()
+	local hideBorder = db.hideBorder
+	
+	if self.elementsHidden and (mouseOver or not hideBorder) then
 		self.elementsHidden = nil
 		(self.miniMap and WorldMapFrameSizeUpButton or WorldMapFrameSizeDownButton):Show()
 		WorldMapFrameCloseButton:Show()
@@ -676,7 +977,7 @@ function Mapster:UpdateMapElements()
 		for _, frame in pairs(self.elementsToHide) do
 			frame:Show()
 		end
-	elseif not self.elementsHidden and not mouseOver and db.hideBorder then
+	elseif not self.elementsHidden and not mouseOver and hideBorder then
 		self.elementsHidden = true
 		WorldMapFrameSizeUpButton:Hide()
 		WorldMapFrameSizeDownButton:Hide()
@@ -689,12 +990,16 @@ function Mapster:UpdateMapElements()
 end
 
 function Mapster:UpdateMouseInteractivity()
+	local mapButton = WorldMapButton or _G.WorldMapButton
+	local mapFrame = WorldMapFrame or _G.WorldMapFrame
+	if not mapButton or not mapFrame then return end
+	
 	if db.disableMouse then
-		WorldMapButton:EnableMouse(false)
-		WorldMapFrame:EnableMouse(false)
+		mapButton:EnableMouse(false)
+		mapFrame:EnableMouse(false)
 	else
-		WorldMapButton:EnableMouse(true)
-		WorldMapFrame:EnableMouse(true)
+		mapButton:EnableMouse(true)
+		mapFrame:EnableMouse(true)
 	end
 end
 
@@ -704,36 +1009,51 @@ function Mapster:RefreshQuestObjectivesDisplay()
 end
 
 function Mapster:WorldMapFrame_DisplayQuests()
-	if WORLDMAP_SETTINGS.size == WORLDMAP_WINDOWED_SIZE then return end
+	local settings = WORLDMAP_SETTINGS or _G.WORLDMAP_SETTINGS
+	local blobFrame = WorldMapBlobFrame or _G.WorldMapBlobFrame
+	if not settings or not blobFrame then return end
+	
+	if settings.size == WORLDMAP_WINDOWED_SIZE then return end
 	if WatchFrame.showObjectives and WorldMapFrame.numQuests > 0 then
 		if db.questObjectives == 1 then
 			WorldMapFrame_SetFullMapView()
 			
-			WorldMapBlobFrame:SetScale(WORLDMAP_FULLMAP_SIZE)
-			WorldMapBlobFrame.xRatio = nil		-- force hit recalculations
+			blobFrame:SetScale(WORLDMAP_FULLMAP_SIZE)
+			blobFrame.xRatio = nil		-- force hit recalculations
 			WorldMapFrame_SetPOIMaxBounds()
 			WorldMapFrame_UpdateQuests()
 		elseif db.questObjectives == 2 then
 			WorldMapFrame_SetQuestMapView()
 			
-			WorldMapBlobFrame:SetScale(WORLDMAP_QUESTLIST_SIZE)
-			WorldMapBlobFrame.xRatio = nil		-- force hit recalculations
+			blobFrame:SetScale(WORLDMAP_QUESTLIST_SIZE)
+			blobFrame.xRatio = nil		-- force hit recalculations
 			WorldMapFrame_SetPOIMaxBounds()
 			WorldMapFrame_UpdateQuests()
 		end
 	end
 end
 
+-- Cache FogClear module lookup to avoid repeated GetModule calls
+local fogClearModule
 local function hasOverlays()
-	if Mapster:GetModuleEnabled("FogClear") then
-		return Mapster:GetModule("FogClear"):RealHasOverlays()
+	-- Cache module lookup for performance
+	if not fogClearModule then
+		if Mapster:GetModuleEnabled("FogClear") then
+			fogClearModule = Mapster:GetModule("FogClear", true)
+		end
+	end
+	
+	if fogClearModule and fogClearModule:IsEnabled() then
+		return fogClearModule:RealHasOverlays()
 	else
 		return GetNumMapOverlays() > 0
 	end
 end
 
 function Mapster:UpdateDetailTiles()
-	if db.hideBorder and GetCurrentMapZone() > 0 and hasOverlays() then
+	-- Cache API call for performance
+	local getZone = GetCurrentMapZone or _G.GetCurrentMapZone
+	if db.hideBorder and getZone() > 0 and hasOverlays() then
 		for i=1, NUM_WORLDMAP_DETAIL_TILES do
 			_G["WorldMapDetailTile"..i]:Hide()
 		end
@@ -745,8 +1065,24 @@ function Mapster:UpdateDetailTiles()
 end
 
 function Mapster:SetModuleEnabled(module, value)
-	local old = db.modules[module]
-	db.modules[module] = value
+	-- Use rawget to get actual stored value, not metatable default
+	local old = rawget(db_.modules, module)
+	if old == nil then
+		old = true  -- Default to enabled if never set
+	end
+	-- Explicitly set the value using rawset to ensure false values are saved
+	-- This bypasses the metatable and stores the value directly
+	rawset(db_.modules, module, value)
+	
+	-- Force the value to be explicitly stored (in case ElvUI has special handling)
+	-- This ensures false values are definitely saved to the database
+	if value == false then
+		-- Explicitly mark as disabled by storing false
+		db_.modules[module] = false
+	elseif value == true then
+		db_.modules[module] = true
+	end
+	
 	if old ~= value then
 		if value then
 			self:EnableModule(module)

@@ -13,40 +13,24 @@ _G.QuestHelper = WE -- Backwards compatibility
 WE.version = "2.0.0-ElvUI"
 WE.modules = {}
 
--- Initialize defaults in ElvUI database
-P.warcraftenhanced = {
-	-- UI Enhancements
-	errorFiltering = true,
-	autoDelete = true,
-	
-	-- AutoQuest
-	autoAccept = false,
-	autoDaily = true,
-	autoFate = true,
-	autoRepeat = true,
-	autoComplete = true,
-	autoHighRisk = false,
-	
-	-- Leatrix Features - Social (now in ElvUI General > Miscellaneous)
-	blockDuels = false,
-	blockGuildInvites = false,
-	blockPartyInvites = false,
-	-- friendlyGuild removed - not needed
-	-- acceptPartyFriends removed - use ElvUI's autoAcceptInvite instead
-	
-	-- Leatrix Features - Automation (now in ElvUI General > Automation)
-	autoReleasePvP = false,
-	autoSpiritRes = false,
-	autoSellJunk = false,
-	autoSellJunkSummary = true,
-	autoRepair = false,
-	autoRepairGuildFunds = true,
-	autoRepairSummary = true,
-	-- skipLootRollConfirmation removed - already in ElvUI General > BlizzUI Improvements
-	
-	-- Leatrix Features - System
-	maxCameraZoom = false,
-}
+local autoQuestKeys = {"autoAccept", "autoDaily", "autoFate", "autoRepeat", "autoComplete", "autoHighRisk"}
+local uiEnhancementKeys = {"errorFiltering", "autoDelete"}
+local socialKeys = {"blockDuels", "blockGuildInvites", "blockPartyInvites"}
+local automationKeys = {"autoReleasePvP", "autoSpiritRes", "autoSellJunk", "autoSellJunkSummary", "autoRepair", "autoRepairGuildFunds", "autoRepairSummary"}
+local systemKeys = {"maxCameraZoom"}
+
+local function MergeDefaults(dest, src)
+	if not dest or not src then return end
+
+	for key, value in pairs(src) do
+		if type(value) == "table" then
+			dest[key] = dest[key] or {}
+			MergeDefaults(dest[key], value)
+		elseif dest[key] == nil then
+			dest[key] = value
+		end
+	end
+end
 
 function WE:Initialize()
 	-- Database shortcut
@@ -55,6 +39,90 @@ function WE:Initialize()
 		return
 	end
 	self.db = E.db.warcraftenhanced
+
+	self.db.autoQuest = self.db.autoQuest or {}
+	MergeDefaults(self.db.autoQuest, P.warcraftenhanced.autoQuest)
+	self.db.autoQuest.overrideList = self.db.autoQuest.overrideList or {}
+
+	for _, key in ipairs(autoQuestKeys) do
+		if self.db[key] ~= nil then
+			self.db.autoQuest[key] = self.db[key]
+			self.db[key] = nil
+		end
+	end
+
+	if type(_G.AutoQuestSave) == "table" then
+		for _, key in ipairs(autoQuestKeys) do
+			if _G.AutoQuestSave[key] ~= nil then
+				self.db.autoQuest[key] = _G.AutoQuestSave[key]
+			end
+		end
+
+		if type(_G.AutoQuestSave.overrideList) == "table" then
+			for quest, value in pairs(_G.AutoQuestSave.overrideList) do
+				self.db.autoQuest.overrideList[quest] = value
+			end
+		end
+	end
+
+	self.db.portalBox = self.db.portalBox or {}
+	MergeDefaults(self.db.portalBox, P.warcraftenhanced.portalBox)
+
+	self.db.buttonGrabber = self.db.buttonGrabber or {}
+	MergeDefaults(self.db.buttonGrabber, P.warcraftenhanced.buttonGrabber)
+
+	self.db.uiEnhancements = self.db.uiEnhancements or {}
+	MergeDefaults(self.db.uiEnhancements, P.warcraftenhanced.uiEnhancements)
+	if self.db.errorFilters then
+		self.db.uiEnhancements.errorFilters = E:CopyTable({}, self.db.errorFilters)
+		self.db.errorFilters = nil
+	end
+	self.db.uiEnhancements.errorFilters = self.db.uiEnhancements.errorFilters or {}
+	for _, key in ipairs(uiEnhancementKeys) do
+		if self.db[key] ~= nil then
+			self.db.uiEnhancements[key] = self.db[key]
+			self.db[key] = nil
+		end
+	end
+
+	self.db.social = self.db.social or {}
+	MergeDefaults(self.db.social, P.warcraftenhanced.social)
+	for _, key in ipairs(socialKeys) do
+		if self.db[key] ~= nil then
+			self.db.social[key] = self.db[key]
+			self.db[key] = nil
+		end
+	end
+
+	self.db.automation = self.db.automation or {}
+	MergeDefaults(self.db.automation, P.warcraftenhanced.automation)
+	for _, key in ipairs(automationKeys) do
+		if self.db[key] ~= nil then
+			self.db.automation[key] = self.db[key]
+			self.db[key] = nil
+		end
+	end
+
+	self.db.system = self.db.system or {}
+	MergeDefaults(self.db.system, P.warcraftenhanced.system)
+	self.db.lootRoll = self.db.lootRoll or {}
+	MergeDefaults(self.db.lootRoll, P.warcraftenhanced.lootRoll)
+
+	self.db.progression = self.db.progression or {}
+	MergeDefaults(self.db.progression, P.warcraftenhanced.progression)
+
+	self.db.achievements = self.db.achievements or {}
+	MergeDefaults(self.db.achievements, P.warcraftenhanced.achievements)
+
+	self.db.omen = self.db.omen or {}
+	MergeDefaults(self.db.omen, P.warcraftenhanced.omen)
+
+	for _, key in ipairs(systemKeys) do
+		if self.db[key] ~= nil then
+			self.db.system[key] = self.db[key]
+			self.db[key] = nil
+		end
+	end
 	
 	-- Initialize sub-modules
 	self:InitializeUIEnhancements()
@@ -64,6 +132,8 @@ function WE:Initialize()
 	self:InitializeMacroButton()
 	self:InitializePortalBox()
 	self:InitializeMinimapButtonGrabber()
+
+	self:RegisterEvent("PLAYER_LOGOUT")
 	
 	-- TomTom and Omen load separately (they're full addons)
 	-- We just integrate their settings into our options
@@ -89,19 +159,10 @@ function WE:InitializeUIEnhancements()
 end
 
 function WE:InitializeAutoQuest()
-	-- AutoQuest initializes itself, we just sync settings
-	if AutoQuestSave then
-		C_Timer.After(1, function()
-			if WE.db then
-				AutoQuestSave.autoAccept = WE.db.autoAccept
-				AutoQuestSave.autoDaily = WE.db.autoDaily
-				AutoQuestSave.autoFate = WE.db.autoFate
-				AutoQuestSave.autoRepeat = WE.db.autoRepeat
-				AutoQuestSave.autoComplete = WE.db.autoComplete
-				AutoQuestSave.autoHR = WE.db.autoHighRisk
-			end
-		end)
-	end
+	self.db.autoQuest = self.db.autoQuest or E:CopyTable({}, P.warcraftenhanced.autoQuest)
+	self.db.autoQuest.overrideList = self.db.autoQuest.overrideList or {}
+
+	AutoQuestSave = self.db.autoQuest
 end
 
 function WE:InitializeLeatrixFeatures()
@@ -121,13 +182,19 @@ function WE:InitializeMacroButton()
 end
 
 function WE:InitializePortalBox()
-	-- PortalBox auto-initializes
+	if self.modules.PortalBox and self.modules.PortalBox.Initialize then
+		self.modules.PortalBox:Initialize()
+	end
 end
 
 function WE:InitializeMinimapButtonGrabber()
 	if self.modules.MinimapButtonGrabber and self.modules.MinimapButtonGrabber.HandleEnableState then
 		self.modules.MinimapButtonGrabber:HandleEnableState()
 	end
+end
+
+function WE:PLAYER_LOGOUT()
+	_G.AutoQuestSave = nil
 end
 
 -- Slash commands (WarcraftEnhanced is now fully integrated into ElvUI)

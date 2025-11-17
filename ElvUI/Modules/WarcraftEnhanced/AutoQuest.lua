@@ -2,7 +2,7 @@
 -- Integrated quest automation
 local QH = WarcraftEnhanced or QuestHelper
 
-AutoQuestSave = nil -- player settings - defaults set up during PLAYER_ENTERING_WORLD event
+AutoQuestSave = AutoQuestSave or { overrideList = {} } -- player settings - defaults synced with ElvUI profiles
 
 
 ----------------------------------------------------------------------------------------------------
@@ -760,6 +760,10 @@ end
 -- handling events
 local acceptedQuests = {} -- temporary table of accepted quests to prevent accepting them twice
 eventFrame:SetScript("OnEvent", function(self, event)
+	if not AutoQuestSave then return end
+	if not AutoQuestSave.overrideList then
+		AutoQuestSave.overrideList = {}
+	end
 	if IsModifierKeyDown() then return end
 	-- search for quests when talking to a quest giver - method 1
 	if event == "GOSSIP_SHOW" then
@@ -863,7 +867,7 @@ eventFrame:SetScript("OnEvent", function(self, event)
 		return
 	end
 
-	-- set faction-specific quests and set up default settings if needed
+	-- set faction-specific quests and ensure overrides exist
 	if event == "PLAYER_ENTERING_WORLD" then
 		eventFrame:UnregisterEvent(event)
 
@@ -877,35 +881,8 @@ eventFrame:SetScript("OnEvent", function(self, event)
 			repeatableList["Ten Commendation Signets"] = { {{21436, 10}}, true}
 		end
 
-		if AutoQuestSave              == nil then AutoQuestSave              = {}    end
-		if AutoQuestSave.overrideList == nil then AutoQuestSave.overrideList = {}    end
-		
-		-- Use WarcraftEnhanced settings if available, otherwise use defaults
-		if WarcraftEnhancedDB then
-			AutoQuestSave.autoAccept   = WarcraftEnhancedDB.autoAccept
-			AutoQuestSave.autoDaily    = WarcraftEnhancedDB.autoDaily
-			AutoQuestSave.autoFate     = WarcraftEnhancedDB.autoFate
-			AutoQuestSave.autoRepeat   = WarcraftEnhancedDB.autoRepeat
-			AutoQuestSave.autoComplete = WarcraftEnhancedDB.autoComplete
-			AutoQuestSave.autoHR       = WarcraftEnhancedDB.autoHighRisk
-		elseif QuestHelperDB then
-			AutoQuestSave.autoAccept   = QuestHelperDB.autoAccept
-			AutoQuestSave.autoDaily    = QuestHelperDB.autoDaily
-			AutoQuestSave.autoFate     = QuestHelperDB.autoFate
-			AutoQuestSave.autoRepeat   = QuestHelperDB.autoRepeat
-			AutoQuestSave.autoComplete = QuestHelperDB.autoComplete
-			AutoQuestSave.autoHR       = QuestHelperDB.autoHighRisk
-		else
-			if AutoQuestSave.autoAccept   == nil then AutoQuestSave.autoAccept   = false end
-			if AutoQuestSave.autoDaily    == nil then AutoQuestSave.autoDaily    = true  end
-			if AutoQuestSave.autoFate     == nil then AutoQuestSave.autoFate     = true  end
-			if AutoQuestSave.autoRepeat   == nil then AutoQuestSave.autoRepeat   = true  end
-			if AutoQuestSave.autoComplete == nil then AutoQuestSave.autoComplete = true  end
-			if AutoQuestSave.autoHR       == nil then AutoQuestSave.autoHR       = false end
-		end
-
-		AutoQuestSave.overrideList["Allegiance to the Aldor"] = false
-		AutoQuestSave.overrideList["Allegiance to the Scryers"] = false
+		AutoQuestSave.overrideList["Allegiance to the Aldor"] = AutoQuestSave.overrideList["Allegiance to the Aldor"] or false
+		AutoQuestSave.overrideList["Allegiance to the Scryers"] = AutoQuestSave.overrideList["Allegiance to the Scryers"] or false
 		
 		-- AutoQuest is now part of WarcraftEnhanced
 		if QH and QH.Print then

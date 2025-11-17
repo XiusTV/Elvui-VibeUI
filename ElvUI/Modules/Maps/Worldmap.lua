@@ -5,6 +5,7 @@ local M = E:GetModule("WorldMap")
 local find = string.find
 --WoW API / Variables
 local CreateFrame = CreateFrame
+local InCombatLockdown = InCombatLockdown
 local GetCVarBool = GetCVarBool
 local GetCursorPosition = GetCursorPosition
 local GetPlayerMapPosition = GetPlayerMapPosition
@@ -23,6 +24,10 @@ local INVERTED_POINTS = {
 	["BOTTOM"] = "TOP"
 }
 
+local function IsInLockdown()
+	return InCombatLockdown and InCombatLockdown()
+end
+
 local function BlobFrameHide()
 	M.blobWasVisible = nil
 end
@@ -32,6 +37,10 @@ local function BlobFrameShow()
 end
 
 function M:PLAYER_REGEN_ENABLED()
+	if IsInLockdown() then
+		return
+	end
+
 	WorldMapBlobFrame.SetFrameLevel = nil
 	WorldMapBlobFrame.SetScale = nil
 	WorldMapBlobFrame.Hide = nil
@@ -39,7 +48,9 @@ function M:PLAYER_REGEN_ENABLED()
 
 	local frameLevel = WorldMapDetailFrame:GetFrameLevel() + 1
 
-	pcall(function() WorldMapBlobFrame:SetParent(WorldMapFrame) end)
+	if not IsInLockdown() then
+		pcall(function() WorldMapBlobFrame:SetParent(WorldMapFrame) end)
+	end
 	WorldMapBlobFrame:ClearAllPoints()
 	WorldMapBlobFrame:SetPoint("TOPLEFT", WorldMapDetailFrame)
 	WorldMapBlobFrame:SetScale(self.blobNewScale or WORLDMAP_SETTINGS.size)
@@ -66,7 +77,14 @@ end
 function M:PLAYER_REGEN_DISABLED()
 	self.blobWasVisible = WorldMapFrame:IsShown() and WorldMapBlobFrame:IsShown()
 
-	pcall(function() WorldMapBlobFrame:SetParent(nil) end)
+	if IsInLockdown() then
+		self.blobNewScale = nil
+		return
+	end
+
+	if not IsInLockdown() then
+		pcall(function() WorldMapBlobFrame:SetParent(nil) end)
+	end
 	WorldMapBlobFrame:ClearAllPoints()
 	WorldMapBlobFrame:SetPoint("TOP", UIParent, "BOTTOM")
 	WorldMapBlobFrame:Hide()

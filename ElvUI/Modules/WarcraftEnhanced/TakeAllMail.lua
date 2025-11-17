@@ -1,4 +1,5 @@
-local E, L = unpack(ElvUI)
+local E, L, _, P = unpack(ElvUI)
+local WE = E.WarcraftEnhanced
 local TAM = E:NewModule("Enhanced_TakeAllMail", "AceEvent-3.0")
 
 local select = select
@@ -6,9 +7,6 @@ local format = string.format
 
 local StartSpinnerFrame = E.StartSpinnerFrame
 local StopSpinnerFrame = E.StopSpinnerFrame
-	if spinnerAvailable then
-		StartSpinnerFrame(InboxFrame, 11, 12, 32, 76)
-	end
 local CheckInbox = CheckInbox
 local DeleteInboxItem = DeleteInboxItem
 local GetInboxHeaderInfo = GetInboxHeaderInfo
@@ -19,6 +17,37 @@ local TakeInboxMoney = TakeInboxMoney
 
 local ERR_INV_FULL = ERR_INV_FULL
 local MAIL_MIN_DELAY = 0.15
+
+local defaults = P and P.warcraftenhanced and P.warcraftenhanced.blizzard or {}
+
+local function EnsureBlizzardDB()
+	if not WE then return end
+
+	WE.db = WE.db or {}
+	if not WE.db.blizzard then
+		WE.db.blizzard = E:CopyTable({}, defaults)
+	end
+
+	local db = WE.db.blizzard
+	if db.takeAllMail == nil then
+		db.takeAllMail = defaults.takeAllMail or false
+	end
+
+	return db
+end
+
+function TAM:GetDB()
+	if not self.db then
+		self.db = EnsureBlizzardDB()
+	end
+
+	return self.db
+end
+
+function TAM:IsEnabled()
+	local db = self:GetDB()
+	return db and db.takeAllMail
+end
 
 function TAM:GetTotalCash()
 	if GetInboxNumItems() == 0 then return 0 end
@@ -32,7 +61,18 @@ function TAM:GetTotalCash()
 	return totalCash
 end
 
+function TAM:HideButtons()
+	if self.takeAll then
+		self.takeAll:Hide()
+	end
+	if self.takeCash then
+		self.takeCash:Hide()
+	end
+end
+
 function TAM:UpdateButtons()
+	if not self:IsEnabled() then return end
+
 	if not self:EnsureButtons() then return end
 	if self.processing then return end
 
@@ -62,6 +102,8 @@ function TAM:Reset()
 end
 
 function TAM:EnsureButtons()
+	if not self:IsEnabled() then return false end
+
 	if self.takeAll and self.takeCash then return true end
 
 	if not InboxFrame then
@@ -79,6 +121,8 @@ function TAM:EnsureButtons()
 end
 
 function TAM:StartOpening(mode)
+	if not self:IsEnabled() then return end
+
 	if GetInboxNumItems() == 0 then return end
 	if not self:EnsureButtons() then return end
 
@@ -233,6 +277,8 @@ function TAM:OnUpdate(dt)
 end
 
 function TAM:MAIL_INBOX_UPDATE()
+	if not self:IsEnabled() then return end
+
 	if self.processing then
 		self:AdvanceAndProcessNextMail()
 	else
@@ -241,6 +287,8 @@ function TAM:MAIL_INBOX_UPDATE()
 end
 
 function TAM:UI_ERROR_MESSAGE(_, errorText)
+	if not self:IsEnabled() then return end
+
 	if errorText == ERR_INV_FULL then
 		self:StopOpening(true)
 	end
@@ -252,7 +300,37 @@ function TAM:OnEvent(event, ...)
 	end
 end
 
+function TAM:RegisterMailEvents()
+	if self.eventsRegistered then return end
+
+	self:RegisterEvent("MAIL_SHOW")
+	self:RegisterEvent("MAIL_INBOX_UPDATE", "OnEvent")
+	self:RegisterEvent("MAIL_CLOSED")
+	self.eventsRegistered = true
+end
+
+function TAM:UnregisterMailEvents()
+	if not self.eventsRegistered then return end
+
+	self:UnregisterEvent("MAIL_SHOW")
+	self:UnregisterEvent("MAIL_INBOX_UPDATE")
+	self:UnregisterEvent("MAIL_CLOSED")
+	self.eventsRegistered = nil
+end
+
+function TAM:MAIL_CLOSED()
+	if self.processing then
+		self:StopOpening(true)
+	end
+	self:HideButtons()
+end
+
 function TAM:MAIL_SHOW()
+	if not self:IsEnabled() then
+		self:HideButtons()
+		return
+	end
+
 	if self:EnsureButtons() then
 		self.takeAll:Show()
 		self.takeCash:Show()
@@ -273,7 +351,7 @@ function TAM:CreateButtons()
 	takeAll:Size(120, 22)
 	takeAll:SetText(L['Take All'])
 	takeAll:ClearAllPoints()
-	takeAll:Point('TOPLEFT', InboxFrame, 'TOPLEFT', 30, -40)
+	takeAll:Point('BOTTOM', InboxFrame, 'BOTTOM', 0, 85)
 
 	if useSkins and skins then
 		skins:HandleButton(takeAll)
@@ -291,14 +369,7 @@ function TAM:CreateButtons()
 	takeCash:Size(120, 22)
 	takeCash:SetText(L['Take Cash'])
 	takeCash:ClearAllPoints()
-
-	if closeButton then
-		takeCash:Point('TOPRIGHT', closeButton, 'BOTTOMRIGHT', 0, -10)
-	elseif useSkins and skins then
-		takeCash:Point('TOPRIGHT', InboxFrame, 'TOPRIGHT', -60, -40)
-	else
-		takeCash:Point('TOPRIGHT', InboxFrame, 'TOPRIGHT', -110, -40)
-	end
+	takeCash:Point('TOP', InboxFrame, 'TOP', 0, -40)
 
 	if useSkins and skins then
 		skins:HandleButton(takeCash)
@@ -315,32 +386,41 @@ function TAM:CreateButtons()
 	takeCash:Hide()
 end
 
-function TAM:Initialize()
-	if self.initialized then return end
-
-	self:RegisterEvent("MAIL_SHOW")
-	self:RegisterEvent("MAIL_INBOX_UPDATE", "OnEvent")
-	self:RegisterEvent("MAIL_CLOSED", function()
+function TAM:UpdateState()
+	if not self:IsEnabled() then
 		if self.processing then
 			self:StopOpening(true)
 		end
-	end)
+		self:UnregisterMailEvents()
+		self:HideButtons()
+		return
+	end
+
+	self:RegisterMailEvents()
+
+	if MailFrame and MailFrame:IsShown() then
+		self:MAIL_SHOW()
+	end
+end
+
+function TAM:Initialize()
+	if self.initialized then return end
+
+	self:GetDB()
 
 	if InboxFrame and not InboxFrame.TAMHooked then
 		local module = self
 		InboxFrame:HookScript("OnShow", function()
-			module:MAIL_SHOW()
+			if module:IsEnabled() then
+				module:MAIL_SHOW()
+			else
+				module:HideButtons()
+			end
 		end)
 		InboxFrame.TAMHooked = true
 	end
 
-	if MailFrame and MailFrame:IsShown() then
-		if self:EnsureButtons() then
-			self.takeAll:Show()
-			self.takeCash:Show()
-			self:UpdateButtons()
-		end
-	end
+	self:UpdateState()
 
 	self.initialized = true
 end

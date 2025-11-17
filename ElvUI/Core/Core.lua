@@ -60,7 +60,17 @@ E.myname = UnitName("player")
 E.myrealm = GetRealmName()
 E.mynameRealm = format('%s - %s', E.myname, E.myrealm) -- contains spaces/dashes in realm (for profile keys)
 E.version = GetAddOnMetadata("ElvUI", "Version")
-E.versionNum = tonumber(E.version)
+do
+	local major, minor, patch = match(E.version or "", "(%d+)%.*(%d*)%.*(%d*)")
+	if major then
+		E.versionNum = (tonumber(major) or 0) * 10000 + (tonumber(minor) or 0) * 100 + (tonumber(patch) or 0)
+	else
+		E.versionNum = tonumber(E.version)
+		if not E.versionNum or E.versionNum == 0 then
+			E.versionNum = 70000
+		end
+	end
+end
 E.wowpatch, E.wowbuild = GetBuildInfo()
 E.wowbuild = tonumber(E.wowbuild)
 E.resolution = GetCVar("gxResolution")
@@ -290,89 +300,105 @@ function E:ValueFuncCall()
 end
 
 function E:UpdateFrameTemplates()
-	for frame in pairs(self.frames) do
-		if frame and frame.template and not frame.ignoreUpdates then
-			if not frame.ignoreFrameTemplates then
-				frame:SetTemplate(frame.template, frame.glossTex, nil, frame.forcePixelMode)
-			end
-		else
-			self.frames[frame] = nil
+	-- Cache table references for performance
+	local frames = self.frames
+	local unitFrameElements = self.unitFrameElements
+	
+	-- Process regular frames
+	for frame in pairs(frames) do
+		if frame and frame.template and not frame.ignoreUpdates and not frame.ignoreFrameTemplates then
+			frame:SetTemplate(frame.template, frame.glossTex, nil, frame.forcePixelMode)
+		elseif not frame then
+			frames[frame] = nil
 		end
 	end
 
-	for frame in pairs(self.unitFrameElements) do
-		if frame and frame.template and not frame.ignoreUpdates then
-			if not frame.ignoreFrameTemplates then
-				frame:SetTemplate(frame.template, frame.glossTex, nil, frame.forcePixelMode, frame.isUnitFrameElement)
-			end
-		else
-			self.unitFrameElements[frame] = nil
+	-- Process unit frame elements
+	for frame in pairs(unitFrameElements) do
+		if frame and frame.template and not frame.ignoreUpdates and not frame.ignoreFrameTemplates then
+			frame:SetTemplate(frame.template, frame.glossTex, nil, frame.forcePixelMode, frame.isUnitFrameElement)
+		elseif not frame then
+			unitFrameElements[frame] = nil
 		end
 	end
 end
 
 function E:UpdateBorderColors()
-	for frame in pairs(self.frames) do
-		if frame and not frame.ignoreUpdates then
-			if not frame.ignoreBorderColors then
-				if frame.template == "Default" or frame.template == "Transparent" or frame.template == nil then
-					frame:SetBackdropBorderColor(unpack(self.media.bordercolor))
-				end
+	-- Cache table references and media for performance
+	local frames = self.frames
+	local unitFrameElements = self.unitFrameElements
+	local bordercolor = self.media.bordercolor
+	local unitframeBorderColor = self.media.unitframeBorderColor
+	
+	-- Process regular frames
+	for frame in pairs(frames) do
+		if frame and not frame.ignoreUpdates and not frame.ignoreBorderColors then
+			local template = frame.template
+			if template == "Default" or template == "Transparent" or template == nil then
+				frame:SetBackdropBorderColor(unpack(bordercolor))
 			end
-		else
-			self.frames[frame] = nil
+		elseif not frame then
+			frames[frame] = nil
 		end
 	end
 
-	for frame in pairs(self.unitFrameElements) do
-		if frame and not frame.ignoreUpdates then
-			if not frame.ignoreBorderColors then
-				if frame.template == "Default" or frame.template == "Transparent" or frame.template == nil then
-					frame:SetBackdropBorderColor(unpack(self.media.unitframeBorderColor))
-				end
+	-- Process unit frame elements
+	for frame in pairs(unitFrameElements) do
+		if frame and not frame.ignoreUpdates and not frame.ignoreBorderColors then
+			local template = frame.template
+			if template == "Default" or template == "Transparent" or template == nil then
+				frame:SetBackdropBorderColor(unpack(unitframeBorderColor))
 			end
-		else
-			self.unitFrameElements[frame] = nil
+		elseif not frame then
+			unitFrameElements[frame] = nil
 		end
 	end
 end
 
 function E:UpdateBackdropColors()
-	for frame in pairs(self.frames) do
-		if frame and not frame.ignoreUpdates then
-			if not frame.ignoreBackdropColors then
-				if frame.template == "Default" or frame.template == nil then
-					frame:SetBackdropColor(unpack(self.media.backdropcolor))
-				elseif frame.template == "Transparent" then
-					frame:SetBackdropColor(unpack(self.media.backdropfadecolor))
-				end
+	-- Cache table references and media for performance
+	local frames = self.frames
+	local unitFrameElements = self.unitFrameElements
+	local backdropcolor = self.media.backdropcolor
+	local backdropfadecolor = self.media.backdropfadecolor
+	
+	-- Process regular frames
+	for frame in pairs(frames) do
+		if frame and not frame.ignoreUpdates and not frame.ignoreBackdropColors then
+			local template = frame.template
+			if template == "Default" or template == nil then
+				frame:SetBackdropColor(unpack(backdropcolor))
+			elseif template == "Transparent" then
+				frame:SetBackdropColor(unpack(backdropfadecolor))
 			end
-		else
-			self.frames[frame] = nil
+		elseif not frame then
+			frames[frame] = nil
 		end
 	end
 
-	for frame in pairs(self.unitFrameElements) do
-		if frame and not frame.ignoreUpdates then
-			if not frame.ignoreBackdropColors then
-				if frame.template == "Default" or frame.template == nil then
-					frame:SetBackdropColor(unpack(self.media.backdropcolor))
-				elseif frame.template == "Transparent" then
-					frame:SetBackdropColor(unpack(self.media.backdropfadecolor))
-				end
+	-- Process unit frame elements
+	for frame in pairs(unitFrameElements) do
+		if frame and not frame.ignoreUpdates and not frame.ignoreBackdropColors then
+			local template = frame.template
+			if template == "Default" or template == nil then
+				frame:SetBackdropColor(unpack(backdropcolor))
+			elseif template == "Transparent" then
+				frame:SetBackdropColor(unpack(backdropfadecolor))
 			end
-		else
-			self.unitFrameElements[frame] = nil
+		elseif not frame then
+			unitFrameElements[frame] = nil
 		end
 	end
 end
 
 function E:UpdateFontTemplates()
-	for text in pairs(self.texts) do
+	-- Cache table reference for performance
+	local texts = self.texts
+	for text in pairs(texts) do
 		if text then
 			text:FontTemplate(text.font, text.fontSize, text.fontStyle)
 		else
-			self.texts[text] = nil
+			texts[text] = nil
 		end
 	end
 end
@@ -382,11 +408,16 @@ function E:RegisterStatusBar(statusBar)
 end
 
 function E:UpdateStatusBars()
-	for _, statusBar in pairs(self.statusBars) do
-		if statusBar and statusBar:IsObjectType("StatusBar") then
-			statusBar:SetStatusBarTexture(self.media.normTex)
-		elseif statusBar and statusBar:IsObjectType("Texture") then
-			statusBar:SetTexture(self.media.normTex)
+	-- Cache table reference and texture for performance
+	local statusBars = self.statusBars
+	local normTex = self.media.normTex
+	for _, statusBar in pairs(statusBars) do
+		if statusBar then
+			if statusBar:IsObjectType("StatusBar") then
+				statusBar:SetStatusBarTexture(normTex)
+			elseif statusBar:IsObjectType("Texture") then
+				statusBar:SetTexture(normTex)
+			end
 		end
 	end
 end
@@ -1182,7 +1213,7 @@ function E:Initialize()
 	twipe(self.private)
 
 	self.myguid = UnitGUID("player")
-	self.data = E.Libs.AceDB:New("ElvDB", self.DF)
+	self.data = E.Libs.AceDB:New("ElvDB", self.DF, "Xius")
 	self.data.RegisterCallback(self, "OnProfileChanged", "UpdateAll")
 	self.data.RegisterCallback(self, "OnProfileCopied", "UpdateAll")
 	self.data._ResetProfile = self.data.ResetProfile

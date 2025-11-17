@@ -1,14 +1,23 @@
-local _, _, _, enhancedEnabled = GetAddOnInfo and GetAddOnInfo("ElvUI_Enhanced")
+local enhancedEnabled
+if GetAddOnInfo then
+	local _, _, _, enabled = GetAddOnInfo("ElvUI_Enhanced")
+	enhancedEnabled = enabled
+end
 if enhancedEnabled then return end
 
 local E = unpack(ElvUI)
+local WE = E.WarcraftEnhanced
 local S = E:GetModule("Skins")
 
 local _G = _G
 local band = bit.band
 
+local function IsAnimatedAchievementEnabled()
+	return WE and WE.db and WE.db.achievements and WE.db.achievements.animatedBars
+end
+
 S:AddCallbackForAddon("Blizzard_AchievementUI", "Enhanced_AchievementUI", function()
-	if not E.private.enhanced or not E.private.enhanced.animatedAchievementBars then return end
+	if not S then return end
 
 	local function AnimationStatusBar(bar, noNumber)
 		bar.anim = CreateAnimationGroup(bar)
@@ -30,6 +39,10 @@ S:AddCallbackForAddon("Blizzard_AchievementUI", "Enhanced_AchievementUI", functi
 	end
 
 	local function PlayAnimationStatusBar(bar, max, value, noNumber)
+		if not IsAnimatedAchievementEnabled() then
+			return
+		end
+
 		if bar.anim:IsPlaying() or (bar.anim2 and bar.anim2:IsPlaying()) then
 			bar.anim:Stop()
 			if not noNumber then

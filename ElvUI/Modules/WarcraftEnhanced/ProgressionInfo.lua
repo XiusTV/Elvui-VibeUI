@@ -1,7 +1,12 @@
-local _, _, _, enhancedEnabled = GetAddOnInfo and GetAddOnInfo("ElvUI_Enhanced")
+local enhancedEnabled
+if GetAddOnInfo then
+	local _, _, _, enabled = GetAddOnInfo("ElvUI_Enhanced")
+	enhancedEnabled = enabled
+end
 if enhancedEnabled then return end
 
 local E, L = unpack(ElvUI)
+local WE = E.WarcraftEnhanced
 local PI = E:NewModule("Enhanced_ProgressionInfo", "AceHook-3.0", "AceEvent-3.0")
 local TT = E:GetModule("Tooltip")
 
@@ -92,15 +97,11 @@ local achievementTiers = {
 local progressCache = {}
 
 local function EnsureProgressDB()
-	E.db.enhanced = E.db.enhanced or {}
-	E.db.enhanced.tooltip = E.db.enhanced.tooltip or {}
-	E.db.enhanced.tooltip.progressInfo = E.db.enhanced.tooltip.progressInfo or {}
+	if not WE or not WE.db then return end
 
-	local db = E.db.enhanced.tooltip.progressInfo
-	if db.enable == nil then db.enable = false end
-	if db.checkAchievements == nil then db.checkAchievements = false end
-	if db.checkPlayer == nil then db.checkPlayer = false end
-	if not db.modifier then db.modifier = "SHIFT" end
+	WE.db.progression = WE.db.progression or E:CopyTable({}, P.warcraftenhanced.progression)
+
+	local db = WE.db.progression
 	db.tiers = db.tiers or {}
 	local tiers = db.tiers
 	if tiers.RS == nil then tiers.RS = true end
@@ -124,7 +125,7 @@ local function GetProgression(guid)
 	local total, kills, killed, tierName
 	local statFunc, tiers
 
-	if E.db.enhanced.tooltip.progressInfo.checkAchievements then
+	if progressCache[guid].useAchievements then
 		statFunc = guid == E.myguid and isAchievementComplete or isAchievementComparisonComplete
 		tiers = achievementTiers
 	else
@@ -175,8 +176,14 @@ local function UpdateProgression(guid)
 		progressCache[guid] = {
 			header = {},
 			info = {},
+			useAchievements = false,
 		}
 	end
+
+	local db = EnsureProgressDB()
+	if not db then return end
+
+	progressCache[guid].useAchievements = db.checkAchievements
 
 	progressCache[guid].timer = GetTime()
 
@@ -190,7 +197,7 @@ local function SetProgressionInfo(guid, tt)
 	local tiers = db.checkAchievements and achievementTiers or statisticTiers
 
 	for tier in pairs(tiers) do
-		if E.db.enhanced.tooltip.progressInfo.tiers[tier] then
+	if db.tiers[tier] then
 			for i = 1, #difficulties do
 				if #tiers[tier][i] > 0 then
 					tt:AddDoubleLine(progressCache[guid].header[tier][i], progressCache[guid].info[tier][i], nil, nil, nil, 1, 1, 1)
@@ -203,12 +210,15 @@ end
 local function ShowInspectInfo(tt)
 	if InCombatLockdown() then return end
 
-	local modifier = E.db.enhanced.tooltip.progressInfo.modifier
+	local db = EnsureProgressDB()
+	if not db then return "SHIFT" end
+
+	local modifier = db.modifier
 	if modifier ~= "ALL" and not ((modifier == "SHIFT" and IsShiftKeyDown()) or (modifier == "CTRL" and IsControlKeyDown()) or (modifier == "ALT" and IsAltKeyDown())) then return end
 
 	local unit = select(2, tt:GetUnit())
 	if unit == "player" then
-		if not E.db.enhanced.tooltip.progressInfo.checkPlayer then return end
+		if not db.checkPlayer then return end
 
 		UpdateProgression(E.myguid)
 		SetProgressionInfo(E.myguid, tt)
@@ -220,7 +230,7 @@ local function ShowInspectInfo(tt)
 	local level = UnitLevel(unit)
 	if not level or level < MAX_PLAYER_LEVEL then return end
 
-	if not CanInspect(unit, false) then return end
+	if not CanInspect(unit) then return end
 
 	local guid = UnitGUID(unit)
 	local frameShowen = AchievementFrame and AchievementFrame:IsShown()
@@ -267,7 +277,7 @@ end
 function PI:UpdateSettings()
 	local enabled
 
-	for _, state in pairs(E.db.enhanced.tooltip.progressInfo.tiers) do
+	for _, state in pairs(db.tiers) do
 		if state then
 			enabled = state
 			break
@@ -283,7 +293,10 @@ function PI:UpdateSettings()
 end
 
 function PI:UpdateModifier()
-	self.modifier = E.db.enhanced.tooltip.progressInfo.modifier
+	local db = EnsureProgressDB()
+	if not db then return end
+
+	self.modifier = db.modifier
 
 	if self.modifier == "ALL" then
 		self:UnregisterEvent("MODIFIER_STATE_CHANGED")
@@ -294,6 +307,7 @@ end
 
 function PI:ToggleState()
 	local progressInfo = EnsureProgressDB()
+	if not progressInfo then return end
 
 	if progressInfo.enable then
 		if E.private.tooltip.enabled and TT then
@@ -315,7 +329,7 @@ end
 
 function PI:Initialize()
 	local progressInfo = EnsureProgressDB()
-	if not progressInfo.enable then return end
+	if not progressInfo or not progressInfo.enable then return end
 
 	self.progressCache = progressCache
 	self:ToggleState()

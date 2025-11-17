@@ -1,12 +1,57 @@
 local _, _, _, enhancedEnabled = GetAddOnInfo and GetAddOnInfo("ElvUI_Enhanced")
 if enhancedEnabled then return end
 
-local E = unpack(ElvUI)
+local E, _, _, P = unpack(ElvUI)
+local WE = E.WarcraftEnhanced
 local IBC = E:NewModule("Enhanced_ItemBorderColor", "AceHook-3.0")
 local TT = E:GetModule("Tooltip")
 
 local GetItemInfo = GetItemInfo
 local GetItemQualityColor = GetItemQualityColor
+
+local function EnsureUIEnhancementDB()
+	if not WE then return end
+
+	local defaults = (P and P.warcraftenhanced and P.warcraftenhanced.uiEnhancements) or {}
+
+	WE.db = WE.db or {}
+	if not WE.db.uiEnhancements then
+		WE.db.uiEnhancements = E:CopyTable({}, defaults)
+	end
+
+	local uiEnhancements = WE.db.uiEnhancements
+	uiEnhancements.errorFilters = uiEnhancements.errorFilters or {}
+
+	if uiEnhancements.tooltipIcon == nil then
+		local tooltipDefaults = defaults.tooltipIcon or {
+			enable = false,
+			tooltipIconItems = true,
+			tooltipIconSpells = true,
+			tooltipIconAchievements = true
+		}
+		uiEnhancements.tooltipIcon = E:CopyTable({}, tooltipDefaults)
+	end
+
+	if uiEnhancements.itemBorderColor == nil then
+		uiEnhancements.itemBorderColor = defaults.itemBorderColor or false
+	end
+
+	return uiEnhancements
+end
+
+local function MigrateLegacySetting()
+	if not E.db.enhanced or not E.db.enhanced.tooltip then return end
+
+	local legacyValue = E.db.enhanced.tooltip.itemQualityBorderColor
+	if legacyValue == nil then return end
+
+	local uiEnhancements = EnsureUIEnhancementDB()
+	if uiEnhancements then
+		uiEnhancements.itemBorderColor = legacyValue and true or false
+	end
+
+	E.db.enhanced.tooltip.itemQualityBorderColor = nil
+end
 
 function IBC:SetBorderColor(_, tt)
 	if not tt.GetItem then return end
@@ -21,13 +66,10 @@ function IBC:SetBorderColor(_, tt)
 end
 
 function IBC:ToggleState()
-	E.db.enhanced = E.db.enhanced or {}
-	E.db.enhanced.tooltip = E.db.enhanced.tooltip or {}
-	if E.db.enhanced.tooltip.itemQualityBorderColor == nil then
-		E.db.enhanced.tooltip.itemQualityBorderColor = false
-	end
+	local uiEnhancements = EnsureUIEnhancementDB()
+	if not uiEnhancements then return end
 
-	if E.db.enhanced.tooltip.itemQualityBorderColor then
+	if uiEnhancements.itemBorderColor then
 		if not self:IsHooked(TT, "SetStyle", "SetBorderColor") then
 			self:SecureHook(TT, "SetStyle", "SetBorderColor")
 		end
@@ -37,11 +79,15 @@ function IBC:ToggleState()
 end
 
 function IBC:Initialize()
+	MigrateLegacySetting()
+
+	local uiEnhancements = EnsureUIEnhancementDB()
+	if not uiEnhancements then return end
+	if not uiEnhancements.itemBorderColor then return end
+
 	self:ToggleState()
 
-	if E.db.enhanced.tooltip.itemQualityBorderColor then
-		self.initialized = true
-	end
+	self.initialized = true
 end
 
 local function InitializeCallback()

@@ -1,4 +1,5 @@
 local E, L, V, P, G = unpack(ElvUI)
+local WE = E.WarcraftEnhanced
 local TI = E:NewModule("Enhanced_TooltipIcon", "AceHook-3.0")
 
 local _G = _G
@@ -20,6 +21,17 @@ local spellTooltips = {
 	GameTooltip,
 	ItemRefTooltip
 }
+
+local function GetTooltipIconDB()
+	if not WE or not WE.db then return end
+	WE.db.uiEnhancements = WE.db.uiEnhancements or E:CopyTable({}, P.warcraftenhanced.uiEnhancements)
+	local db = WE.db.uiEnhancements.tooltipIcon
+	if not db then
+		WE.db.uiEnhancements.tooltipIcon = E:CopyTable({}, P.warcraftenhanced.uiEnhancements.tooltipIcon)
+		db = WE.db.uiEnhancements.tooltipIcon
+	end
+	return db
+end
 
 local function AddIcon(self, icon)
 	if not icon then return end
@@ -55,7 +67,10 @@ local function AchievementIcon(self, link)
 end
 
 function TI:ToggleItemsState()
-	local state = E.db.enhanced.tooltip.tooltipIcon.tooltipIconItems and E.db.enhanced.tooltip.tooltipIcon.enable
+	local db = GetTooltipIconDB()
+	if not db then return end
+
+	local state = db.tooltipIconItems and db.enable
 
 	for _, tooltip in ipairs(itemTooltips) do
 		if state then
@@ -69,7 +84,10 @@ function TI:ToggleItemsState()
 end
 
 function TI:ToggleSpellsState()
-	local state = E.db.enhanced.tooltip.tooltipIcon.tooltipIconSpells and E.db.enhanced.tooltip.tooltipIcon.enable
+	local db = GetTooltipIconDB()
+	if not db then return end
+
+	local state = db.tooltipIconSpells and db.enable
 
 	for _, tooltip in ipairs(spellTooltips) do
 		if state then
@@ -83,7 +101,10 @@ function TI:ToggleSpellsState()
 end
 
 function TI:ToggleAchievementsState()
-	local state = E.db.enhanced.tooltip.tooltipIcon.tooltipIconAchievements and E.db.enhanced.tooltip.tooltipIcon.enable
+	local db = GetTooltipIconDB()
+	if not db then return end
+
+	local state = db.tooltipIconAchievements and db.enable
 
 	if state then
 		if not self:IsHooked(GameTooltip, "SetHyperlink", AchievementIcon) then
@@ -95,11 +116,16 @@ function TI:ToggleAchievementsState()
 end
 
 function TI:Initialize()
-	if not E.db.enhanced.tooltip.tooltipIcon.enable then return end
+	local db = GetTooltipIconDB()
+	if not db or not db.enable then return end
+
+	self.db = db
 
 	self:ToggleItemsState()
 	self:ToggleSpellsState()
 	self:ToggleAchievementsState()
+
+	self.initialized = true
 end
 
 local function InitializeCallback()
