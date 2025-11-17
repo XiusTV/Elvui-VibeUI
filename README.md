@@ -20,6 +20,13 @@ This is a **custom fork maintained exclusively by XiusTV** with modifications an
 
 **⚠️ This is an independent project.** The original ElvUI developers (Elv, Bunny, and team) are not involved with this custom branch.
 
+## Addons that have been integrated into VibeUI
+You should **not** load these addons with this Elvui version seperately
+
+- **Omen** | **Elvui Enhanced** | **Elvui AddonSkin**
+- **Leatrix Plus** | **PortalBox** | **Tomtom**
+- **Profession Menu** | **Mapster** | **Maginify WOTLK**
+
 ## Version
 
 - **Version:** 1.4.0
