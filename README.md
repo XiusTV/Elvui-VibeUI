@@ -1,3 +1,5 @@
+# ElvUI VibeUI - Development is halted on this project 
+
 ### Support: [Buy Me A Coffee](https://buymeacoffee.com/xius)
 
 **Other WotLK 3.3.5 Addons by XiusTV:**
